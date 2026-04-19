@@ -259,6 +259,36 @@ def undersample_others(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
+# Deduplicación
+# ---------------------------------------------------------------------------
+
+
+def deduplicate_dataset(df: pd.DataFrame) -> pd.DataFrame:
+    """Elimina filas con texto exactamente idéntico del dataset completo.
+
+    La deduplicación debe realizarse ANTES del split para evitar que el mismo
+    texto aparezca en más de un split (data leakage).
+
+    Args:
+        df: Dataset preprocesado con columna 'text'.
+
+    Returns:
+        Dataset sin duplicados de texto, con índice reseteado.
+    """
+    n_before = len(df)
+    df_dedup = df.drop_duplicates(subset="text").reset_index(drop=True)
+    n_removed = n_before - len(df_dedup)
+    if n_removed:
+        log.warning(
+            "Deduplicación: eliminados %d textos duplicados (%d → %d filas).",
+            n_removed, n_before, len(df_dedup),
+        )
+    else:
+        log.info("Deduplicación: sin duplicados encontrados (%d filas).", n_before)
+    return df_dedup
+
+
+# ---------------------------------------------------------------------------
 # PASO 1 — Construir y guardar emoevent_preprocessed.csv
 # ---------------------------------------------------------------------------
 
@@ -350,6 +380,42 @@ def split_dataset(
         val.reset_index(drop=True),
         test.reset_index(drop=True),
     )
+
+
+def verify_no_leakage(
+    train: pd.DataFrame,
+    val: pd.DataFrame,
+    test: pd.DataFrame,
+) -> None:
+    """Verifica que ningún texto aparece en más de un split (data leakage).
+
+    Compara los tres pares posibles (train↔val, train↔test, val↔test) usando
+    el texto limpio como clave. Registra un WARNING si se detecta solapamiento
+    y un error explícito si train↔val o train↔test contienen duplicados.
+
+    Args:
+        train: Split de entrenamiento.
+        val: Split de validación.
+        test: Split de test.
+    """
+    sets = {
+        "train": set(train["text"].str.strip()),
+        "val":   set(val["text"].str.strip()),
+        "test":  set(test["text"].str.strip()),
+    }
+    leakage_found = False
+    for a, b in [("train", "val"), ("train", "test"), ("val", "test")]:
+        overlap = sets[a] & sets[b]
+        if overlap:
+            log.error(
+                "DATA LEAKAGE detectado: %d textos comunes en %s ∩ %s.",
+                len(overlap), a, b,
+            )
+            leakage_found = True
+        else:
+            log.info("Leakage check %s ∩ %s: ✓ OK (0 solapamientos).", a, b)
+    if not leakage_found:
+        log.info("Verificación de leakage completada: sin solapamientos.")
 
 
 def save_splits(
@@ -613,6 +679,7 @@ def parse_args() -> argparse.Namespace:
             Ejemplos:
               python src/preprocessing/augment_emoevent.py
               python src/preprocessing/augment_emoevent.py --skip-synthetic
+              python src/preprocessing/augment_emoevent.py --skip-build --skip-synthetic
         """),
     )
     parser.add_argument(
@@ -620,6 +687,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         default=False,
         help="Omitir la generación de tweets sintéticos con Ollama (pasos 3 y 4).",
+    )
+    parser.add_argument(
+        "--skip-build",
+        action="store_true",
+        default=False,
+        help=(
+            "Omitir el paso 1 (traducción + limpieza) y cargar directamente "
+            f"{PREPROCESSED_CSV.name} ya existente. Útil para regenerar splits "
+            "sin repetir la traducción."
+        ),
     )
     return parser.parse_args()
 
@@ -629,14 +706,29 @@ def main() -> None:
     args = parse_args()
     log.info("=== Pipeline EmoEvent — inicio ===")
 
-    # ── PASO 1: dataset preprocesado base ────────────────────────────────────
-    df_es, df_en = load_data()
-    df_preprocessed = build_preprocessed(df_es, df_en)
+    # ── PASO 1: construir o cargar dataset preprocesado base ─────────────────
+    if args.skip_build:
+        if not PREPROCESSED_CSV.exists():
+            log.error(
+                "--skip-build activo pero no existe %s. Ejecuta sin --skip-build primero.",
+                PREPROCESSED_CSV,
+            )
+            sys.exit(1)
+        log.info("── PASO 1 omitido: cargando %s ──", PREPROCESSED_CSV)
+        df_preprocessed = pd.read_csv(PREPROCESSED_CSV)
+        log.info("Cargadas %d filas desde disco.", len(df_preprocessed))
+    else:
+        df_es, df_en = load_data()
+        df_preprocessed = build_preprocessed(df_es, df_en)
+
+    # Deduplicar ANTES de guardar el CSV intermedio
+    df_preprocessed = deduplicate_dataset(df_preprocessed)
     save_preprocessed(df_preprocessed, PREPROCESSED_CSV)
 
     # ── PASO 2: splits sin sintéticos ────────────────────────────────────────
     log.info("── PASO 2: splits sin sintéticos ──")
     train_base, val, test = split_dataset(df_preprocessed)
+    verify_no_leakage(train_base, val, test)
     save_splits(train_base, val, test, subdir="no_synthetic")
 
     if args.skip_synthetic:
@@ -655,17 +747,28 @@ def main() -> None:
         log.info("=== Pipeline EmoEvent — completado (sin sintéticos) ===")
         return
 
-    # El CSV sintético contiene el preprocesado base + las nuevas filas
+    # Combinar, deduplicar y guardar CSV sintético limpio ANTES del split
     df_preprocessed_synthetic = pd.concat(
         [df_preprocessed, synthetic], ignore_index=True
     )
+    df_preprocessed_synthetic = deduplicate_dataset(df_preprocessed_synthetic)
     save_preprocessed(df_preprocessed_synthetic, PREPROCESSED_SYNTHETIC_CSV)
+
+    # Extraer los sintéticos que sobrevivieron la deduplicación
+    synthetic_clean = df_preprocessed_synthetic[
+        df_preprocessed_synthetic["source"] == "synthetic"
+    ].reset_index(drop=True)
+    log.info(
+        "Sintéticos tras deduplicación: %d (de %d originales).",
+        len(synthetic_clean), len(synthetic),
+    )
 
     # ── PASO 4: splits con sintéticos (sintéticos solo en train) ─────────────
     log.info("── PASO 4: splits con sintéticos ──")
     train_augmented, val_ws, test_ws = build_splits_with_synthetic(
-        train_base, val, test, synthetic
+        train_base, val, test, synthetic_clean
     )
+    verify_no_leakage(train_augmented, val_ws, test_ws)
     save_splits(train_augmented, val_ws, test_ws, subdir="with_synthetic")
 
     # ── Resumen comparativo ───────────────────────────────────────────────────

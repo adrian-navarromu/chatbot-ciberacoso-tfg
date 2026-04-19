@@ -5931,7 +5931,6 @@ anger,5499.0,0.0,original,Lo de y el es de traca. Ignorarlo no hará que desapar
 joy,6173.0,0.0,original,Este libro azul me lo regaló mi papá cuando yo tenía 12 años. Y para mí su contenido es un relato y su significado es la vida misma.
 sadness,1983.0,0.0,original,"Tengo mucho miedo porque Arya siempre ha sido mi personaje favorito. Y ahora que todo el mundo reclama el trono para ella en este último capítulo, solo tiene un destino: LA MUERTE gato llorando"
 joy,2868.0,0.0,original,Mis padres me inculcaron el amor por la lectura.¿Cuál fue el primer libro que leíste? libro abierto
-sadness,7368.0,0.0,original,"Llora el mundo, llora París, lloro yo"
 sadness,7427.0,0.0,original,Lo que puede destruir el fuego! qué pena ver cómo devora lo que encuentra en su camino¡qué pérdida cultural más desgarradora! Las dos torres por lo menos parece que se han salvado y la estructura también...
 others,5146.0,0.0,original,Mañana España no va a funcionar muy bien. No lo digo por el gobierno ni las Todos han visto y no han dormido.
 joy,5456.0,0.0,original,"Aplaudo este movimiento de los jóvenes, españoles y del mundo entero. Me permito invitar a la lectura de mi post CAPITALISMO, CRECIMIENTO Y COLAPSO. UNA CRÍTICA A NUESTRO ACTUAL SISTEMA ECONÓMICO (01.10.14)"
@@ -5972,7 +5971,6 @@ others,6154.0,0.0,original,"Iglesias el moderador, aunque echo de menos el gran 
 others,5763.0,0.0,original,"Todo el que invoque el nombre de Jesucristo como su Salvador y Señor, será salvo... Hechos 2:21.."
 others,1322.0,0.0,original,"Hoy por hoy una salida que garantice la gobernabilidad y la paz de Venezuela no solo es posible sino que es una realidad irreversible. Por ello, sigamos trabajando a lo interno y a lo internacional, que la democrática, segura y próspera está cada día más cerca."
 sadness,7276.0,0.0,original,Triste toda la historia que se a perdido en un solo lugar
-anger,8177.0,1.0,original,“Os queda poco” como respuesta preferida a todos los tuits de la gente de izquierdas.¿Poco para qué? ... ¿Para mandaros a la mierda? cara pensativa
 others,3716.0,0.0,original,A quien no le ha quedado claro que es un Dios Quien critica en lugar de disfrutarlo Le dejo un regalo de y cómo llego a su gol 600 con el Disfrútelo que no vamos a tener otro igual en un tiempo Buenas tardes
 joy,3861.0,0.0,original,Que buen juego... que bonito es ver esta calidad de fútbol. manos aplaudiendo manos aplaudiendo manos aplaudiendo
 surprise,3245.0,0.0,original,"Estamos de acuerdo que el se roba , que es un fenómeno y pues ya pueden ir contándole el campeonato de Pero sean honestos y fuera de su fanatismo respondan esto: Este mismo equipo sin Messi ¿Podría ser siquiera campeón?"
@@ -7232,143 +7230,93 @@ surprise,5681.0,0.0,translated_en,La mejor patada gratis que he visto nunca. WOW
 disgust,5925.0,1.0,translated_en,"vuelve a la era ingenio. Entonces el país - después de apoyo tácito - gritará la libertad y nos ayudará al mundo exterior. Idiotas son idiotas, la lógica de plebe derecha (palabra correcta para usar, plebe, masas, idiotas y u puede agregar)."
 disgust,7041.0,0.0,translated_en,Me encanta cuando tienes genuinas amistades femeninas como y pero luego los periodistas tratan de arruinarlo haciendo preguntas tóxicas como “por qué están celosos el uno del otro”. Stop manos aplaudiendo tono de piel claro intentando manos aplaudiendo tono de piel claro a manos aplaudiendo tono de piel claro crea manos aplaudiendo tono de piel claro drama manos aplaudiendo tono de piel claro y manos aplaudiendo tono de piel claro concurso
 joy,1365.0,0.0,original,¡Allá voy! Dispuesta a ver Helado en mano... cara de dragón
-fear,,,synthetic,1. ¿Qué hago si mi novio me amenaza en WhatsApp? ¡Voy a estar sola para siempre!
-fear,,,synthetic,"2. Cuando tus amigos te excluyen de grupos por nada, solo te sientes sola y mal."
-fear,,,synthetic,3. Es horrible cuando tus imágenes son compartidas sin permiso. No sé que más hacer.
-fear,,,synthetic,4. Me molesta la idea de ir al instituto mañana. ¿Sabés si algo sucederá otra vez?
-fear,,,synthetic,5. El cyberacoso es una mierda. No puedo aguantarlo mucho más.
-fear,,,synthetic,6. ¿Qué hago si mi ex me mantiene aterrorizada con mensajes amenazantes?
-fear,,,synthetic,7. Me siento tan desesperada cuando veo mis imágenes en todas las redes sociales. ¡Nunca más!
-fear,,,synthetic,8. ¿Por qué nadie me escucha cuando te molestan por internet? Sigo esperando la justicia.
-fear,,,synthetic,9. Me desconecto del mundo para no tener que enfrentar los insultos de los demás.
-fear,,,synthetic,"10. Cuándo estas expulsado de todos los grupos de WhatsApp, se siente solo y perdido en el mundo digital."
-fear,,,synthetic,11. El cyberacoso es un problema crecido. ¡Es tiempo de tomar medidas contra él!
-fear,,,synthetic,12. ¿Cómo soportar cuando mi fotos son publicadas sin mi permiso? Siento que no puedo más.
-fear,,,synthetic,"13. Me temo volver al instituto, ¿qué pasará si me vuelvo a acosar?"
-fear,,,synthetic,"14. Si tienes que enfrentar el cyberacoso, busca ayuda en línea o entre tus amigos."
-fear,,,synthetic,15. El cyberacoso es un problema que no se puede resolver solo. ¡Pido ayuda!
-fear,,,synthetic,16. ¿Qué hago si mi novia/o utiliza mis imágenes sin permiso para intimidarme?
-fear,,,synthetic,"17. Cuando estás expulsado de grupos por internet, recuerda que hay personas en tus esquinas."
-fear,,,synthetic,18. Me desconecto del mundo digital para no tener que enfrentar más acoso.
-fear,,,synthetic,"19. No importa cuanto te molesten por internet, recuerda que eres una persona valiente."
-fear,,,synthetic,"20. El cyberacoso es como si te amenazaran en la calle, pero sin que puedas escapar."
-fear,,,synthetic,"21. Cuando tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,22. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,23. El cyberacoso es un tema muy serio. No permitas que tus amigos te sufran por internet.
-fear,,,synthetic,24. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Nunca más!
-fear,,,synthetic,25. ¿Por qué nadie me escucha cuando estoy siendo amenazada en línea? Sigo esperando la justicia.
-fear,,,synthetic,"26. Cuándo tus amigos te excluyen de grupos de WhatsApp, sientes que no hay lugar donde pertenecer."
-fear,,,synthetic,"27. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,28. Me molesta que mis imágenes sean compartidas sin permiso y no pueda hacer nada.
-fear,,,synthetic,29. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"30. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,31. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,32. El cyberacoso es un tema muy serio. No permitas que tus amigos te sufran por internet.
-fear,,,synthetic,33. ¿Por qué nadie me escucha cuando estoy siendo intimidada en línea? Sigo esperando la justicia.
-fear,,,synthetic,"34. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,35. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"36. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,37. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,38. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"39. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,40. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"41. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,42. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"43. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"44. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,45. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"46. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,47. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,48. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"49. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,50. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"51. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,52. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"53. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"54. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,55. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"56. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,57. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,58. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"59. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,60. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"61. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,62. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"63. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"64. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,65. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"66. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,67. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,68. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"69. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,70. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"71. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,72. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"73. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"74. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,75. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"76. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,77. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,78. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"79. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,80. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"81. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,82. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"83. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"84. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,85. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"86. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,87. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,88. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"89. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,90. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-fear,,,synthetic,"91. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,92. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"93. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,"94. Cuándo tus imágenes son compartidas sin permiso, se siente como si estuvieras totalmente desnuda."
-fear,,,synthetic,95. Me molesta que los demás me tomen a mal gracia en línea. ¿Qué puedo hacer?
-fear,,,synthetic,"96. El cyberacoso es una mierda. No puedo soportarlo más. ¡Por favor, ayúdame!"
-fear,,,synthetic,97. Me siento intimidada cuando veo mis imágenes publicadas sin permiso. ¡Soy más fuerte de lo que piensas!
-fear,,,synthetic,98. ¿Cómo puedo protegerme del cyberacoso? Busca información sobre cómo proteger tus datos personales en línea.
-fear,,,synthetic,"99. Cuando te molestan por internet, recuerda que tienes derechos y no debes soportar el acoso."
-fear,,,synthetic,100. Me siento como si fuera un objeto sin vida cuando veo mis imágenes publicadas sin permiso. ¡No lo permitiré!
-disgust,,,synthetic,"1. ¿Por qué siempre mierdas en mis DM's? Dejame en paz, eso no me hace nada de gracia."
-disgust,,,synthetic,2. ¿Por qué todos mis amigos la siguen viendo como divertido cuando me acosan en línea? No me veis que estoy chiquillando?
-disgust,,,synthetic,"3. Me han enviado miles de mensajes amenazantes y no sé qué hacer, está demasiado chulo."
-disgust,,,synthetic,4. Todo el mundo puede ver las fotos más feas de mi vida sin que yo esté de acuerdo... esto es horrible.
-disgust,,,synthetic,5. Quiero matarme porque esa es la única forma de escapar de este chantaje digital. ¡No me jodan así!
-disgust,,,synthetic,"6. No quiero ir al cole ahora mismo, hay chicos que me hacen el corazón lleno de miedo."
-disgust,,,synthetic,7. ¿Qué pasa si no me agregas a mi grupo en WhatsApp? Me parece que está bien que te lo ignoro después.
-disgust,,,synthetic,"8. No sé cómo enfrentarme a esta situación, todo esto es muy emocionante... no me encanta ninguna parte."
-disgust,,,synthetic,9. ¿Por qué siempre hay chicas que se van con los primeros de la clase y dejan a las de abajo en el polvo? Esto es desgraciado.
-disgust,,,synthetic,"10. Me han difundido fotos sucias en Instagram y todo el mundo está burlándose de mí, ¿qué puedo hacer para que se detenga esto?"
-disgust,,,synthetic,11. Tiene que haber alguna forma de que esto acabe... no me siento bien por aquí.
-disgust,,,synthetic,"12. Es increíble que hayan grabado mi video privado y lo hayan difundido en Snapchat, ¿cómo voy a enfrentarme a todos esos chismes?"
-disgust,,,synthetic,13. No me gusta la escuela cuando me acosan y me hacen sentir como una persona terrible... ¡vamos que no me apresuresis!
-disgust,,,synthetic,14. ¡Por qué tengo que ser el blanco del acoso en mi colegio? No se comprende cómo nadie puede apoyarme.
-disgust,,,synthetic,15. ¿No hay alguna ley para proteger a los adolescentes de este tipo de cosas? Estamos siendo presionados demasiado.
-disgust,,,synthetic,16. ¡Siento que no puedo respirar porque el acoso en línea me hace sentir constantemente atacado!
-disgust,,,synthetic,17. ¿Cómo podría hacer para que estos chicos se callen y dejen de molestarme en línea? Estoy cansada de todo esto.
-disgust,,,synthetic,18. ¡Me han enviado fotos sucias a mi correo electrónico y es increíblemente humillante! ¿Cómo puedo recuperar la normalidad después de esto?
-disgust,,,synthetic,19. Me he sentido desesperada durante todo el día por las amenazas que recibo en Twitter... ¡no me apresuresis!
-disgust,,,synthetic,"20. Tengo miedo a ir al instituto porque sé que es solo cuestión de tiempo para que me acosen de nuevo... ¡ayúdame, alguien!"
-disgust,,,synthetic,21. ¿Por qué tengo que ser un objetivo fácil para estos chicos y las chicas? No se entiende por qué nadie parece cuidar de mí.
-disgust,,,synthetic,22. Me han enviado mensajes ofensivos por todo el día y aún así no quieren dejarmelo en paz... ¡no me apresureis!
-disgust,,,synthetic,"23. Soy una víctima del acoso en línea y estoy cansada de estar sentada aquí llorando y sintiendo desesperanza... ¡ayúdame, alguien!"
-disgust,,,synthetic,24. ¿Por qué tengo que ser el objetivo de bromas y amenazas constantes? No se entiende cómo nadie parece cuidar de mí.
-disgust,,,synthetic,"25. Me han difundido fotos sucias en mi perfil de Facebook y me hacen sentir como un monstruo... ¡ayúdame, alguien!"
-disgust,,,synthetic,26. Me han enviado miles de mensajes ofensivos en WhatsApp y no sé cómo enfrentarme a esto... ¡no me apresureis!
-disgust,,,synthetic,27. ¿Cómo puedo hacer para que estos chicos se callen y dejen de molestarme? Estoy cansada de ser blanco del acoso en línea.
-disgust,,,synthetic,"28. Soy una víctima del acoso en línea y me siento desesperada... ¡ayúdame, alguien!"
-disgust,,,synthetic,"29. Me han grabado mientras dormía y lo han difundido por Instagram, ¿cómo puedo parar estas bromas? Estoy humillada y desesperada."
-disgust,,,synthetic,30. Solo quiero sentirme segura en línea y no es nada que pedir... ¿por qué tengo que estar en peligro constantemente?
-disgust,,,synthetic,"31. Me han enviado fotos sucias a mi teléfono móvil y estoy humillada hasta los huesos... ¡ayúdame, alguien!"
-disgust,,,synthetic,32. No puedo ser más fuerte y enfrentarme a este acoso en línea sin ayuda alguna... ¿alguien va a apoyarme o voy a tener que luchar por mí mismo?
-disgust,,,synthetic,"33. Me han difundido videos privados de mi vida en YouTube y estoy humillada hasta los huesos... ¡ayúdame, alguien!"
-disgust,,,synthetic,34. Estoy en peligro constante porque soy una víctima del acoso en línea... ¿cómo puedo enfrentarlo y sentirme segura de nuevo?
-disgust,,,synthetic,"35. Me han difundido fotos sucias por todo mi perfil de Instagram y estoy humillada hasta los huesos... ¡ayúdame, alguien!"
-disgust,,,synthetic,"36. No quiero ser blanco del acoso en línea más que ya, me siento humillada y desesperada... ¿cómo puedo pedir ayuda sin verme como una debil?"
-disgust,,,synthetic,"37. Me han enviado videos sucios a mi perfil de Snapchat y estoy humillada hasta los huesos... ¡ayúdame, alguien!"
-disgust,,,synthetic,38. Soy una víctima del acoso en línea y me siento desesperada... ¿cómo puedo pedir ayuda sin verme como una debil?
-disgust,,,synthetic,"39. Estoy cansada de estar constantemente presionada por estos chicos y las chicas... ¡ayúdame, alguien!"
-disgust,,,synthetic,"40. Me han difundido fotos sucias en mi perfil de Twitter y estoy humillada hasta los huesos... ¡ayúdame, alguien!"
+fear,,,synthetic,"1. ""Qué horrores con esta pandilla en línea, ya no saben parar de amenazarte. ¡Espero que pronto esto termine!"""
+fear,,,synthetic,"2. ""¿Sabes si es seguro salir hoy al instituto? Los compañeros son como locos este mes..."""
+fear,,,synthetic,"3. ""Maldito sexting nocturno, ya empezo a meterme la piel dura. Esperando que mañana pueda ser mejor."""
+fear,,,synthetic,"4. ""Este es el tercer día en un row con mi ex novio y sus amigos. ¡No puedo mas! ¿Qué hago?"""
+fear,,,synthetic,"5. ""Me encantaría tener un coche para escaparme de aquí, pero el papá dice que no me lo permite..."""
+fear,,,synthetic,"6. ""Estoy a punto de romper con todos estos chats de WhatsApp... ¡Todo se ve tan horrible!"""
+fear,,,synthetic,"7. ""Ayer mis fotos personales terminaron en línea y ahora tengo miedo de decirles nada a nadie."""
+fear,,,synthetic,"8. ""Me importa menos lo que digan esas putas redes sociales, ¡todo se vuelve loco con su chantaje digital!"""
+fear,,,synthetic,"9. ""Mis amigos me han echado de nuestro grupo de WhatsApp y no sé cómo vamos a seguir en contacto."""
+fear,,,synthetic,"10. ""Me duele tener que estar escondido detrás de un alias en línea, como si no existiera realmente..."""
+fear,,,synthetic,"11. ""Este acoso online me está sacando loco, ¿quién es la bruja que maldijo mi vida?"""
+fear,,,synthetic,"12. ""Todas las veces que escribo algo malintencionado me pasa lo mismo, mi vida en línea es un infierno."""
+fear,,,synthetic,"13. ""Me siento solo y atormentado por este acoso, pero tengo que seguir adelante para no dejarlos ganar."""
+fear,,,synthetic,"14. ""No entiendo cómo me dijeron que el cyberacoso estaba en pasado, ya está más maligno que nunca."""
+fear,,,synthetic,"15. ""Esta vez no va a ser lo mismo, voy a poner un pie adelante y luchar contra este acoso para siempre."""
+fear,,,synthetic,"16. ""No puedo más con mi compañero de clase, le dije que me dejara en paz pero sigue persiguiéndome constantemente."""
+fear,,,synthetic,"17. ""Estoy atormentada por mi ex novio y sus amigos, necesito ayuda para parar este tormento."""
+fear,,,synthetic,"18. ""Me gustaría sentirme segura en línea, ¿quién sabe si existe alguna forma de protegerme?"""
+fear,,,synthetic,"19. ""Estoy tratando de ignorarlos pero ¡esto es difícil cuando tus amigos están siendo objeto de acoso!"""
+fear,,,synthetic,"20. ""Me duele ver a mis mejores amigos sufriendo por culpa mía, no había imagen que iba a hacer de mi vida."""
+fear,,,synthetic,"21. ""La verdad es que me temo que si sigo así en línea, un día el acoso se vuelva físico."""
+fear,,,synthetic,"22. ""¿Ya no ha habido suficiente miedo y dolor? ¡Espero no tener que vivir esto más allá de mi vida digital!"""
+fear,,,synthetic,"23. ""Me siento como una prisionera en mi propia habitación, ¿cómo puedo escapar de esta criba?"""
+fear,,,synthetic,"24. ""El cyberacoso no es un juego, pero todos actúan así, ¡estoy perdido y tengo miedo!"""
+fear,,,synthetic,"25. ""Me duele que esto sea una parte de mi vida diaria, ¿dónde hay alguien para ayudarme?"""
+fear,,,synthetic,"26. ""El acoso online es más maligno que las sombras en la oscuridad, pero no puedo pararme."""
+fear,,,synthetic,"27. ""No sé cómo continuar con mi vida normal cuando estoy asediada por mi ex novio y sus amigos."""
+fear,,,synthetic,"28. ""Me duele ver a mis amigos sufriendo por culpa mía, necesito encontrar una solución para terminar este acoso."""
+fear,,,synthetic,"29. ""Me siento atormentado, como si estuviera en el infierno de mi vida digital."""
+fear,,,synthetic,"30. ""El ciberacoso no me dejó dormir esta noche, espero que mañana sea mejor."""
+fear,,,synthetic,"31. ""No puedo más con este círculo de amigos, se vuelven locos cuando yo estoy cerca y ahora tengo miedo de estar sola."""
+fear,,,synthetic,"32. ""Todo lo que intento hace que se me vuelva peor, pero necesito enfrentarme al acoso para encontrar una solución."""
+fear,,,synthetic,"33. ""Me siento solo en esta gran ciudad y no tengo nadie a quien poder confiar."""
+fear,,,synthetic,"34. ""El ciberacoso es como un río que no puedo cruzar, pero me importa poco si termino atrapado en él."""
+fear,,,synthetic,"35. ""Estoy tratando de hacerlo bien por todos, pero no puedo seguir así mucho tiempo."""
+fear,,,synthetic,"36. ""Tengo miedo de decirle a mi familia que estoy siendo asediada online, ¡no saben lo que es!"""
+fear,,,synthetic,"37. ""Me gustaría tener alguien en el que confiar durante este tormento, pero no hay nadie."""
+fear,,,synthetic,"38. ""El acoso online ha arrasado mi vida y ya he perdido la esperanza de que todo termine pronto."""
+fear,,,synthetic,"39. ""Nunca piensé que podía tener miedo en mi propia habitación, pero esto es lo que me sucede ahora mismo."""
+fear,,,synthetic,"40. ""El ciberacoso me ha sacado lo peor de mí, espero que pronto pueda terminar este tormento."""
+fear,,,synthetic,"41. ""Estoy atrapada en un mundo de locos y susurros ocultos, ¡me siento como una mosca atrapada en el vaso!"""
+fear,,,synthetic,"42. ""Mi vida se ha vuelto una cita incontrolable, ¿quién puede ayudarme?"""
+fear,,,synthetic,"43. ""Estoy perdida en un mundo de miedo y acoso, ¿cómo puedo escapar?"""
+fear,,,synthetic,"44. ""No puedo más con este peor del mundo cyberacoso, ¿hay algún fin a esta locura?"""
+fear,,,synthetic,"45. ""Mi vida es un infierno de miedo y dolor, ¿dónde puedo encontrar la paz?"""
+fear,,,synthetic,"46. ""Estoy tratando de ser fuerte para mi familia, pero el ciberacoso me está derrumbando."""
+fear,,,synthetic,"47. ""Me duele vivir una vida de miedo y sufrimiento, pero no hay quien se haga cargo de mi."""
+fear,,,synthetic,"48. ""El acoso online es como un monstruo que me persigue por todas las redes sociales, ¡ayúdame a liberarme!"""
+fear,,,synthetic,"49. ""Estoy tratando de encontrar la fuente del dolor en mi vida, pero no puedo verla."""
+fear,,,synthetic,"50. ""Mi vida está en llamas y todo lo que tengo es miedo y angustia, ¡ayuda!""."
+disgust,,,synthetic,1. ¡Qué pena que internet haya convertido en un lugar de amenazas y miedos. ¡Tengo suficiente de este bullying online!
+disgust,,,synthetic,2. Que horrores tengo que pasar con mi cuenta rota por esos chavalitos sin corazón.
+disgust,,,synthetic,"3. ¿Por qué es que cuando intento buscar paz me encuentro con más amonestaciones? ¡Es gracias a ti, internet!"
+disgust,,,synthetic,4. No hay vida que vale la pena si tengo que soportar estos mensajes de odio todos los días.
+disgust,,,synthetic,"5. De repente, mi vida ha sido invadida por imágenes que no quiero que sean vistas. ¡Por qué me traicionaste, amigo?"
+disgust,,,synthetic,6. ¿Cómo puedo confiar en un mundo donde la intimidad es un concepto desaparecido?
+disgust,,,synthetic,7. Mi corazón se desmoraliza cada vez que recargo mi perfil y veo esa mierda en mi página. ¡Mucha vergüenza!
+disgust,,,synthetic,8. ¿Qué malas ideas tienen los chavales para intentar chantajearme con imágenes de mi vida privada? ¡No se pueden meter más bajito!
+disgust,,,synthetic,9. ¿Cómo puedo sobrevivir cuando mi propia red social es el lugar donde más me atraen las peores amonestaciones?
+disgust,,,synthetic,"10. La tecnología no siempre es un regalo, cuando me acoso de esta forma la rechazo."
+disgust,,,synthetic,11. ¿Cómo puedo olvidar lo que pasó aquella noche en que mi privacidad fue violada por un amigo? ¡Aún duermo mal!
+disgust,,,synthetic,"12. La exclusión no es juego, la verdad es que me da miedo que mi propio grupo de WhatsApp quiera excluirme."
+disgust,,,synthetic,13. ¿Qué más podría pasar para sentirme aún más solo? ¡Muchos chavales en internet quieren traerme el calor pero luego me hacen frio!
+disgust,,,synthetic,"14. La ciber acoso no es juego, por favor dejen de hacer eso, ¡no me gusta la verdadera mierda!"
+disgust,,,synthetic,15. ¿Cómo puedo soportar a los chavales que difunden falsas imágenes de mi vida en el instituto? ¡No me gusta!
+disgust,,,synthetic,"16. La tecnología es fantástica, pero cuando se usa para dañar es una herramienta peligrosa."
+disgust,,,synthetic,17. ¿Por qué es que cuando estoy a punto de tener una buena vida aparece alguien que quiere acosarme? ¡Lo detengo ya!
+disgust,,,synthetic,"18. ¿Cómo puedo seguir en el instituto si cada día me hacen la vida imposible? ¡No lo quiero más, mi vida es una pesadilla!"
+disgust,,,synthetic,"19. La vida no debería ser así, mi amor por las redes sociales se está desmoronando porque no puedo soportar este tipo de bullying."
+disgust,,,synthetic,20. ¿Cómo puedo encontrar amigos en línea si tengo que temer que me traten así? ¡Me siento atrapado!
+disgust,,,synthetic,"21. El ciberacoso es un mal doloroso, no merece ser aceptado como parte de la vida."
+disgust,,,synthetic,22. ¿Cómo puedo soportar el miedo que siento cada vez que toco mi teléfono? ¡No quiero estar en internet!
+disgust,,,synthetic,"23. ¿Por qué tengo que soportar esta exclusión por un chaval que no me entiende ni quiere conocerme mejor? ¡Es gracias a ti, WhatsApp!"
+disgust,,,synthetic,"24. El acoso es algo de lo cual ningún adolescente debería sufrir, pero en internet ocurre todo el tiempo."
+disgust,,,synthetic,25. ¿Cómo puedo seguir en línea cuando tengo que temer a todos? ¡No me gusta la verdadera mierda!
+disgust,,,synthetic,26. La vida no sería así si las personas no se hubiesen vuelto tanta mierda en internet.
+disgust,,,synthetic,27. ¿Cómo puedo creer en el amor y la amistad cuando las personas de internet tratan a los demás de una manera tan horrible?
+disgust,,,synthetic,"28. El acoso en línea es algo que no merece ser tolerado, ¡dejemos de hacer estas cosas!"
+disgust,,,synthetic,29. ¿Cómo puedo seguir si cada día me hacen la vida imposible por internet? ¡No quiero estar más solo en el mundo!
+disgust,,,synthetic,"30. La tecnología es un regalo que no se usa correctamente, por favor dejen de acosarme en línea."
+disgust,,,synthetic,"31. ¿Por qué tengo que soportar este tipo de bullying cuando las personas no piensan en lo que hacen? ¡Es gracias a ti, chaval!"
+disgust,,,synthetic,"32. La exclusión no es un juego, es una acción malintencionada y dañina para la persona a quien se le aplica."
+disgust,,,synthetic,33. ¿Cómo puedo continuar en el instituto si tengo que soportar este tipo de acoso todos los días? ¡No quiero más mierda en mi vida!
+disgust,,,synthetic,"34. La privacidad es un derecho fundamental, no se debe violar sin consentimiento ni sin razón alguna."
+disgust,,,synthetic,"35. ¿Por qué tengo que soportar este tipo de bullying cuando las personas no piensan en lo que hacen? ¡Es gracias a ti, chaval!"
+disgust,,,synthetic,"36. La vida en línea no debería ser así, mi corazón se desmoraliza cada vez que recargo mi perfil y veo esa mierda en mi página."
+disgust,,,synthetic,"37. La ciber acoso es algo que no merece ser tolerado, ¡dejemos de hacer estas cosas!"
+disgust,,,synthetic,38. ¿Cómo puedo seguir si cada día me hacen la vida imposible por internet? ¡No quiero estar más solo en el mundo!
+disgust,,,synthetic,"39. La tecnología es un regalo que no se usa correctamente, por favor dejen de acosarme en línea."
+disgust,,,synthetic,40. ¿Cómo puedo seguir si cada día me hacen la vida imposible por internet? ¡No quiero estar más solo en el mundo!
