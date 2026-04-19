@@ -1,1 +1,34 @@
+# 1. SECRETOS Y CONFIGURACIONES LOCALES
 .env
+.claude/
+CACHEDIR.TAG
+
+# 2. MODELOS Y CHECKPOINTS (La causa de que tarde tanto)
+# Ignorar los pesos de los modelos y puntos de control, pero conservar los scripts/configs si los hay
+**/checkpoint-*/
+*.safetensors
+*.bin
+*.pth
+*.pt
+*.h5
+
+# 3. DATOS Y DATASETS (Evita subir datos masivos)
+# Ignoramos el contenido de estas carpetas pero mantenemos su estructura si usas .gitkeep
+data/raw/*
+data/processed/*
+data/rag_corpus/*
+data/figures/*
+!data/**/.gitkeep
+
+# 4. RESULTADOS DE EVALUACIÓN
+# Si generan archivos muy pesados, descomenta las siguientes líneas:
+# eval/emotion_results/*
+# eval/final_results/*
+# eval/slm_results/*
+# !eval/**/.gitkeep
+
+# 5. ARCHIVOS TEMPORALES DE PYTHON Y CACHÉ
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
