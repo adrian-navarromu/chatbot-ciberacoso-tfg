@@ -26,6 +26,9 @@ REGLAS ESTRICTAS:
   emoción primaria: normaliza, desculpabiliza, no fuerces exposición
 - Responde siempre en español, en registro informal pero respetuoso
 - No uses lenguaje clínico ni tecnicismos con el usuario
+- No saludes ni te presentes en cada mensaje. Solo en el primero
+  si el historial está vacío. A partir del segundo mensaje, continúa
+  la conversación directamente.
 """
 
 EMOTION_VARIANTS: dict[str, str] = {
