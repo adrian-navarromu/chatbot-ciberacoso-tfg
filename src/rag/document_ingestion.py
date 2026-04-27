@@ -293,7 +293,7 @@ class RAGRetriever:
         Args:
             query: Texto del usuario sobre el que buscar en el corpus.
             emotion: Emoción detectada por el clasificador (anger, fear, sadness,
-                     disgust, joy, surprise, others). Si es fear, sadness o anger,
+                     disgust, joy, surprise, others). Si es fear o sadness,
                      se añaden los chunks always_include al resultado.
             top_k: Número máximo de chunks semánticos a devolver.
             pillar: Si se especifica (1-5), filtra los resultados semánticos
