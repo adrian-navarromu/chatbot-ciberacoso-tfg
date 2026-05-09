@@ -23,7 +23,7 @@ import gradio as gr
 from src.pipeline.v1 import ChatbotV1
 
 AVAILABLE_MODELS = ["mistral:7b", "gemma:2b", "gemma:7b", "phi3:mini", "tinyllama"]
-DEFAULT_MODEL = "mistral:7b"
+DEFAULT_MODEL = "gemma:7b"
 
 # ---------------------------------------------------------------------------
 # Instancia compartida (sesión única — demo TFG)
