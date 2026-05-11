@@ -7,7 +7,7 @@ Detección de emociones + RAG clínico + memoria emocional + SLMs locales.
 ## Tech Stack
 -Python 3.11, PyTorch 2.11+cu128, conda environment: chatbots
 -LangChain (LCEL), Ollama (SLMs locales), FAISS/ChromaDB
--Transformers (MarIA/BETO para clasificación emocional)
+-Transformers (BETO para clasificación emocional)
 -Gradio (interfaz web)
 -GPU: NVIDIA RTX 5080 (16 GB VRAM)
 
