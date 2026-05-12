@@ -87,6 +87,7 @@ def build_prompt(
     rag_context: str,
     history: list[dict],
     confidence: float = 1.0,
+    emotional_context: str = "",
 ) -> list[dict]:
     """
     Construye la lista de mensajes para el SLM.
@@ -96,6 +97,9 @@ def build_prompt(
         rag_context: Texto de los chunks RAG recuperados (puede ser vacío)
         history: Historial de conversación [{"role": "user/assistant", "content": "..."}]
         confidence: Confianza del clasificador (si < 0.4 se usa variante 'others')
+        emotional_context: Cadena descriptiva de la memoria emocional (V2).
+            Se inyecta antes del contexto RAG para que el SLM adapte el tono
+            según la evolución afectiva de la sesión.
 
     Returns:
         Lista de mensajes en formato OpenAI/Ollama chat
@@ -103,6 +107,12 @@ def build_prompt(
     effective_emotion = emotion if confidence >= 0.4 else "others"
 
     system = BASE_SYSTEM_PROMPT + "\n\n" + EMOTION_VARIANTS[effective_emotion]
+
+    if emotional_context:
+        system += (
+            "\n\nESTADO EMOCIONAL DEL USUARIO (evolución de la sesión):\n"
+            + emotional_context
+        )
 
     if rag_context:
         system += (

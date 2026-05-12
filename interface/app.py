@@ -1,5 +1,6 @@
 """
-Interfaz Gradio V1 — Chatbot de apoyo emocional para ciberacoso adolescente.
+Interfaz Gradio — Chatbot de apoyo emocional para ciberacoso adolescente.
+Soporta pipeline V1 (sin memoria) y V2 (CrisisDetector + EmotionalMemoryGRU).
 
 Lanzar:
     python interface/app.py
@@ -11,9 +12,6 @@ import sys
 import time
 from pathlib import Path
 
-# Garantiza que el directorio raíz del proyecto esté en el path cuando el
-# script se lanza directamente (python interface/app.py), ya que Python añade
-# interface/ al path, no la raíz.
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
@@ -21,23 +19,32 @@ if str(_PROJECT_ROOT) not in sys.path:
 import gradio as gr
 
 from src.pipeline.v1 import ChatbotV1
+from src.pipeline.v2 import ChatbotV2
 
 AVAILABLE_MODELS = ["mistral:7b", "gemma:2b", "gemma:7b", "phi3:mini", "tinyllama"]
 DEFAULT_MODEL = "gemma:7b"
 
 # ---------------------------------------------------------------------------
-# Instancia compartida (sesión única — demo TFG)
-# Se inicializa de forma lazy en el primer mensaje para no bloquear el arranque.
+# Instancias lazy (se crean en el primer mensaje de cada versión)
 # ---------------------------------------------------------------------------
 
-_chatbot: ChatbotV1 | None = None
+_chatbot_v1: ChatbotV1 | None = None
+_chatbot_v2: ChatbotV2 | None = None
+_current_model: str = DEFAULT_MODEL
 
 
-def _get_chatbot() -> ChatbotV1:
-    global _chatbot
-    if _chatbot is None:
-        _chatbot = ChatbotV1(model_name=DEFAULT_MODEL)
-    return _chatbot
+def _get_chatbot_v1() -> ChatbotV1:
+    global _chatbot_v1
+    if _chatbot_v1 is None:
+        _chatbot_v1 = ChatbotV1(model_name=_current_model)
+    return _chatbot_v1
+
+
+def _get_chatbot_v2() -> ChatbotV2:
+    global _chatbot_v2
+    if _chatbot_v2 is None:
+        _chatbot_v2 = ChatbotV2(model_name=_current_model)
+    return _chatbot_v2
 
 
 # ---------------------------------------------------------------------------
@@ -50,53 +57,78 @@ def _send_message(
     history_state: list[dict],
     auto_temp: bool,
     manual_temp: float,
+    version: str,
 ) -> tuple:
-    """Procesa un mensaje del usuario y devuelve la respuesta con metadatos debug."""
+    """Procesa un mensaje del usuario con el pipeline seleccionado."""
     if not user_message.strip():
-        return history_state, history_state, "", {}, [], "", 0
+        return history_state, history_state, "", {}, [], "", 0, "", {}
 
-    chatbot = _get_chatbot()
     t0 = time.time()
-    result = chatbot.run(
-        user_message=user_message,
-        history=history_state,
-        temperature=None if auto_temp else manual_temp,
-    )
+    temp = None if auto_temp else manual_temp
+
+    if version == "V2":
+        chatbot = _get_chatbot_v2()
+        result = chatbot.run(user_message=user_message, history=history_state, temperature=temp)
+        crisis_level = result.crisis_level
+        memory_state = chatbot.memory.to_dict()
+        emotion_display = {result.emotion_label: result.emotion_confidence}
+        rag_rows = [
+            [c["id"], c["title"], c["pillar"], c["score"]]
+            for c in result.rag_chunks
+        ]
+        system_prompt = result.system_prompt_preview
+    else:
+        chatbot = _get_chatbot_v1()
+        result = chatbot.run(user_message=user_message, history=history_state, temperature=temp)
+        crisis_level = ""
+        memory_state = {}
+        emotion_display = {result.emotion_label: result.emotion_confidence}
+        rag_rows = [
+            [c["id"], c["title"], c["pillar"], c["score"]]
+            for c in result.rag_chunks
+        ]
+        system_prompt = result.system_prompt_preview
+
     elapsed_ms = int((time.time() - t0) * 1000)
 
-    # El historial result.history ya tiene el formato {"role", "content"}
-    # que gr.Chatbot de Gradio 6 entiende directamente (único formato soportado).
-    emotion_display = {result.emotion_label: result.emotion_confidence}
-
-    rag_rows = [
-        [c["id"], c["title"], c["pillar"], c["score"]]
-        for c in result.rag_chunks
-    ]
-
     return (
-        result.history,       # chatbot_ui — actualiza el display
-        result.history,       # history_state — persiste el historial interno
-        "",                   # limpia el input
-        emotion_display,      # gr.Label emoción
-        rag_rows,             # gr.Dataframe chunks RAG
-        result.system_prompt_preview,  # gr.Textbox system prompt (completo)
-        elapsed_ms,           # gr.Number tiempo de respuesta
+        result.history,
+        result.history,
+        "",
+        emotion_display,
+        rag_rows,
+        system_prompt,
+        elapsed_ms,
+        crisis_level,
+        memory_state,
     )
 
 
 def _change_model(model_name: str) -> None:
-    """Cambia el modelo SLM en la instancia compartida."""
-    _get_chatbot().change_model(model_name)
+    """Cambia el modelo SLM en las instancias ya inicializadas."""
+    global _current_model
+    _current_model = model_name
+    if _chatbot_v1 is not None:
+        _chatbot_v1.change_model(model_name)
+    if _chatbot_v2 is not None:
+        _chatbot_v2.change_model(model_name)
 
 
-def _clear_conversation() -> tuple:
-    """Reinicia la conversación eliminando el historial."""
+def _clear_conversation(version: str) -> tuple:
+    """Reinicia la conversación. En V2 también resetea la memoria emocional."""
+    if version == "V2" and _chatbot_v2 is not None:
+        _chatbot_v2.reset_memory()
     return [], [], ""
 
 
 def _toggle_temp_slider(auto: bool) -> dict:
-    """Muestra u oculta el slider de temperatura manual."""
     return gr.update(visible=not auto)
+
+
+def _toggle_v2_debug(version: str) -> tuple:
+    """Muestra u oculta los paneles exclusivos de V2."""
+    is_v2 = version == "V2"
+    return gr.update(visible=is_v2), gr.update(visible=is_v2)
 
 
 # ---------------------------------------------------------------------------
@@ -105,8 +137,8 @@ def _toggle_temp_slider(auto: bool) -> dict:
 
 
 def build_interface() -> gr.Blocks:
-    """Construye y devuelve el bloque Gradio de la interfaz V1."""
-    with gr.Blocks(title="Chatbot Ciberacoso V1") as demo:
+    """Construye y devuelve el bloque Gradio con soporte V1/V2."""
+    with gr.Blocks(title="Chatbot Ciberacoso") as demo:
         gr.Markdown(
             "## Chatbot de apoyo emocional — Ciberacoso adolescente\n"
             "_Proyecto TFG · Ciencia de Datos · UMU_"
@@ -116,8 +148,15 @@ def build_interface() -> gr.Blocks:
             # ----------------------------------------------------------------
             # Barra lateral izquierda
             # ----------------------------------------------------------------
-            with gr.Column(scale=1, min_width=230):
+            with gr.Column(scale=1, min_width=240):
                 gr.Markdown("### Configuración")
+
+                version_radio = gr.Radio(
+                    choices=["V1", "V2"],
+                    value="V1",
+                    label="Versión del pipeline",
+                    info="V1: emoción+RAG | V2: crisis+memoria+emoción+RAG",
+                )
                 model_dropdown = gr.Dropdown(
                     choices=AVAILABLE_MODELS,
                     value=DEFAULT_MODEL,
@@ -157,13 +196,18 @@ def build_interface() -> gr.Blocks:
                 clear_btn = gr.Button("Limpiar conversación", variant="secondary")
 
         # --------------------------------------------------------------------
-        # Panel de debug (colapsado por defecto)
+        # Panel de debug
         # --------------------------------------------------------------------
         with gr.Accordion("Debug", open=True):
             with gr.Row():
                 emotion_label_ui = gr.Label(
                     label="Emoción detectada (label: confianza)",
                     num_top_classes=1,
+                )
+                crisis_level_ui = gr.Textbox(
+                    label="Nivel de crisis (V2)",
+                    interactive=False,
+                    visible=False,
                 )
             rag_table = gr.Dataframe(
                 headers=["id", "title", "pillar", "score"],
@@ -176,6 +220,10 @@ def build_interface() -> gr.Blocks:
                 lines=20,
                 autoscroll=False,
                 interactive=False,
+            )
+            memory_state_ui = gr.JSON(
+                label="Memoria emocional (V2)",
+                visible=False,
             )
             response_time_ui = gr.Number(
                 label="Tiempo de respuesta (ms)",
@@ -198,14 +246,17 @@ def build_interface() -> gr.Blocks:
             rag_table,
             system_prompt_ui,
             response_time_ui,
+            crisis_level_ui,
+            memory_state_ui,
         ]
-        _inputs = [user_input, history_state, auto_temp_checkbox, temp_slider]
+        _inputs = [user_input, history_state, auto_temp_checkbox, temp_slider, version_radio]
 
         send_btn.click(fn=_send_message, inputs=_inputs, outputs=_outputs)
         user_input.submit(fn=_send_message, inputs=_inputs, outputs=_outputs)
 
         clear_btn.click(
             fn=_clear_conversation,
+            inputs=[version_radio],
             outputs=[chatbot_ui, history_state, user_input],
         )
         model_dropdown.change(fn=_change_model, inputs=[model_dropdown])
@@ -213,6 +264,11 @@ def build_interface() -> gr.Blocks:
             fn=_toggle_temp_slider,
             inputs=[auto_temp_checkbox],
             outputs=[temp_slider],
+        )
+        version_radio.change(
+            fn=_toggle_v2_debug,
+            inputs=[version_radio],
+            outputs=[crisis_level_ui, memory_state_ui],
         )
 
     return demo
