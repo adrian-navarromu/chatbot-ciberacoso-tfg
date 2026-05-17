@@ -1,0 +1,1622 @@
+{
+  "experimento": "hybrid_search_comparison",
+  "diseno": "factorial_2x2_bm25_x_routing",
+  "embedding_model": "hackathon-pln-es/paraphrase-spanish-distilroberta",
+  "top_k": 3,
+  "n_queries_standard": 10,
+  "n_queries_bm25": 8,
+  "pillar_routing": {
+    "fear": [
+      2,
+      4,
+      1
+    ],
+    "sadness": [
+      2,
+      3
+    ],
+    "anger": [
+      1,
+      2
+    ],
+    "disgust": [
+      2,
+      3
+    ],
+    "joy": [
+      3
+    ],
+    "surprise": [
+      2,
+      1
+    ],
+    "others": null
+  },
+  "bm25_queries": [
+    {
+      "label": "BM25_1",
+      "query": "cómo bloqueo en instagram",
+      "expected_pillars": [
+        5
+      ],
+      "note": "Nombre de plataforma exacto --> pillar5_digital"
+    },
+    {
+      "label": "BM25_2",
+      "query": "teléfono 024",
+      "expected_pillars": [
+        4
+      ],
+      "note": "Número de línea de crisis --> pillar4_pap"
+    },
+    {
+      "label": "BM25_3",
+      "query": "ANAR 900 202 010",
+      "expected_pillars": [
+        3,
+        4
+      ],
+      "note": "Número exacto ANAR --> pillar4_pap y pillar3_hope"
+    },
+    {
+      "label": "BM25_4",
+      "query": "discord bloquear usuario",
+      "expected_pillars": [
+        5
+      ],
+      "note": "Plataforma Discord --> pillar5_digital"
+    },
+    {
+      "label": "BM25_5",
+      "query": "AEPD canal joven",
+      "expected_pillars": [
+        1,
+        4,
+        5
+      ],
+      "note": "Sigla organismo --> pillar1, pillar4 y pillar5"
+    },
+    {
+      "label": "BM25_6",
+      "query": "llamar al 017 incibe",
+      "expected_pillars": [
+        1,
+        4,
+        5
+      ],
+      "note": "Número y sigla clave en ciberseguridad (INCIBE)"
+    },
+    {
+      "label": "BM25_7",
+      "query": "me están haciendo sexting",
+      "expected_pillars": [
+        1
+      ],
+      "note": "Término técnico de ciberacoso"
+    },
+    {
+      "label": "BM25_8",
+      "query": "hacer capturas de pantalla notario",
+      "expected_pillars": [
+        1
+      ],
+      "note": "Recolección de pruebas exactas --> pillar1_action"
+    }
+  ],
+  "configuracion_a_semantica": {
+    "descripcion": "ChromaDB semántico puro, sin BM25, sin routing",
+    "precision_at_1_standard": 0.8,
+    "precision_at_3_standard": 0.6,
+    "hit_at_any_standard": 1.0,
+    "precision_at_1_bm25": 0.75,
+    "precision_at_3_bm25": 0.625,
+    "hit_at_any_bm25": 0.875,
+    "precision_at_1_total": 0.7778,
+    "precision_at_3_total": 0.6111,
+    "hit_at_any_total": 0.9444,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "set": "standard",
+        "emotion": "anger",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "set": "standard",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "set": "standard",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_1",
+        "query": "cómo bloqueo en instagram",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_2",
+        "query": "teléfono 024",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          5,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_3",
+        "query": "ANAR 900 202 010",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_4",
+        "query": "discord bloquear usuario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_5",
+        "query": "AEPD canal joven",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_6",
+        "query": "llamar al 017 incibe",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_7",
+        "query": "me están haciendo sexting",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false
+      },
+      {
+        "label": "BM25_8",
+        "query": "hacer capturas de pantalla notario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          5,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      }
+    ]
+  },
+  "configuracion_b_hibrida": {
+    "descripcion": "EnsembleRetriever BM25+ChromaDB [0.4/0.6] sobre corpus completo, sin routing",
+    "bm25_weight": 0.4,
+    "semantic_weight": 0.6,
+    "precision_at_1_standard": 0.7,
+    "precision_at_3_standard": 0.6,
+    "hit_at_any_standard": 1.0,
+    "precision_at_1_bm25": 0.875,
+    "precision_at_3_bm25": 0.625,
+    "hit_at_any_bm25": 0.875,
+    "precision_at_1_total": 0.7778,
+    "precision_at_3_total": 0.6111,
+    "hit_at_any_total": 0.9444,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "set": "standard",
+        "emotion": "anger",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "set": "standard",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "set": "standard",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_1",
+        "query": "cómo bloqueo en instagram",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_2",
+        "query": "teléfono 024",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          5,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_3",
+        "query": "ANAR 900 202 010",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_4",
+        "query": "discord bloquear usuario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_5",
+        "query": "AEPD canal joven",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_6",
+        "query": "llamar al 017 incibe",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "BM25_7",
+        "query": "me están haciendo sexting",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false
+      },
+      {
+        "label": "BM25_8",
+        "query": "hacer capturas de pantalla notario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          2,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      }
+    ]
+  },
+  "configuracion_c_semantica_routing": {
+    "descripcion": "ChromaDB semántico con pre-filtro WHERE pillar IN [...] según emoción",
+    "routing_table": {
+      "fear": [
+        2,
+        4,
+        1
+      ],
+      "sadness": [
+        2,
+        3
+      ],
+      "anger": [
+        1,
+        2
+      ],
+      "disgust": [
+        2,
+        3
+      ],
+      "joy": [
+        3
+      ],
+      "surprise": [
+        2,
+        1
+      ],
+      "others": null
+    },
+    "precision_at_1_standard": 0.9,
+    "precision_at_3_standard": 0.6,
+    "hit_at_any_standard": 0.9,
+    "precision_at_1_bm25": 0.75,
+    "precision_at_3_bm25": 0.6667,
+    "hit_at_any_bm25": 0.875,
+    "precision_at_1_total": 0.8333,
+    "precision_at_3_total": 0.6296,
+    "hit_at_any_total": 0.8889,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "set": "standard",
+        "emotion": "anger",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          1,
+          2
+        ]
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "set": "standard",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "set": "standard",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "BM25_1",
+        "query": "cómo bloqueo en instagram",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_2",
+        "query": "teléfono 024",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_3",
+        "query": "ANAR 900 202 010",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_4",
+        "query": "discord bloquear usuario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_5",
+        "query": "AEPD canal joven",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_6",
+        "query": "llamar al 017 incibe",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_7",
+        "query": "me están haciendo sexting",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_8",
+        "query": "hacer capturas de pantalla notario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          5,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      }
+    ]
+  },
+  "configuracion_d_hibrida_routing": {
+    "descripcion": "BM25 dinámico sobre subconjunto filtrado + ChromaDB filtrado; EnsembleRetriever [0.4/0.6]",
+    "bm25_weight": 0.4,
+    "semantic_weight": 0.6,
+    "routing_table": {
+      "fear": [
+        2,
+        4,
+        1
+      ],
+      "sadness": [
+        2,
+        3
+      ],
+      "anger": [
+        1,
+        2
+      ],
+      "disgust": [
+        2,
+        3
+      ],
+      "joy": [
+        3
+      ],
+      "surprise": [
+        2,
+        1
+      ],
+      "others": null
+    },
+    "precision_at_1_standard": 0.8,
+    "precision_at_3_standard": 0.6,
+    "hit_at_any_standard": 0.9,
+    "precision_at_1_bm25": 0.875,
+    "precision_at_3_bm25": 0.6667,
+    "hit_at_any_bm25": 0.875,
+    "precision_at_1_total": 0.8333,
+    "precision_at_3_total": 0.6296,
+    "hit_at_any_total": 0.8889,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "set": "standard",
+        "emotion": "anger",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          1,
+          2
+        ]
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "set": "standard",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "set": "standard",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "set": "standard",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "set": "standard",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          3
+        ]
+      },
+      {
+        "label": "BM25_1",
+        "query": "cómo bloqueo en instagram",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_2",
+        "query": "teléfono 024",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_3",
+        "query": "ANAR 900 202 010",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_4",
+        "query": "discord bloquear usuario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_5",
+        "query": "AEPD canal joven",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_6",
+        "query": "llamar al 017 incibe",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          4,
+          5
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      },
+      {
+        "label": "BM25_7",
+        "query": "me están haciendo sexting",
+        "set": "bm25",
+        "emotion": "fear",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter_aplicado": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "label": "BM25_8",
+        "query": "hacer capturas de pantalla notario",
+        "set": "bm25",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          2,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter_aplicado": null
+      }
+    ]
+  },
+  "delta_bm25_sin_routing": {
+    "nota": "Efecto BM25 aislado (B−A)",
+    "precision_at_3_standard": 0.0,
+    "precision_at_3_bm25_queries": 0.0,
+    "precision_at_3_total": 0.0
+  },
+  "delta_routing_sin_bm25": {
+    "nota": "Efecto routing aislado (C−A)",
+    "precision_at_3_standard": 0.0,
+    "precision_at_3_bm25_queries": 0.0417,
+    "precision_at_3_total": 0.0185
+  },
+  "delta_bm25_con_routing": {
+    "nota": "Efecto BM25 sobre retriever con routing (D−C)",
+    "precision_at_3_standard": 0.0,
+    "precision_at_3_bm25_queries": 0.0,
+    "precision_at_3_total": 0.0
+  },
+  "delta_routing_con_bm25": {
+    "nota": "Efecto routing sobre retriever híbrido (D−B)",
+    "precision_at_3_standard": 0.0,
+    "precision_at_3_bm25_queries": 0.0417,
+    "precision_at_3_total": 0.0185
+  },
+  "delta_total": {
+    "nota": "Efecto combinado BM25+routing (D−A)",
+    "precision_at_3_standard": 0.0,
+    "precision_at_3_bm25_queries": 0.0417,
+    "precision_at_3_total": 0.0185
+  }
+}

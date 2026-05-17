@@ -91,7 +91,7 @@ Si llevas un tiempo viviendo ciberacoso, puede que notes cosas en ti que no enti
 
 Que te ocurran estas cosas no significa que estés "loco/a" ni que seas débil. Son reacciones normales ante algo que te está haciendo daño. Lo que sientes tiene sentido.
 
-Si además tienes pensamientos de hacerte daño o de que todo sería mejor sin ti, es importante que lo cuentes a alguien ahora. Más abajo encontrarás los teléfonos y contactos concretos.
+Si además tienes pensamientos de hacerte daño o de que todo sería mejor sin ti, es importante que lo cuentes a alguien ahora.
 
 ---
 id: P1_005
@@ -193,6 +193,6 @@ Lo más importante si estás en esta situación:
 
 **Guarda las pruebas** — capturas de pantalla de los mensajes de amenaza antes de bloquear.
 
-**Pide ayuda para retirar el contenido.** La AEPD Canal Joven puede solicitar la retirada urgente de imágenes íntimas a las plataformas. Más abajo encontrarás los teléfonos y contactos concretos.
+**Pide ayuda para retirar el contenido.** La AEPD Canal Joven puede solicitar la retirada urgente de imágenes íntimas a las plataformas.
 
 No tienes que enfrentarte a esto solo/a, y no tienes que sentir vergüenza para pedir ayuda.

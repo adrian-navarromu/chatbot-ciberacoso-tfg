@@ -117,20 +117,24 @@ Tu cuerpo te permite estar aquí, sentir, moverte, conectar con otras personas. 
 id: P3_006
 pillar: 3
 title: Contranarrativa ante ataques por género o misoginia
-source: Future of Free Speech / Dangerous Speech Project — Manual Contranarrativas (s.f.)
+source: Future of Free Speech / Dangerous Speech Project — Manual Contranarrativas (s.f.); O'Hara (2025)
 emotions: [disgust, anger, sadness]
 trigger: conditional
 therapeutic_technique: contranarrativa
 audience: adolescente
 ---
 
-Si los ataques que has recibido van dirigidos a ti por ser chico/a, por cómo te comportas según tu género, o incluyen contenido sexual no consentido, lo que estás viviendo es una forma específica de violencia digital. No es un chiste, no es "cosas de internet" y no es algo que debas aguantar.
+Si alguien te ha atacado por tu género —por ser chica, por cómo te comportas según lo que esperan que seas, o con comentarios de carácter sexual no consentido— lo que estás viviendo es una forma específica de violencia digital. No es un chiste ni algo que debas aguantar.
 
-Este tipo de acoso se dirige a personas por su género porque el agresor intenta usar eso para hacerte sentir inferior o avergonzado/a. No lo es.
+Los ataques de género y la misoginia en redes siguen un patrón: intentan reducirte a un estereotipo o usar tu cuerpo o tu identidad como arma para silenciarte o avergonzarte. Eso dice mucho de quien lo hace. No dice nada de ti.
 
-Tus opiniones, decisiones y forma de ser no tienen que pasar por el filtro de nadie. Eres una persona completa con derecho a existir en el espacio digital sin ser atacado/a.
+Tus opiniones, tus decisiones y tu manera de existir en el espacio digital no tienen que pasar por el filtro de nadie. Tienes derecho a estar ahí tal y como eres.
 
-Si hay imágenes o contenido sexual tuyo que alguien ha difundido o amenaza con difundir sin tu permiso, eso tiene nombre legal: sextorsión o difusión no consentida de imágenes íntimas. Puedes denunciarlo. La **AEPD Canal Joven** (canaljoven@aepd.es / WhatsApp **616 172 204**) puede ayudarte a retirar ese contenido. No estás solo/a.
+Lo que sientes ante estos ataques —rabia, vergüenza, miedo— es una respuesta completamente normal ante algo injusto. La intensidad de lo que sientes no confirma lo que dicen: confirma que lo que te están haciendo duele porque está mal.
+
+Si los ataques incluyen imágenes íntimas compartidas o amenazadas sin tu permiso, hay recursos y personas que pueden ayudarte a retirar ese contenido y a denunciar. No tienes que manejarlo solo/a.
+
+¿Cómo describirías quién eres tú, con tus propias palabras, más allá de lo que esa persona intentó hacerte sentir?
 
 ---
 id: P3_007
@@ -179,6 +183,6 @@ Ese apoyo tiene mucho valor aunque no sepa exactamente lo que está pasando.
 Si ahora mismo no se te ocurre nadie, eso también puede cambiar. Las personas de las líneas de ayuda no te conocen de antes y aun así están ahí, preparadas para escucharte sin juzgarte:
 
 - **ANAR 900 202 010** — Para menores, 24 horas, confidencial.
-- **024** — Si estás en un momento muy difícil o tienes pensamientos de hacerte daño.
+- **024** — Si estás en un momento muy difícil.
 
 No tienes que estar al límite para pedir apoyo. Saber que hay alguien al otro lado ya marca la diferencia.

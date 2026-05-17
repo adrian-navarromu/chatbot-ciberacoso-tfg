@@ -71,8 +71,6 @@ No tienes que resolver nada ahora mismo. Solo necesitas un primer paso: cuéntam
 
 ¿Hay alguien cercano contigo ahora mismo, o estás solo/a? Eso me ayuda a saber cómo acompañarte mejor.
 
-Más abajo encontrarás los teléfonos y contactos concretos.
-
 ---
 id: P4_004
 pillar: 4
@@ -148,7 +146,8 @@ pillar: 4
 title: Recursos de crisis — líneas de atención urgente
 source: PNUD/Integra Guía PAP (2022); Guía Clínica SEMA (2015); Manual RedesConCorazón (2019)
 emotions: [sadness, fear]
-trigger: always_include
+trigger: conditional
+therapeutic_technique: pap_emergencia
 audience: adolescente
 ---
 
@@ -186,7 +185,7 @@ therapeutic_technique: pap_emergencia
 audience: adolescente
 ---
 
-Si alguien te ha amenazado con hacerte daño físico — pegarte, esperartea la salida, o hacerte algo si no haces lo que pide — eso es una amenaza grave y no tienes que gestionarla solo/a.
+Si alguien te ha amenazado con hacerte daño físico — pegarte, esperarte a la salida, o hacerte algo si no haces lo que pide — eso es una amenaza grave y no tienes que gestionarla solo/a.
 
 Ahora mismo: no vayas solo/a al sitio donde te han amenazado. Si puedes, quédate donde haya más gente.
 

@@ -176,11 +176,6 @@ osi.es — Guías y recursos sobre seguridad digital para adolescentes.
 **Policía Nacional y Guardia Civil**
 Tienen unidades especializadas en delitos online. Puedes denunciar con las capturas de pantalla como evidencia.
 
-**Si además lo estás pasando muy mal emocionalmente:**
-- **024** — Línea de atención a la conducta suicida. Gratuita · 24 horas.
-- **ANAR 900 202 010** — Para menores. Gratuita · 24 horas · Confidencial.
-- **112** — Emergencias.
-
 No tienes que resolver esto solo/a. Pedir ayuda es el paso correcto.
 
 ---

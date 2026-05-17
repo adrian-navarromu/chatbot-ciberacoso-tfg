@@ -1,0 +1,315 @@
+{
+  "experimento": "chunking_comparison",
+  "embedding_model": "paraphrase-multilingual-mpnet-base-v2",
+  "top_k": 3,
+  "estrategia_a": {
+    "nombre": "Manual terapéutico (V1)",
+    "descripcion": "Chunks delimitados por front matter YAML, un chunk por unidad terapéutica",
+    "n_chunks": 40,
+    "precision_at_3_media": 0.5,
+    "hit_at_any_rate": 0.9,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          1
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          2
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          2
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          3,
+          5,
+          5
+        ],
+        "precision_at_3": 0.0,
+        "hit_at_any": false
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          5
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          3,
+          2
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          2
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          4
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      }
+    ]
+  },
+  "estrategia_b": {
+    "nombre": "Automático RecursiveCharacterTextSplitter",
+    "descripcion": "Texto plano sin front matter, chunk_size=300, chunk_overlap=50",
+    "chunk_size": 300,
+    "chunk_overlap": 50,
+    "separators": [
+      "\n\n",
+      "\n",
+      ". ",
+      " "
+    ],
+    "n_chunks": 182,
+    "precision_at_3_media": 0.4333,
+    "hit_at_any_rate": 0.8,
+    "resultados_por_consulta": [
+      {
+        "label": "Q1",
+        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          4
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q2",
+        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          3,
+          4,
+          5
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q3",
+        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_3": 0.0,
+        "hit_at_any": false
+      },
+      {
+        "label": "Q4",
+        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q5",
+        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          5,
+          4,
+          3
+        ],
+        "precision_at_3": 0.0,
+        "hit_at_any": false
+      },
+      {
+        "label": "Q6",
+        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q7",
+        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          3
+        ],
+        "precision_at_3": 0.3333,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q8",
+        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          1
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q9",
+        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          4
+        ],
+        "precision_at_3": 0.6667,
+        "hit_at_any": true
+      },
+      {
+        "label": "Q10",
+        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_3": 1.0,
+        "hit_at_any": true
+      }
+    ]
+  }
+}
