@@ -64,27 +64,29 @@ def _send_message(
         return history_state, history_state, "", {}, [], "", 0, "", {}
 
     t0 = time.time()
-    temp = None if auto_temp else manual_temp
+    temp = None if auto_temp else manual_temp  # TODO: pasar temperatura manual al pipeline en versión futura
 
     if version == "V2":
         chatbot = _get_chatbot_v2()
-        result = chatbot.run(user_message=user_message, history=history_state, temperature=temp)
+        result = chatbot.run(user_message=user_message, history=history_state)
         crisis_level = result.crisis_level
         memory_state = chatbot.memory.to_dict()
         emotion_display = {result.emotion_label: result.emotion_confidence}
         rag_rows = [
-            [c["id"], c["title"], c["pillar"], c["score"]]
+            [c.get("chunk_id", ""), c.get("title", ""),
+             c.get("pillar", ""), "—"]
             for c in result.rag_chunks
         ]
         system_prompt = result.system_prompt_preview
     else:
         chatbot = _get_chatbot_v1()
-        result = chatbot.run(user_message=user_message, history=history_state, temperature=temp)
+        result = chatbot.run(user_message=user_message, history=history_state)
         crisis_level = ""
         memory_state = {}
         emotion_display = {result.emotion_label: result.emotion_confidence}
         rag_rows = [
-            [c["id"], c["title"], c["pillar"], c["score"]]
+            [c.get("chunk_id", ""), c.get("title", ""),
+             c.get("pillar", ""), "—"]
             for c in result.rag_chunks
         ]
         system_prompt = result.system_prompt_preview
@@ -117,7 +119,7 @@ def _change_model(model_name: str) -> None:
 def _clear_conversation(version: str) -> tuple:
     """Reinicia la conversación. En V2 también resetea la memoria emocional."""
     if version == "V2" and _chatbot_v2 is not None:
-        _chatbot_v2.reset_memory()
+        _chatbot_v2.reset_session()
     return [], [], ""
 
 

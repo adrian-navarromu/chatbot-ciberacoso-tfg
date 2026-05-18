@@ -146,7 +146,7 @@ class ChatbotV1:
 
         rag_chunks = [
             {
-                "id": r.chunk.id,
+                "chunk_id": r.chunk.id,
                 "title": r.chunk.title,
                 "pillar": r.chunk.pillar,
                 "score": round(r.score, 4),
