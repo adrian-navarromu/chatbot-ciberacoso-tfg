@@ -2,7 +2,7 @@
 Pipeline de ingesta de documentos RAG y recuperador semántico.
 
 Uso como script (construye el índice desde cero):
-    python -m src.rag.document_ingestion
+    python -m src.rag.document_ingestion.py
 
 Uso como módulo (recuperar en el pipeline):
     from src.rag.document_ingestion import RAGRetriever
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import re
 from collections import Counter
 from dataclasses import dataclass, field
@@ -24,25 +25,24 @@ import numpy as np
 import yaml
 from sentence_transformers import SentenceTransformer
 
-# ---------------------------------------------------------------------------
-# Constantes
-# ---------------------------------------------------------------------------
+
+# Configuración
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S",
+)
+log = logging.getLogger(__name__)
 
 CORPUS_DIR = Path("data/rag_corpus")
 VECTORSTORE_DIR = Path("data/vectorstore/faiss_index_v1")
 MODEL_NAME = "paraphrase-multilingual-mpnet-base-v2"
 EMBEDDING_DIM = 768
 
-# Emociones para las que se fuerza la inclusión de chunks always_include.
-# Son las etiquetas de alta urgencia del clasificador BETO.
+# Emociones para las que se fuerza la inclusión de chunks always_include. Son las etiquetas de alta urgencia del clasificador emocional.
 ALWAYS_INCLUDE_EMOTIONS: frozenset[str] = frozenset({"fear", "sadness"})
 
-
-# ---------------------------------------------------------------------------
 # Dataclasses
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class Chunk:
     """Representa un único chunk del corpus RAG con su front matter y contenido.
@@ -86,11 +86,7 @@ class RetrievedChunk:
     forced: bool = False
 
 
-# ---------------------------------------------------------------------------
 # DocumentIngester
-# ---------------------------------------------------------------------------
-
-
 class DocumentIngester:
     """Parsea el corpus RAG, genera embeddings e indexa en FAISS.
 
@@ -104,20 +100,12 @@ class DocumentIngester:
         model_name: Nombre del modelo sentence-transformers para los embeddings.
     """
 
-    def __init__(
-        self,
-        corpus_dir: Path = CORPUS_DIR,
-        vectorstore_dir: Path = VECTORSTORE_DIR,
-        model_name: str = MODEL_NAME,
-    ) -> None:
+    def __init__(self, corpus_dir: Path = CORPUS_DIR, vectorstore_dir: Path = VECTORSTORE_DIR, model_name: str = MODEL_NAME) -> None:
         self.corpus_dir = Path(corpus_dir)
         self.vectorstore_dir = Path(vectorstore_dir)
         self.model = SentenceTransformer(model_name)
 
-    # ------------------------------------------------------------------
     # Parsing
-    # ------------------------------------------------------------------
-
     def parse_md_file(self, path: Path) -> list[Chunk]:
         """Parsea un archivo .md con múltiples chunks delimitados por front matter YAML.
 
@@ -134,11 +122,10 @@ class DocumentIngester:
             Lista de Chunk extraídos del archivo.
         """
         text = path.read_text(encoding="utf-8")
+
         # Divide en los delimitadores '---' que ocupan una línea completa
-        parts = re.split(r"^---$", text, flags=re.MULTILINE)
-        # Resultado: ["", yaml1, content1, yaml2, content2, ...]
-        # El primer elemento es cadena vacía (o whitespace antes del primer ---)
-        parts = [p for p in parts if p.strip()]
+        parts = re.split(r"^---$", text, flags=re.MULTILINE) # Resultado: ["", yaml1, content1, yaml2, content2, ...]
+        parts = [p for p in parts if p.strip()] # El primer elemento es cadena vacía (o whitespace antes del primer ---)
 
         chunks: list[Chunk] = []
         for i in range(0, len(parts) - 1, 2):
@@ -148,6 +135,7 @@ class DocumentIngester:
             try:
                 meta: dict = yaml.safe_load(yaml_str) or {}
             except yaml.YAMLError:
+                log.warning(f"Error parseando YAML en {path}")
                 continue
 
             if "id" not in meta:
@@ -177,18 +165,14 @@ class DocumentIngester:
         all_chunks: list[Chunk] = []
         md_files = sorted(self.corpus_dir.glob("*.md"))
         if not md_files:
-            raise FileNotFoundError(
-                f"No se encontraron archivos .md en {self.corpus_dir}"
-            )
+            raise FileNotFoundError(f"No se encontraron archivos .md en {self.corpus_dir}")
+        
         for md_file in md_files:
             parsed = self.parse_md_file(md_file)
             all_chunks.extend(parsed)
         return all_chunks
 
-    # ------------------------------------------------------------------
     # Construcción del índice
-    # ------------------------------------------------------------------
-
     def build_index(self) -> None:
         """Lee el corpus, genera embeddings e indexa en FAISS. Guarda en disco.
 
@@ -208,7 +192,6 @@ class DocumentIngester:
         index = faiss.IndexFlatIP(embeddings.shape[1])
         index.add(embeddings)
 
-        self.vectorstore_dir.mkdir(parents=True, exist_ok=True)
         faiss.write_index(index, str(self.vectorstore_dir / "index.faiss"))
 
         metadata = [
@@ -230,14 +213,20 @@ class DocumentIngester:
             encoding="utf-8",
         )
 
-        _print_summary(chunks, self.vectorstore_dir)
+        # Resumen de ingesta integrado directamente en el método
+        by_pillar = Counter(c.pillar for c in chunks)
+        n_always = sum(1 for c in chunks if c.trigger == "always_include")
+
+        log.info("Resumen de Ingesta FAISS")
+        log.info("Total chunks indexados: %d", len(chunks))
+        for p in sorted(by_pillar):
+            log.info("Pilar %d: %2d chunks", p, by_pillar[p])
+        log.info("Chunks 'always_include': %d", n_always)
+        log.info("Dimensión embeddings: %d", EMBEDDING_DIM)
+        log.info("Índice guardado en: %s", self.vectorstore_dir)
 
 
-# ---------------------------------------------------------------------------
 # RAGRetriever
-# ---------------------------------------------------------------------------
-
-
 class RAGRetriever:
     """Recuperador semántico sobre el índice FAISS del corpus RAG.
 
@@ -251,11 +240,7 @@ class RAGRetriever:
         model_name: Nombre del modelo sentence-transformers para los embeddings.
     """
 
-    def __init__(
-        self,
-        vectorstore_dir: Path = VECTORSTORE_DIR,
-        model_name: str = MODEL_NAME,
-    ) -> None:
+    def __init__(self, vectorstore_dir: Path = VECTORSTORE_DIR, model_name: str = MODEL_NAME) -> None:
         self.vectorstore_dir = Path(vectorstore_dir)
         self.model = SentenceTransformer(model_name)
         self._load()
@@ -266,28 +251,15 @@ class RAGRetriever:
         meta_path = self.vectorstore_dir / "metadata.json"
 
         if not index_path.exists() or not meta_path.exists():
-            raise FileNotFoundError(
-                f"Índice no encontrado en {self.vectorstore_dir}. "
-                "Ejecuta DocumentIngester.build_index() primero."
-            )
+            raise FileNotFoundError(f"Índice no encontrado en {self.vectorstore_dir}. Ejecuta DocumentIngester.build_index() primero.")
 
         self.index: faiss.IndexFlatIP = faiss.read_index(str(index_path))
         self.metadata: list[dict] = json.loads(meta_path.read_text(encoding="utf-8"))
 
         # Precalcular índices de chunks always_include para búsqueda O(1)
-        self._always_include_indices: list[int] = [
-            i
-            for i, m in enumerate(self.metadata)
-            if m.get("trigger") == "always_include"
-        ]
+        self._always_include_indices: list[int] = [i for i, m in enumerate(self.metadata) if m.get("trigger") == "always_include"]
 
-    def retrieve(
-        self,
-        query: str,
-        emotion: str | None = None,
-        top_k: int = 3,
-        pillar: int | None = None,
-    ) -> list[RetrievedChunk]:
+    def retrieve(self, query: str, emotion: str | None = None, top_k: int = 3, pillar: int | None = None) -> list[RetrievedChunk]:
         """Recupera los chunks más relevantes para una consulta.
 
         Args:
@@ -308,7 +280,7 @@ class RAGRetriever:
             self.model.encode([query], normalize_embeddings=True).astype(np.float32)
         )
 
-        # Over-fetch para poder aplicar el filtro por pilar sin quedarnos cortos
+        # Para poder aplicar el filtro por pilar sin quedarnos cortos se cogen más top chunks
         fetch_k = min(top_k * 6 if pillar is not None else top_k * 2, self.index.ntotal)
         scores, indices = self.index.search(query_vec, fetch_k)
 
@@ -333,41 +305,13 @@ class RAGRetriever:
                 meta = self.metadata[idx]
                 if meta["id"] not in seen_ids:
                     seen_ids.add(meta["id"])
-                    results.append(
-                        RetrievedChunk(chunk=Chunk(**meta), score=1.0, forced=True)
-                    )
+                    results.append(RetrievedChunk(chunk=Chunk(**meta), score=1.0, forced=True))
 
         return results
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _print_summary(chunks: list[Chunk], vectorstore_dir: Path) -> None:
-    """Imprime el resumen de la ingesta al stdout."""
-    by_pillar = Counter(c.pillar for c in chunks)
-    n_always = sum(1 for c in chunks if c.trigger == "always_include")
-
-    print(f"\n{'=' * 52}")
-    print(f"  Ingesta completada — {len(chunks)} chunks indexados")
-    print(f"{'=' * 52}")
-    print("  Distribución por pilar:")
-    for p in sorted(by_pillar):
-        print(f"    Pilar {p}: {by_pillar[p]:>2} chunks")
-    print(f"  Chunks always_include : {n_always}")
-    print(f"  Dimensión embeddings  : {EMBEDDING_DIM}")
-    print(f"  Índice guardado en    : {vectorstore_dir}")
-    print(f"{'=' * 52}\n")
-
-
-# ---------------------------------------------------------------------------
-# Punto de entrada
-# ---------------------------------------------------------------------------
-
-
-def _parse_args() -> argparse.Namespace:
+# Argparse
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Ingesta del corpus RAG y test de recuperación."
     )
@@ -405,20 +349,17 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     """Construye el índice FAISS y valida el retriever con una consulta de prueba."""
-    args = _parse_args()
+    args = parse_args()
 
     if not args.skip_ingest:
-        print("Iniciando ingesta del corpus RAG...")
+        log.info("Iniciando ingesta del corpus RAG...")
         ingester = DocumentIngester()
         ingester.build_index()
 
-    print(f"\nTest de recuperación")
-    print(f"  Query  : {args.query}")
-    print(f"  Emoción: {args.emotion}")
-    print(f"  Top-k  : {args.top_k}")
-    if args.pillar:
-        print(f"  Pilar  : {args.pillar}")
-    print()
+    log.info("Test de Recuperación RAG")
+    log.info("Query: '%s'", args.query)
+    log.info("Emoción: %s", args.emotion)
+    log.info("Filtro: Pilar %s", args.pillar if args.pillar else "Ninguno")
 
     retriever = RAGRetriever()
     results = retriever.retrieve(
@@ -430,12 +371,7 @@ def main() -> None:
 
     for i, r in enumerate(results, 1):
         forced_tag = " [FORZADO]" if r.forced else ""
-        print(
-            f"  {i}. [{r.chunk.id}] P{r.chunk.pillar} — {r.chunk.title}"
-            f"\n     score={r.score:.4f}{forced_tag}"
-            f"\n     trigger={r.chunk.trigger} | emotions={r.chunk.emotions}"
-        )
-
+        log.info("Resultado %d: [%s] P%d — %s (Score: %.4f)%s", i, r.chunk.id, r.chunk.pillar, r.chunk.title, r.score, forced_tag)
 
 if __name__ == "__main__":
     main()

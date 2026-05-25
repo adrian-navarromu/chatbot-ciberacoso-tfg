@@ -1,14 +1,14 @@
 """
-Pipeline V2: CrisisDetector → EmotionDetector → EmotionalMemoryGRU → RAG enriquecido → SLM.
+Pipeline V2: CrisisDetector --> EmotionDetector --> EmotionalMemoryGRU --> RAG enriquecido --> SLM.
 
 Flujo:
-  1. CrisisDetector (failsafe PAP) → cortocircuito si HIGH/MEDIUM
-  2. EmotionDetector (BETO) → emoción + confianza
-  3. EmotionalMemoryGRU.update() → registra emoción del turno
-  4. detect_trend() + get_prompt_context() → tendencia y contexto de sesión
-  5. EnrichedRetriever.retrieve_with_routing() → chunks clínicos con routing por pilar
-  6. build_prompt_v2() → prompt estructurado variante D (Exp. 5, 83.4 %)
-  7. ChatOllama → genera respuesta
+  1. CrisisDetector (failsafe PAP) --> cortocircuito si HIGH/MEDIUM
+  2. EmotionDetector --> emoción + confianza
+  3. EmotionalMemoryGRU.update() --> registra emoción del turno
+  4. detect_trend() + get_prompt_context() --> tendencia y contexto de sesión
+  5. EnrichedRetriever.retrieve_with_routing() --> chunks clínicos con routing por pilar
+  6. build_prompt_v2() --> prompt estructurado variante D (83.4 %)
+  7. ChatOllama --> genera respuesta
   8. Actualiza historial y devuelve ChatbotV2Response
 
 Uso:
@@ -34,11 +34,7 @@ from src.rag.enriched_retriever import EnrichedRetriever
 from src.safety.crisis_detector import CrisisDetector
 
 
-# ---------------------------------------------------------------------------
 # Dataclass de respuesta
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class ChatbotV2Response:
     """Respuesta completa del pipeline V2 para un turno de conversación.
@@ -46,7 +42,7 @@ class ChatbotV2Response:
     Atributos:
         response: Texto de respuesta generado (PAP o SLM).
         history: Historial actualizado incluyendo el turno actual.
-        emotion_label: Emoción detectada por BETO, o 'crisis' si hubo bypass PAP.
+        emotion_label: Emoción detectada por el classificador emocional, o 'crisis' si hubo bypass PAP.
         emotion_confidence: Probabilidad del clasificador (1.0 en bypass de crisis).
         trend: Tendencia emocional de la sesión ('estable', 'mejora', 'deterioro').
         rag_chunks: Metadatos de chunks recuperados (vacío en bypass de crisis).
@@ -68,34 +64,28 @@ class ChatbotV2Response:
     crisis_level: str | None
 
 
-# ---------------------------------------------------------------------------
 # Pipeline principal
-# ---------------------------------------------------------------------------
-
-
 class ChatbotV2:
     """Pipeline V2 con detección de crisis, clasificación emocional, memoria GRU y RAG híbrido.
 
     Integra todos los módulos desarrollados en V2:
     - CrisisDetector: primera capa de seguridad, bypass PAP inmediato si HIGH/MEDIUM.
-    - EmotionDetector: clasificación emocional con BETO fine-tuned.
+    - EmotionDetector: clasificación emocional fine-tuned.
     - EmotionalMemoryGRU: rastreo de tendencia afectiva por ventana deslizante.
     - EnrichedRetriever: recuperación híbrida BM25 + ChromaDB con routing por pilar.
-    - build_prompt_v2: prompt estructurado variante D ganadora del Experimento 5.
+    - build_prompt_v2: prompt estructurado variante D.
 
     Args:
         model_name: Nombre del modelo Ollama (ej. 'gemma:7b').
-        emotion_model_path: Ruta al directorio del clasificador BETO fine-tuned.
+        emotion_model_path: Ruta al directorio del clasificador fine-tuned.
         corpus_dir: Directorio con los archivos .md del corpus RAG.
         chroma_path: Ruta al directorio ChromaDB persistente (chroma_v2).
         embedding_model: Identificador HuggingFace del modelo de embeddings.
         window_size: Tamaño de ventana deslizante para EmotionalMemoryGRU.
     """
 
-    def __init__(
-        self,
-        model_name: str = "gemma:7b",
-        emotion_model_path: str = "models/emotion_classifier/beto",
+    def __init__(self, model_name: str = "gemma:7b",
+        emotion_model_path: str = "models/emotion_classifier/robertuito",
         corpus_dir: str = "data/rag_corpus",
         chroma_path: str = "data/vectorstore/chroma_v2",
         embedding_model: str = "hackathon-pln-es/paraphrase-spanish-distilroberta",
@@ -126,11 +116,7 @@ class ChatbotV2:
         ]
         self.retriever = EnrichedRetriever(chroma_path, documents, embedding_model)
 
-    def run(
-        self,
-        user_message: str,
-        history: list[dict],
-    ) -> ChatbotV2Response:
+    def run(self, user_message: str, history: list[dict]) -> ChatbotV2Response:
         """Ejecuta el pipeline V2 completo para un turno de conversación.
 
         Si el CrisisDetector activa HIGH o MEDIUM, devuelve inmediatamente
@@ -145,7 +131,7 @@ class ChatbotV2:
         Returns:
             ChatbotV2Response con la respuesta y todos los metadatos de debug.
         """
-        # PASO 1 — FAILSAFE PAP (primera capa, antes de cualquier ML)
+        # PASO 1 - FAILSAFE PAP (primera capa, antes de cualquier ML)
         crisis_result = self.crisis_detector.detect(user_message)
         if crisis_result.level in ("HIGH", "MEDIUM"):
             history_updated = history + [
@@ -167,15 +153,15 @@ class ChatbotV2:
                 crisis_level=crisis_result.level,
             )
 
-        # PASO 2 — CLASIFICADOR EMOCIONAL
+        # PASO 2 - CLASIFICADOR EMOCIONAL
         emotion_result = self.emotion_detector.detect(user_message)
 
-        # PASO 3 — ACTUALIZAR MEMORIA GRU
+        # PASO 3 - ACTUALIZAR MEMORIA GRU
         self.memory.update(emotion_result.label, emotion_result.confidence)
         trend = self.memory.detect_trend()
         emotional_context = self.memory.get_prompt_context()
 
-        # PASO 4 — RECUPERACIÓN RAG ENRIQUECIDA
+        # PASO 4 - RECUPERACIÓN RAG ENRIQUECIDA
         if history:
             last_user = next(
                 (m["content"] for m in reversed(history) if m["role"] == "user"),
@@ -192,7 +178,7 @@ class ChatbotV2:
         )
         rag_context = "\n---\n".join([d.page_content for d in docs])
 
-        # PASO 5 — CONSTRUIR PROMPT V2 (variante D)
+        # PASO 5 - CONSTRUIR PROMPT V2 (variante D)
         messages = build_prompt_v2(
             emotion=emotion_result.label,
             rag_context=rag_context,
@@ -203,7 +189,7 @@ class ChatbotV2:
         )
         messages.append({"role": "user", "content": user_message})
 
-        # PASO 6 — INFERENCIA SLM
+        # PASO 6 - INFERENCIA SLM
         temperature = TEMPERATURE_BY_EMOTION.get(emotion_result.label, 0.7)
         llm = ChatOllama(
             model=self.model_name,
@@ -214,7 +200,7 @@ class ChatbotV2:
         llm_response = llm.invoke(messages)
         latency_ms = (time.time() - t0) * 1000
 
-        # PASO 7 — ACTUALIZAR HISTORIAL Y DEVOLVER
+        # PASO 7 - ACTUALIZAR HISTORIAL Y DEVOLVER
         history_updated = history + [
             {"role": "user", "content": user_message},
             {"role": "assistant", "content": llm_response.content},

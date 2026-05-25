@@ -1,5 +1,7 @@
 """
-Pipeline V1: EmotionDetector → RAGRetriever → SLM (Ollama).
+Pipeline V1: Orquestador del Agente Conversacional Sensible a la Emoción.
+Conecta el Clasificador Transformer (EmotionDetector), el Buscador FAISS (RAGRetriever)
+y el Modelo Generativo (SLM/Ollama).
 
 Uso:
     chatbot = ChatbotV1()
@@ -20,11 +22,8 @@ from src.prompts.builder import TEMPERATURE_BY_EMOTION, build_prompt, get_system
 from src.rag.document_ingestion import RAGRetriever
 
 
-# ---------------------------------------------------------------------------
+
 # Dataclass de respuesta
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class ChatbotV1Response:
     """Respuesta completa del pipeline V1 para un turno de conversación.
@@ -48,40 +47,26 @@ class ChatbotV1Response:
     model_name: str
 
 
-# ---------------------------------------------------------------------------
 # Pipeline principal
-# ---------------------------------------------------------------------------
-
-
 class ChatbotV1:
-    """Pipeline completo V1: EmotionDetector → RAGRetriever → SLM (Ollama).
+    """Pipeline completo V1: EmotionDetector --> RAGRetriever --> SLM (Ollama).
 
-    Carga los tres componentes una sola vez en __init__ y los reutiliza en
-    cada turno de conversación. El modelo Ollama se selecciona en cada llamada
-    para permitir el cambio en caliente con change_model().
+    Carga los componentes pesados (Transformers en GPU, Índice FAISS) una 
+    sola vez en el constructor para garantizar baja latencia en inferencia. El modelo 
+    Ollama se instancia en cada llamada para permitir cambio en caliente (Hot Swapping)
 
     Args:
         model_name: Nombre del modelo Ollama a utilizar (ej. 'mistral:7b').
-        emotion_model_path: Ruta al directorio del clasificador BETO fine-tuned.
+        emotion_model_path: Ruta al directorio del clasificador RoBertuito fine-tuned.
         vectorstore_path: Ruta al directorio con el índice FAISS.
     """
 
-    def __init__(
-        self,
-        model_name: str = "mistral:7b",
-        emotion_model_path: str = "models/emotion_classifier/beto",
-        vectorstore_path: str = "data/vectorstore/faiss_index_v1",
-    ) -> None:
+    def __init__(self, model_name: str = "mistral:7b", emotion_model_path: str = "models/emotion_classifier/robertuito", vectorstore_path: str = "data/vectorstore/faiss_index_v1") -> None:
         self.model_name = model_name
         self.detector = EmotionDetector(Path(emotion_model_path))
         self.retriever = RAGRetriever(vectorstore_dir=Path(vectorstore_path))
 
-    def run(
-        self,
-        user_message: str,
-        history: list[dict],
-        temperature: float | None = None,
-    ) -> ChatbotV1Response:
+    def run(self, user_message: str, history: list[dict], temperature: float | None = None) -> ChatbotV1Response:
         """Ejecuta el pipeline completo para un turno de conversación.
 
         Args:
@@ -96,12 +81,10 @@ class ChatbotV1:
         Returns:
             ChatbotV1Response con la respuesta del SLM y todos los metadatos.
         """
-        # 1. Detectar emoción
+        # Extracción de Contexto Afectivo (Inferencia Clasificador)
         emotion_result = self.detector.detect(user_message)
 
-        # 2. Recuperar chunks RAG con query enriquecida con el último turno.
-        # En el segundo turno en adelante, combinar el último mensaje del usuario
-        # con el actual para que el retriever tenga más contexto semántico.
+        # Enriquecimiento Semántico de la Consulta RAG. Se concatena el último turno del usuario para que FAISS tenga contexto si el usuario usa pronombres (ej: "y por eso lloro")
         if history:
             last_user = next(
                 (m["content"] for m in reversed(history) if m["role"] == "user"),
@@ -111,6 +94,7 @@ class ChatbotV1:
         else:
             rag_query = user_message
 
+        # Recuperación Híbrida (Similitud Coseno + Failsafe Determínistico)
         retrieved = self.retriever.retrieve(
             query=rag_query,
             emotion=emotion_result.label,
@@ -118,7 +102,7 @@ class ChatbotV1:
         )
         rag_context = "\n---\n".join(r.chunk.content for r in retrieved)
 
-        # 3. Construir prompt (system + historial)
+        # Construcción Dinámica del Contexto (Prompt Engineering)
         messages = build_prompt(
             emotion=emotion_result.label,
             rag_context=rag_context,
@@ -127,23 +111,24 @@ class ChatbotV1:
         )
         messages.append({"role": "user", "content": user_message})
 
-        # 4. Llamar al SLM: temperatura manual si se especifica, automática si no
+        # Generación Condicionada de Lenguaje (Inferencia SLM). Se baja la temperatura en emociones críticas.
         if temperature is None:
             temperature = TEMPERATURE_BY_EMOTION.get(emotion_result.label, 0.7)
         llm = ChatOllama(
             model=self.model_name,
             temperature=temperature,
-            num_predict=300,
+            num_predict=300, # Límite estricto para forzar concisión
         )
         response_msg = llm.invoke(_to_lc_messages(messages))
         response_text: str = response_msg.content
 
-        # 5. Actualizar historial y construir respuesta
+        # Actualización de Memoria Transaccional
         updated_history = history + [
             {"role": "user", "content": user_message},
             {"role": "assistant", "content": response_text},
         ]
 
+        # Empaquetado de Metadatos (Trazabilidad)
         rag_chunks = [
             {
                 "chunk_id": r.chunk.id,
@@ -179,11 +164,7 @@ class ChatbotV1:
         self.model_name = model_name
 
 
-# ---------------------------------------------------------------------------
 # Helper interno
-# ---------------------------------------------------------------------------
-
-
 def _to_lc_messages(messages: list[dict]) -> list[BaseMessage]:
     """Convierte dicts de rol/contenido a objetos de mensaje de LangChain."""
     _cls = {

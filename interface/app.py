@@ -12,6 +12,7 @@ import sys
 import time
 from pathlib import Path
 
+# Configuración
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
@@ -21,13 +22,13 @@ import gradio as gr
 from src.pipeline.v1 import ChatbotV1
 from src.pipeline.v2 import ChatbotV2
 
+# Catálogo de modelos locales
 AVAILABLE_MODELS = ["mistral:7b", "gemma:2b", "gemma:7b", "phi3:mini", "tinyllama"]
 DEFAULT_MODEL = "gemma:7b"
 
-# ---------------------------------------------------------------------------
-# Instancias lazy (se crean en el primer mensaje de cada versión)
-# ---------------------------------------------------------------------------
 
+# Instancias que se crean en el primer mensaje de cada versión.
+# Se inicializan como None para evitar cargar los pesados modelos de HuggingFace/FAISS en VRAM hasta que el usuario explícitamente envíe el primer mensaje.
 _chatbot_v1: ChatbotV1 | None = None
 _chatbot_v2: ChatbotV2 | None = None
 _current_model: str = DEFAULT_MODEL
@@ -47,11 +48,7 @@ def _get_chatbot_v2() -> ChatbotV2:
     return _chatbot_v2
 
 
-# ---------------------------------------------------------------------------
-# Handlers
-# ---------------------------------------------------------------------------
-
-
+# Lógica de la interfaz
 def _send_message(
     user_message: str,
     history_state: list[dict],
@@ -61,14 +58,18 @@ def _send_message(
 ) -> tuple:
     """Procesa un mensaje del usuario con el pipeline seleccionado."""
     if not user_message.strip():
+        # Retorno de seguridad para evitar inferencias vacías
         return history_state, history_state, "", {}, [], "", 0, "", {}
 
     t0 = time.time()
-    temp = None if auto_temp else manual_temp  # TODO: pasar temperatura manual al pipeline en versión futura
+    temp = None if auto_temp else manual_temp  # Control de temperatura: dinámica (auto) o forzada por UI (manual)
 
+    # Incorpora detección de crisis aguda y actualización de la memoria recurrente (GRU) antes de la recuperación RAG y el SLM.
     if version == "V2":
         chatbot = _get_chatbot_v2()
         result = chatbot.run(user_message=user_message, history=history_state)
+        
+        # Telemetría extendida específica de V2
         crisis_level = result.crisis_level
         memory_state = chatbot.memory.to_dict()
         emotion_display = {result.emotion_label: result.emotion_confidence}
@@ -78,9 +79,13 @@ def _send_message(
             for c in result.rag_chunks
         ]
         system_prompt = result.system_prompt_preview
+
+    #Pipeline base: Inferencia emocional directa + RAG + SLM.
     else:
         chatbot = _get_chatbot_v1()
         result = chatbot.run(user_message=user_message, history=history_state)
+        
+        # Valores nulos/vacíos para telemetría ausente en V1
         crisis_level = ""
         memory_state = {}
         emotion_display = {result.emotion_label: result.emotion_confidence}
@@ -93,16 +98,17 @@ def _send_message(
 
     elapsed_ms = int((time.time() - t0) * 1000)
 
+    # Retorno coincidente con los 'outputs' definidos en la interfaz
     return (
-        result.history,
-        result.history,
-        "",
-        emotion_display,
-        rag_rows,
-        system_prompt,
-        elapsed_ms,
-        crisis_level,
-        memory_state,
+        result.history,       # Actualiza el UI del Chat
+        result.history,       # Actualiza el gr.State (memoria de sesión)
+        "",                   # Limpia la caja de texto
+        emotion_display,      # Actualiza UI: Emoción
+        rag_rows,             # Actualiza UI: Tabla RAG
+        system_prompt,        # Actualiza UI: Prompt
+        elapsed_ms,           # Actualiza UI: Tiempo
+        crisis_level,         # Actualiza UI: Nivel Crisis (V2)
+        memory_state,         # Actualiza UI: Estado Memoria (V2)
     )
 
 
@@ -124,20 +130,17 @@ def _clear_conversation(version: str) -> tuple:
 
 
 def _toggle_temp_slider(auto: bool) -> dict:
+    """Oculta/Muestra el control de temperatura manual en el UI."""
     return gr.update(visible=not auto)
 
 
 def _toggle_v2_debug(version: str) -> tuple:
-    """Muestra u oculta los paneles exclusivos de V2."""
+    """Muestra u oculta los paneles exclusivos de V2 en el panel Debug."""
     is_v2 = version == "V2"
     return gr.update(visible=is_v2), gr.update(visible=is_v2)
 
 
-# ---------------------------------------------------------------------------
 # Layout Gradio
-# ---------------------------------------------------------------------------
-
-
 def build_interface() -> gr.Blocks:
     """Construye y devuelve el bloque Gradio con soporte V1/V2."""
     with gr.Blocks(title="Chatbot Ciberacoso") as demo:
@@ -147,12 +150,12 @@ def build_interface() -> gr.Blocks:
         )
 
         with gr.Row():
-            # ----------------------------------------------------------------
+
             # Barra lateral izquierda
-            # ----------------------------------------------------------------
             with gr.Column(scale=1, min_width=240):
                 gr.Markdown("### Configuración")
 
+                # Selector de arquitectura
                 version_radio = gr.Radio(
                     choices=["V1", "V2"],
                     value="V1",
@@ -177,9 +180,7 @@ def build_interface() -> gr.Blocks:
                     visible=False,
                 )
 
-            # ----------------------------------------------------------------
             # Área principal de chat
-            # ----------------------------------------------------------------
             with gr.Column(scale=3):
                 chatbot_ui = gr.Chatbot(
                     height=500,
@@ -197,9 +198,7 @@ def build_interface() -> gr.Blocks:
                     send_btn = gr.Button("Enviar", variant="primary", scale=1)
                 clear_btn = gr.Button("Limpiar conversación", variant="secondary")
 
-        # --------------------------------------------------------------------
-        # Panel de debug
-        # --------------------------------------------------------------------
+        # Panel Inferior de debug
         with gr.Accordion("Debug", open=True):
             with gr.Row():
                 emotion_label_ui = gr.Label(
@@ -232,14 +231,10 @@ def build_interface() -> gr.Blocks:
                 interactive=False,
             )
 
-        # --------------------------------------------------------------------
         # Estado por sesión
-        # --------------------------------------------------------------------
         history_state = gr.State([])
 
-        # --------------------------------------------------------------------
-        # Eventos
-        # --------------------------------------------------------------------
+        # Mapeo de Eventos
         _outputs = [
             chatbot_ui,
             history_state,
@@ -275,10 +270,6 @@ def build_interface() -> gr.Blocks:
 
     return demo
 
-
-# ---------------------------------------------------------------------------
-# Punto de entrada
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     demo = build_interface()

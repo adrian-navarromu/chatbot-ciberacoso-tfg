@@ -5,16 +5,16 @@ Se ejecuta ANTES del clasificador emocional y de cualquier otro componente
 del pipeline. Implementa el protocolo de Primeros Auxilios Psicológicos (PAP)
 siguiendo las directrices PNUD/Integra 2022.
 """
-
 from __future__ import annotations
 
 import re
+import logging
 from dataclasses import dataclass, field
 
-# ---------------------------------------------------------------------------
-# Keywords de crisis
-# ---------------------------------------------------------------------------
+# Configuración del logger
+log = logging.getLogger(__name__)
 
+# Keywords de crisis
 KEYWORDS_CRISIS_HIGH: list[str] = [
     r"no quiero seguir viviendo",
     r"no quiero seguir aqu[ií]",
@@ -57,10 +57,8 @@ KEYWORDS_CRISIS_MEDIUM: list[str] = [
     r"me van a agredir",
 ]
 
-# ---------------------------------------------------------------------------
-# Respuestas PAP
-# ---------------------------------------------------------------------------
 
+# Respuestas PAP
 CRISIS_RESPONSE_HIGH: str = (
     "Lo que describes es muy serio y entiendo que estás pasando por un momento "
     "muy difícil. No estás solo/a en esto.\n\n"
@@ -81,11 +79,7 @@ CRISIS_RESPONSE_MEDIUM: str = (
     "disponible de forma gratuita las 24 horas."
 )
 
-# ---------------------------------------------------------------------------
 # Dataclass resultado
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class CrisisResult:
     """Resultado de la detección de crisis."""
@@ -96,11 +90,7 @@ class CrisisResult:
     response: str | None = None
 
 
-# ---------------------------------------------------------------------------
 # Detector
-# ---------------------------------------------------------------------------
-
-
 class CrisisDetector:
     """
     Primera capa de seguridad del chatbot.
@@ -149,10 +139,10 @@ class CrisisDetector:
         Analiza el texto y determina el nivel de crisis.
 
         Reglas de activación:
-        - Cualquier HIGH keyword → nivel HIGH (salvo falso positivo contextual)
-        - 2 o más MEDIUM keywords → nivel HIGH
-        - 1 MEDIUM keyword → nivel MEDIUM
-        - Ninguna → nivel NONE
+        - Cualquier HIGH keyword --> nivel HIGH (salvo falso positivo contextual)
+        - 2 o más MEDIUM keywords --> nivel HIGH
+        - 1 MEDIUM keyword --> nivel MEDIUM
+        - Ninguna --> nivel NONE
         """
         triggered_high: list[str] = [
             kw for kw, pat in self._high_patterns if pat.search(text)
@@ -160,6 +150,7 @@ class CrisisDetector:
 
         # Filtrar falsos positivos contextuales (expresiones coloquiales)
         if triggered_high and self._is_false_positive(text):
+            log.info("Falso positivo de crisis evitado por contexto pragmático.")
             triggered_high = []
 
         triggered_medium: list[str] = [
@@ -169,9 +160,11 @@ class CrisisDetector:
         if triggered_high or len(triggered_medium) >= 2:
             level = "HIGH"
             triggered = triggered_high + triggered_medium
+            log.warning(f"¡CRISIS HIGH DETECTADA! Triggers: {triggered}")
         elif len(triggered_medium) == 1:
             level = "MEDIUM"
             triggered = triggered_medium
+            log.info(f"Crisis MEDIUM detectada. Triggers: {triggered}")
         else:
             return CrisisResult(
                 level="NONE",

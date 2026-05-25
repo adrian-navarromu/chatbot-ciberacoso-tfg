@@ -1590,31 +1590,31 @@
     ]
   },
   "delta_bm25_sin_routing": {
-    "nota": "Efecto BM25 aislado (B−A)",
+    "nota": "Efecto BM25 aislado (B-A)",
     "precision_at_3_standard": 0.0,
     "precision_at_3_bm25_queries": 0.0,
     "precision_at_3_total": 0.0
   },
   "delta_routing_sin_bm25": {
-    "nota": "Efecto routing aislado (C−A)",
+    "nota": "Efecto routing aislado (C-A)",
     "precision_at_3_standard": 0.0,
     "precision_at_3_bm25_queries": 0.0417,
     "precision_at_3_total": 0.0185
   },
   "delta_bm25_con_routing": {
-    "nota": "Efecto BM25 sobre retriever con routing (D−C)",
+    "nota": "Efecto BM25 sobre retriever con routing (D-C)",
     "precision_at_3_standard": 0.0,
     "precision_at_3_bm25_queries": 0.0,
     "precision_at_3_total": 0.0
   },
   "delta_routing_con_bm25": {
-    "nota": "Efecto routing sobre retriever híbrido (D−B)",
+    "nota": "Efecto routing sobre retriever híbrido (D-B)",
     "precision_at_3_standard": 0.0,
     "precision_at_3_bm25_queries": 0.0417,
     "precision_at_3_total": 0.0185
   },
   "delta_total": {
-    "nota": "Efecto combinado BM25+routing (D−A)",
+    "nota": "Efecto combinado BM25+routing (D-A)",
     "precision_at_3_standard": 0.0,
     "precision_at_3_bm25_queries": 0.0417,
     "precision_at_3_total": 0.0185

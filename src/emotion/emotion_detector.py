@@ -16,11 +16,7 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
-# ---------------------------------------------------------------------------
 # Dataclass de resultado
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class EmotionResult:
     """Resultado de la clasificación emocional para un texto.
@@ -38,18 +34,11 @@ class EmotionResult:
     is_low_confidence: bool
 
 
-# ---------------------------------------------------------------------------
 # Umbral de baja confianza
-# ---------------------------------------------------------------------------
-
 LOW_CONFIDENCE_THRESHOLD = 0.4
 
 
-# ---------------------------------------------------------------------------
 # EmotionDetector
-# ---------------------------------------------------------------------------
-
-
 class EmotionDetector:
     """Clasificador emocional basado en un transformer fine-tuneado sobre EmoEvent.
 
@@ -60,16 +49,10 @@ class EmotionDetector:
     Args:
         model_path: Ruta al directorio con el modelo fine-tuned y el tokenizer.
         device: 'cuda', 'cpu' o None (autodetección).
-        max_length: Longitud máxima de tokenización (debe coincidir con la del
-            entrenamiento).
+        max_length: Longitud máxima de tokenización (debe coincidir con la del entrenamiento).
     """
 
-    def __init__(
-        self,
-        model_path: str | Path,
-        device: str | None = None,
-        max_length: int = 128,
-    ) -> None:
+    def __init__(self, model_path: str | Path, device: str | None = None, max_length: int = 128) -> None:
         self.model_path = Path(model_path)
         self.max_length = max_length
 
@@ -83,12 +66,10 @@ class EmotionDetector:
     def _load_model(self) -> None:
         """Carga el tokenizer y el modelo desde disco y los mueve al device."""
         self.tokenizer = AutoTokenizer.from_pretrained(str(self.model_path))
-        self.model = AutoModelForSequenceClassification.from_pretrained(
-            str(self.model_path)
-        ).to(self.device)
+        self.model = AutoModelForSequenceClassification.from_pretrained(str(self.model_path)).to(self.device)
         self.model.eval()
 
-        # Construir mapas id ↔ etiqueta desde la configuración del modelo
+        # Construir mapas id <-> etiqueta desde la configuración del modelo
         self.id2label: dict[int, str] = {
             int(k): v for k, v in self.model.config.id2label.items()
         }
@@ -96,10 +77,7 @@ class EmotionDetector:
             v: int(k) for k, v in self.model.config.id2label.items()
         }
 
-    # ------------------------------------------------------------------
     # Inferencia sobre un único texto
-    # ------------------------------------------------------------------
-
     def detect(self, text: str) -> EmotionResult:
         """Clasifica la emoción principal de un texto en español.
 
@@ -111,10 +89,7 @@ class EmotionDetector:
         """
         return self.detect_batch([text])[0]
 
-    # ------------------------------------------------------------------
     # Inferencia en lote
-    # ------------------------------------------------------------------
-
     def detect_batch(self, texts: list[str]) -> list[EmotionResult]:
         """Clasifica la emoción de una lista de textos en una sola pasada.
 
@@ -158,26 +133,3 @@ class EmotionDetector:
                 )
             )
         return results
-
-    # ------------------------------------------------------------------
-    # Placeholder para integración con audio (V3)
-    # ------------------------------------------------------------------
-
-    def detect_with_audio_placeholder(
-        self,
-        text: str,
-        audio_path: str | Path | None = None,
-    ) -> EmotionResult:
-        """Detecta la emoción de un texto, ignorando el audio (placeholder V3).
-
-        En V3 se integrará un modelo de audio para fusión multimodal.
-        Por ahora, audio_path se ignora y la predicción es solo textual.
-
-        Args:
-            text: Texto del mensaje del usuario.
-            audio_path: Ruta al archivo de audio (ignorado en V1).
-
-        Returns:
-            EmotionResult basado únicamente en el texto.
-        """
-        return self.detect(text)

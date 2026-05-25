@@ -12,7 +12,7 @@
       "n_chunks": 40,
       "precision_at_3_media": 0.5,
       "hit_at_any_rate": 0.9,
-      "latencia_media_ms": 11.87,
+      "latencia_media_ms": 10.89,
       "resultados_por_consulta": [
         {
           "label": "Q1",
@@ -166,7 +166,7 @@
       "n_chunks": 40,
       "precision_at_3_media": 0.4,
       "hit_at_any_rate": 0.7,
-      "latencia_media_ms": 6.57,
+      "latencia_media_ms": 8.41,
       "resultados_por_consulta": [
         {
           "label": "Q1",
@@ -320,7 +320,7 @@
       "n_chunks": 40,
       "precision_at_3_media": 0.4667,
       "hit_at_any_rate": 0.9,
-      "latencia_media_ms": 6.04,
+      "latencia_media_ms": 6.46,
       "resultados_por_consulta": [
         {
           "label": "Q1",
@@ -474,7 +474,7 @@
       "n_chunks": 40,
       "precision_at_3_media": 0.6,
       "hit_at_any_rate": 0.9,
-      "latencia_media_ms": 3.36,
+      "latencia_media_ms": 3.52,
       "resultados_por_consulta": [
         {
           "label": "Q1",

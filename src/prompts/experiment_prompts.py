@@ -2,7 +2,7 @@
 4 variantes de prompt para el experimento de Prompt Engineering (Exp. 5).
 
 Variante A — Baseline V1: delegación directa a build_prompt sin cambios.
-Variante B — Few-shot clínico: añade 14 ejemplos (2×7 emociones) antes del RAG.
+Variante B — Few-shot clínico: añade 14 ejemplos (2x7 emociones) antes del RAG.
 Variante C — Chain-of-Thought moderado: inserta pasos de razonamiento explícitos.
 Variante D — Prompt estructurado: bloques etiquetados [ROL], [ESTADO], [CLÍNICO], [OBJETIVO].
 
@@ -19,17 +19,9 @@ Uso:
     )
 """
 
-from src.prompts.builder import (
-    BASE_SYSTEM_PROMPT,
-    EMOTION_VARIANTS,
-    TEMPERATURE_BY_EMOTION,
-    build_prompt,
-)
+from src.prompts.builder import BASE_SYSTEM_PROMPT, EMOTION_VARIANTS, TEMPERATURE_BY_EMOTION, build_prompt
 
-# ---------------------------------------------------------------------------
 # Variante B — sección de ejemplos few-shot (14 pares, 2 por emoción)
-# ---------------------------------------------------------------------------
-
 _FEW_SHOT_SECTION: str = """
 EJEMPLOS DE RESPUESTA CORRECTA:
 
@@ -117,10 +109,7 @@ lo que quieras a tu ritmo. ¿Qué es lo que está pasando, aunque te cueste
 explicarlo?"
 """
 
-# ---------------------------------------------------------------------------
 # Variante C — sección de razonamiento Chain-of-Thought
-# ---------------------------------------------------------------------------
-
 _COT_SECTION: str = """
 PROCESO DE RAZONAMIENTO (seguir estos pasos antes de responder):
 Paso 1 — VALIDACIÓN: Identifica y nombra cognitivamente la emoción
@@ -132,18 +121,8 @@ Paso 3 — FORMULACIÓN: Construye la respuesta con el tono correcto
   que termina con una pregunta abierta o una propuesta concreta.
 """
 
-# ---------------------------------------------------------------------------
 # Constructores internos por variante
-# ---------------------------------------------------------------------------
-
-
-def _build_variant_a(
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float,
-    emotional_context: str,
-) -> list[dict]:
+def _build_variant_a(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str) -> list[dict]:
     return build_prompt(
         emotion=emotion,
         rag_context=rag_context,
@@ -153,13 +132,7 @@ def _build_variant_a(
     )
 
 
-def _build_variant_b(
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float,
-    emotional_context: str,
-) -> list[dict]:
+def _build_variant_b(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str) -> list[dict]:
     """Few-shot: misma estructura que V1 + ejemplos clínicos antes del RAG."""
     effective_emotion = emotion if confidence >= 0.4 else "others"
     system = BASE_SYSTEM_PROMPT + "\n\n" + EMOTION_VARIANTS[effective_emotion]
@@ -182,13 +155,7 @@ def _build_variant_b(
     return [{"role": "system", "content": system}] + history
 
 
-def _build_variant_c(
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float,
-    emotional_context: str,
-) -> list[dict]:
+def _build_variant_c(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str) -> list[dict]:
     """CoT: pasos de razonamiento explícitos justo después de la variante emocional."""
     effective_emotion = emotion if confidence >= 0.4 else "others"
     system = BASE_SYSTEM_PROMPT + "\n\n" + EMOTION_VARIANTS[effective_emotion]
@@ -211,13 +178,7 @@ def _build_variant_c(
     return [{"role": "system", "content": system}] + history
 
 
-def _build_variant_d(
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float,
-    emotional_context: str,
-) -> list[dict]:
+def _build_variant_d(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str) -> list[dict]:
     """Prompt estructurado con bloques etiquetados explícitamente."""
     effective_emotion = emotion if confidence >= 0.4 else "others"
     temperature = TEMPERATURE_BY_EMOTION[effective_emotion]
@@ -245,10 +206,7 @@ def _build_variant_d(
     return [{"role": "system", "content": system}] + history
 
 
-# ---------------------------------------------------------------------------
 # Interfaz pública
-# ---------------------------------------------------------------------------
-
 _VARIANT_BUILDERS: dict = {
     "A": _build_variant_a,
     "B": _build_variant_b,
@@ -257,14 +215,7 @@ _VARIANT_BUILDERS: dict = {
 }
 
 
-def build_prompt_variant(
-    variant: str,
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float = 1.0,
-    emotional_context: str = "",
-) -> list[dict]:
+def build_prompt_variant(variant: str, emotion: str, rag_context: str, history: list[dict], confidence: float = 1.0, emotional_context: str = "") -> list[dict]:
     """
     Construye el prompt para una de las 4 variantes del experimento de PE.
 

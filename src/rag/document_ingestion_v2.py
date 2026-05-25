@@ -25,6 +25,7 @@ Uso como módulo (acceder a los chunks parseados):
 from __future__ import annotations
 
 import json
+import logging
 import re
 import shutil
 from collections import Counter
@@ -35,9 +36,11 @@ import chromadb
 import yaml
 from sentence_transformers import SentenceTransformer
 
-# ---------------------------------------------------------------------------
+# Configuración de Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+log = logging.getLogger(__name__)
+
 # Constantes
-# ---------------------------------------------------------------------------
 
 # Ganador Experimento 2: p@3=0.600, p@1=0.800, latencia=3.7ms
 # Knowledge Distillation desde paraphrase-mpnet (teacher) +
@@ -47,16 +50,11 @@ EMBEDDING_MODEL_V2 = "hackathon-pln-es/paraphrase-spanish-distilroberta"
 
 CORPUS_DIR = Path("data/rag_corpus")
 CHROMA_V2_DIR = Path("data/vectorstore/chroma_v2")
-RESULTS_DIR = Path("eval/rag_experiments")
 
 COLLECTION_NAME = "rag_ciberacoso_v2"
 
 
-# ---------------------------------------------------------------------------
 # Dataclass
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class Chunk:
     """Representa un único chunk del corpus RAG con su front matter y contenido.
@@ -84,11 +82,7 @@ class Chunk:
     content: str = ""
 
 
-# ---------------------------------------------------------------------------
 # DocumentIngesterV2
-# ---------------------------------------------------------------------------
-
-
 class DocumentIngesterV2:
     """Parsea el corpus RAG, genera embeddings con paraphrase-spanish-distilroberta e indexa en ChromaDB.
 
@@ -102,21 +96,13 @@ class DocumentIngesterV2:
         embedding_model: Nombre HuggingFace del modelo de embeddings.
     """
 
-    def __init__(
-        self,
-        corpus_dir: Path = CORPUS_DIR,
-        chroma_dir: Path = CHROMA_V2_DIR,
-        embedding_model: str = EMBEDDING_MODEL_V2,
-    ) -> None:
+    def __init__(self, corpus_dir: Path = CORPUS_DIR, chroma_dir: Path = CHROMA_V2_DIR, embedding_model: str = EMBEDDING_MODEL_V2) -> None:
         self.corpus_dir = Path(corpus_dir)
         self.chroma_dir = Path(chroma_dir)
         self.embedding_model = embedding_model
         self._model: SentenceTransformer | None = None
 
-    # ------------------------------------------------------------------
     # Parsing
-    # ------------------------------------------------------------------
-
     def parse_md_file(self, path: Path) -> list[Chunk]:
         """Parsea un archivo .md con múltiples chunks delimitados por front matter YAML.
 
@@ -182,10 +168,7 @@ class DocumentIngesterV2:
             all_chunks.extend(self.parse_md_file(md_file))
         return all_chunks
 
-    # ------------------------------------------------------------------
     # Modelo de embeddings
-    # ------------------------------------------------------------------
-
     @property
     def model(self) -> SentenceTransformer:
         """Carga el modelo de embeddings de forma diferida (lazy)."""
@@ -194,10 +177,7 @@ class DocumentIngesterV2:
             self._model = SentenceTransformer(self.embedding_model)
         return self._model
 
-    # ------------------------------------------------------------------
     # Serialización de metadatos para ChromaDB
-    # ------------------------------------------------------------------
-
     @staticmethod
     def _serialize_metadata(chunk: Chunk) -> dict:
         """Convierte un Chunk a un dict de metadatos compatible con ChromaDB.
@@ -222,10 +202,7 @@ class DocumentIngesterV2:
             "audience": chunk.audience,
         }
 
-    # ------------------------------------------------------------------
     # Construcción del índice ChromaDB
-    # ------------------------------------------------------------------
-
     def build_index(self) -> None:
         """Parsea el corpus, genera embeddings e indexa en ChromaDB persistente.
 
@@ -237,10 +214,10 @@ class DocumentIngesterV2:
         de ChromaDB.
         """
         chunks = self.load_corpus()
-        print(f"  {len(chunks)} chunks cargados del corpus.")
+        log.info(f"Corpus leído. {len(chunks)} chunks en memoria.")
 
         # Generar embeddings
-        print(f"  Generando embeddings con {self.embedding_model}...")
+        log.info(f"Generando embeddings topológicos con {self.embedding_model}...")
         embeddings = self.model.encode(
             [c.content for c in chunks],
             normalize_embeddings=True,
@@ -251,7 +228,7 @@ class DocumentIngesterV2:
         # Limpiar colección previa y crear nueva
         if self.chroma_dir.exists():
             shutil.rmtree(self.chroma_dir)
-            print(f"  Colección previa eliminada en {self.chroma_dir}.")
+            log.info(f"Índice previo eliminado en {self.chroma_dir}.")
         self.chroma_dir.mkdir(parents=True, exist_ok=True)
 
         client = chromadb.PersistentClient(path=str(self.chroma_dir))
@@ -275,11 +252,7 @@ class DocumentIngesterV2:
         _print_summary(chunks, self.chroma_dir, self.embedding_model)
 
 
-# ---------------------------------------------------------------------------
 # Helpers
-# ---------------------------------------------------------------------------
-
-
 def _print_summary(
     chunks: list[Chunk], chroma_dir: Path, embedding_model: str
 ) -> None:
@@ -302,46 +275,15 @@ def _print_summary(
     print(f"{'=' * 56}\n")
 
 
-def _resolve_embedding_model() -> str:
-    """Lee el modelo ganador de embedding_results.json si existe.
-
-    Permite que document_ingestion_v2.py use automáticamente el ganador
-    del Experimento 2 sin modificar el código. Si el JSON no existe o
-    falla la lectura, devuelve EMBEDDING_MODEL_V2.
-
-    Returns:
-        Identificador HuggingFace del modelo a usar.
-    """
-    results_path = RESULTS_DIR / "embedding_results.json"
-    if results_path.exists():
-        try:
-            data = json.loads(results_path.read_text(encoding="utf-8"))
-            model_id: str = data["modelo_ganador"]["model_id"]
-            print(f"  Modelo leído de embedding_results.json: {model_id}")
-            return model_id
-        except (KeyError, json.JSONDecodeError):
-            pass
-    return EMBEDDING_MODEL_V2
-
-
-# ---------------------------------------------------------------------------
-# Punto de entrada
-# ---------------------------------------------------------------------------
-
-
+# Main
 def main() -> None:
     """Construye el índice ChromaDB V2 con la configuración ganadora de los experimentos."""
-    print("=" * 56)
-    print("  Ingesta RAG V2")
-    print("=" * 56)
+    log.info("INICIANDO PIPELINE DE INGESTA V2")
 
-    model = _resolve_embedding_model()
-    print(f"  Modelo de embeddings: {model}")
-    print(f"  Corpus             : {CORPUS_DIR}")
-    print(f"  Destino            : {CHROMA_V2_DIR}")
-    print(f"  FAISS V1 intacto   : data/vectorstore/faiss_index_v1/")
+    # Inicializar inyector usando la configuración
+    ingester = DocumentIngesterV2(embedding_model=EMBEDDING_MODEL_V2)
 
-    ingester = DocumentIngesterV2(embedding_model=model)
+    # Lanzar procesamiento ETL
     ingester.build_index()
 
 

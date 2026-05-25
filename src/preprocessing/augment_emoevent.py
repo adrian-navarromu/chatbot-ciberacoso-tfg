@@ -7,15 +7,18 @@ modelos con y sin datos sintéticos de forma reproducible.
 Pasos:
   1. Construir emoevent_preprocessed.csv
      (ES original limpio + EN traducido fear/disgust/surprise + undersampling others).
-  2. Splits SIN sintéticos → data/processed/no_synthetic/
-  3. Generación sintética con Ollama → emoevent_preprocessed_synthetic.csv
-     (solo si NO se pasa --skip-synthetic).
-  4. Splits CON sintéticos → data/processed/with_synthetic/
+     (Se omite y se carga de disco si se pasa --skip-build).
+  2. Splits SIN sintéticos --> data/processed/no_synthetic/
+  3. Generación sintética con Ollama --> emoevent_preprocessed_synthetic.csv
+     (Solo si no se pasa --skip-synthetic).
+  4. Splits CON sintéticos --> data/processed/with_synthetic/
      Las muestras sintéticas van SOLO al split de train.
 
 Uso:
     python src/preprocessing/augment_emoevent.py
+    python src/preprocessing/augment_emoevent.py --skip-build
     python src/preprocessing/augment_emoevent.py --skip-synthetic
+    python src/preprocessing/augment_emoevent.py --skip-build --skip-synthetic
 """
 
 from __future__ import annotations
@@ -35,12 +38,10 @@ from transformers import MarianMTModel, MarianTokenizer
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.preprocessing.text_cleaner import clean_tweet  # noqa: E402
+from src.preprocessing.text_cleaner import clean_tweet
 
-# ---------------------------------------------------------------------------
+
 # Configuración
-# ---------------------------------------------------------------------------
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -63,7 +64,7 @@ WITH_SYNTH_DIR = PROCESSED_DIR / "with_synthetic"
 TRANSLATE_CLASSES: list[str] = ["fear", "disgust", "surprise"]
 SYNTHETIC_CONFIG: dict[str, int] = {"fear": 100, "disgust": 80}
 OTHERS_MAX = 1800
-SEED = 42
+SEED = 112
 MT_MODEL = "Helsinki-NLP/opus-mt-en-es"
 OLLAMA_MODEL = "mistral:7b"
 
@@ -75,12 +76,7 @@ CYBERBULLYING_CONTEXTS = [
     "miedo a ir al instituto por acoso",
 ]
 
-
-# ---------------------------------------------------------------------------
 # Carga de datos crudos
-# ---------------------------------------------------------------------------
-
-
 def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Carga los CSVs español e inglés de EmoEvent (separador tabulador).
 
@@ -90,13 +86,6 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     Raises:
         FileNotFoundError: Si alguno de los CSVs no existe en RAW_DIR.
     """
-    for path in (ES_CSV, EN_CSV):
-        if not path.exists():
-            raise FileNotFoundError(
-                f"CSV no encontrado: {path}\n"
-                f"Descarga EmoEvent desde https://sinai.ujaen.es/investigacion/datos/emoevent "
-                f"y coloca los archivos en {RAW_DIR}/"
-            )
 
     df_es = pd.read_csv(ES_CSV, sep="\t", encoding="utf-8")
     df_en = pd.read_csv(EN_CSV, sep="\t", encoding="utf-8")
@@ -113,11 +102,7 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     return df_es, df_en
 
 
-# ---------------------------------------------------------------------------
 # Limpieza de texto
-# ---------------------------------------------------------------------------
-
-
 def apply_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """Aplica clean_tweet() a la columna 'text' de un DataFrame.
 
@@ -137,11 +122,7 @@ def apply_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Traducción EN → ES
-# ---------------------------------------------------------------------------
-
-
+# Traducción EN --> ES
 def translate_english_classes(df_en: pd.DataFrame) -> pd.DataFrame:
     """Filtra y traduce al español las clases fear, disgust y surprise del CSV inglés.
 
@@ -212,8 +193,7 @@ def translate_english_classes(df_en: pd.DataFrame) -> pd.DataFrame:
     subset["text"] = [clean_tweet(t) for t in translated_texts]
     subset["source"] = "translated_en"
 
-    # Liberar VRAM explícitamente para que Ollama encuentre la GPU libre
-    # cuando cargue mistral:7b en el paso de generación sintética.
+    # Liberar VRAM explícitamente para que Ollama encuentre la GPU libre cuando cargue mistral:7b en el paso de generación sintética.
     del model, tokenizer
     if device.type == "cuda":
         torch.cuda.empty_cache()
@@ -226,11 +206,7 @@ def translate_english_classes(df_en: pd.DataFrame) -> pd.DataFrame:
     return subset.reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
 # Undersampling
-# ---------------------------------------------------------------------------
-
-
 def undersample_others(df: pd.DataFrame) -> pd.DataFrame:
     """Reduce la clase 'others' a OTHERS_MAX muestras aleatorias.
 
@@ -258,11 +234,7 @@ def undersample_others(df: pd.DataFrame) -> pd.DataFrame:
     return df_out.sample(frac=1, random_state=SEED).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
 # Deduplicación
-# ---------------------------------------------------------------------------
-
-
 def deduplicate_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """Elimina filas con texto exactamente idéntico del dataset completo.
 
@@ -288,11 +260,7 @@ def deduplicate_dataset(df: pd.DataFrame) -> pd.DataFrame:
     return df_dedup
 
 
-# ---------------------------------------------------------------------------
-# PASO 1 — Construir y guardar emoevent_preprocessed.csv
-# ---------------------------------------------------------------------------
-
-
+# Construir y guardar emoevent_preprocessed.csv
 def build_preprocessed(df_es: pd.DataFrame, df_en: pd.DataFrame) -> pd.DataFrame:
     """Construye el dataset preprocesado base (sin sintéticos).
 
@@ -307,7 +275,7 @@ def build_preprocessed(df_es: pd.DataFrame, df_en: pd.DataFrame) -> pd.DataFrame
         DataFrame preprocesado con columnas 'text', 'emotion', 'source'
         y cualquier otra columna presente en ambos CSVs.
     """
-    log.info("── PASO 1: construyendo dataset preprocesado ──")
+    log.info("Construyendo dataset preprocesado")
 
     log.info("Limpiando textos en español...")
     df_es = apply_cleaning(df_es)
@@ -338,19 +306,12 @@ def save_preprocessed(df: pd.DataFrame, path: Path = PREPROCESSED_CSV) -> None:
         df: DataFrame a guardar.
         path: Ruta de destino (por defecto PREPROCESSED_CSV).
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False, encoding="utf-8")
     log.info("Guardado: %s (%d filas)", path, len(df))
 
 
-# ---------------------------------------------------------------------------
-# PASO 2 — Split estratificado 70/15/15
-# ---------------------------------------------------------------------------
-
-
-def split_dataset(
-    df: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+# Split estratificado 70/15/15
+def split_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Divide un dataset de forma estratificada por emoción (70 / 15 / 15).
 
     Args:
@@ -372,7 +333,7 @@ def split_dataset(
         random_state=SEED,
     )
     log.info(
-        "Split → train: %d | val: %d | test: %d",
+        "Split --> train: %d | val: %d | test: %d",
         len(train), len(val), len(test),
     )
     return (
@@ -382,16 +343,12 @@ def split_dataset(
     )
 
 
-def verify_no_leakage(
-    train: pd.DataFrame,
-    val: pd.DataFrame,
-    test: pd.DataFrame,
-) -> None:
+def verify_no_leakage(train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame) -> None:
     """Verifica que ningún texto aparece en más de un split (data leakage).
 
-    Compara los tres pares posibles (train↔val, train↔test, val↔test) usando
+    Compara los tres pares posibles (train - val, train - test, val - test) usando
     el texto limpio como clave. Registra un WARNING si se detecta solapamiento
-    y un error explícito si train↔val o train↔test contienen duplicados.
+    y un error explícito si train - val o train - test contienen duplicados.
 
     Args:
         train: Split de entrenamiento.
@@ -400,8 +357,8 @@ def verify_no_leakage(
     """
     sets = {
         "train": set(train["text"].str.strip()),
-        "val":   set(val["text"].str.strip()),
-        "test":  set(test["text"].str.strip()),
+        "val": set(val["text"].str.strip()),
+        "test": set(test["text"].str.strip()),
     }
     leakage_found = False
     for a, b in [("train", "val"), ("train", "test"), ("val", "test")]:
@@ -413,17 +370,12 @@ def verify_no_leakage(
             )
             leakage_found = True
         else:
-            log.info("Leakage check %s ∩ %s: ✓ OK (0 solapamientos).", a, b)
+            log.info("Leakage check %s ∩ %s: OK (0 solapamientos).", a, b)
     if not leakage_found:
         log.info("Verificación de leakage completada: sin solapamientos.")
 
 
-def save_splits(
-    train: pd.DataFrame,
-    val: pd.DataFrame,
-    test: pd.DataFrame,
-    subdir: str,
-) -> None:
+def save_splits(train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame, subdir: str) -> None:
     """Guarda los tres splits en un subdirectorio de data/processed/.
 
     Args:
@@ -433,23 +385,14 @@ def save_splits(
         subdir: Nombre del subdirectorio ('no_synthetic' o 'with_synthetic').
     """
     out_dir = PROCESSED_DIR / subdir
-    out_dir.mkdir(parents=True, exist_ok=True)
     for name, df in (("train", train), ("val", val), ("test", test)):
         path = out_dir / f"emoevent_{name}.csv"
         df.to_csv(path, index=False, encoding="utf-8")
         log.info("Guardado: %s (%d filas)", path, len(df))
 
 
-# ---------------------------------------------------------------------------
-# PASO 3 — Generación sintética con Ollama
-# ---------------------------------------------------------------------------
-
-
-def generate_synthetic_tweets(
-    emotion: str,
-    context: list[str],
-    n: int,
-) -> list[str]:
+# Generación sintética con Ollama
+def generate_synthetic_tweets(emotion: str, context: list[str], n: int) -> list[str]:
     """Genera tweets sintéticos en español adolescente usando Ollama.
 
     Args:
@@ -511,23 +454,14 @@ def collect_synthetic_rows() -> pd.DataFrame:
             "source": "synthetic",
         })
         synth_df = synth_df[synth_df["text"].str.strip() != ""].reset_index(drop=True)
-        log.info("  → %d tweets válidos para '%s'", len(synth_df), emotion)
+        log.info("  %d tweets válidos para '%s'", len(synth_df), emotion)
         frames.append(synth_df)
 
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
-# ---------------------------------------------------------------------------
-# PASO 4 — Splits con sintéticos (sintéticos solo en train)
-# ---------------------------------------------------------------------------
-
-
-def build_splits_with_synthetic(
-    train_base: pd.DataFrame,
-    val: pd.DataFrame,
-    test: pd.DataFrame,
-    synthetic: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+# Splits con sintéticos (sintéticos solo en train)
+def build_splits_with_synthetic(train_base: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame, synthetic: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Construye los splits con datos sintéticos añadidos exclusivamente al train.
 
     Val y test son idénticos a los splits sin sintéticos para garantizar
@@ -553,123 +487,7 @@ def build_splits_with_synthetic(
     return train_augmented, val, test
 
 
-# ---------------------------------------------------------------------------
-# Resumen comparativo
-# ---------------------------------------------------------------------------
-
-
-def _emotion_table(
-    train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame
-) -> pd.DataFrame:
-    """Construye tabla de distribución de emociones por split."""
-    tbl = pd.DataFrame(
-        {
-            "train": train["emotion"].value_counts(),
-            "val": val["emotion"].value_counts(),
-            "test": test["emotion"].value_counts(),
-        }
-    ).fillna(0).astype(int)
-    tbl["TOTAL"] = tbl.sum(axis=1)
-    tbl.loc["TOTAL"] = tbl.sum()
-    return tbl
-
-
-def _source_table(
-    train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame
-) -> pd.DataFrame | None:
-    """Construye tabla de distribución por fuente de datos."""
-    if "source" not in train.columns:
-        return None
-    tbl = pd.DataFrame(
-        {
-            "train": train["source"].value_counts(),
-            "val": val["source"].value_counts(),
-            "test": test["source"].value_counts(),
-        }
-    ).fillna(0).astype(int)
-    tbl["TOTAL"] = tbl.sum(axis=1)
-    tbl.loc["TOTAL"] = tbl.sum()
-    return tbl
-
-
-def print_summary(
-    train: pd.DataFrame,
-    val: pd.DataFrame,
-    test: pd.DataFrame,
-    title: str = "",
-) -> None:
-    """Imprime distribución de clases y fuentes para un conjunto de splits.
-
-    Args:
-        train: Split de entrenamiento.
-        val: Split de validación.
-        test: Split de test.
-        title: Encabezado opcional de la tabla.
-    """
-    sep = "=" * 65
-    header = f"  {title}" if title else "  DISTRIBUCIÓN DE CLASES POR SPLIT"
-    print(f"\n{sep}\n{header}\n{sep}")
-    print(_emotion_table(train, val, test).to_string())
-
-    src = _source_table(train, val, test)
-    if src is not None:
-        print(f"\n{sep}\n  DISTRIBUCIÓN POR FUENTE DE DATOS\n{sep}")
-        print(src.to_string())
-    print(sep)
-
-
-def print_comparison(
-    train_ns: pd.DataFrame,
-    val_ns: pd.DataFrame,
-    test_ns: pd.DataFrame,
-    train_ws: pd.DataFrame,
-    val_ws: pd.DataFrame,
-    test_ws: pd.DataFrame,
-) -> None:
-    """Imprime tabla comparativa entre splits sin y con sintéticos.
-
-    Muestra la variación en número de muestras por emoción en el train
-    y confirma que val/test son iguales en ambas versiones.
-
-    Args:
-        train_ns: Train SIN sintéticos.
-        val_ns: Val SIN sintéticos.
-        test_ns: Test SIN sintéticos.
-        train_ws: Train CON sintéticos.
-        val_ws: Val CON sintéticos (debe ser idéntico a val_ns).
-        test_ws: Test CON sintéticos (debe ser idéntico a test_ns).
-    """
-    sep = "=" * 75
-
-    # --- Comparación de train ---
-    emo_ns = train_ns["emotion"].value_counts().rename("train_no_synth")
-    emo_ws = train_ws["emotion"].value_counts().rename("train_with_synth")
-    comp = pd.concat([emo_ns, emo_ws], axis=1).fillna(0).astype(int)
-    comp["diff"] = comp["train_with_synth"] - comp["train_no_synth"]
-    comp.loc["TOTAL"] = comp.sum()
-
-    print(f"\n{sep}")
-    print("  COMPARATIVA TRAIN: sin sintéticos vs con sintéticos")
-    print(sep)
-    print(comp.to_string())
-
-    # --- Confirmación val/test iguales ---
-    val_equal = val_ns.shape == val_ws.shape
-    test_equal = test_ns.shape == test_ws.shape
-    print(f"\n  Val  idéntico en ambas versiones: {'✓' if val_equal  else '✗'} ({len(val_ns)} filas)")
-    print(f"  Test idéntico en ambas versiones: {'✓' if test_equal else '✗'} ({len(test_ns)} filas)")
-    print(sep)
-
-    # --- Tablas individuales ---
-    print_summary(train_ns, val_ns, test_ns, title="SIN SINTÉTICOS — distribución por split")
-    print_summary(train_ws, val_ws, test_ws, title="CON SINTÉTICOS — distribución por split")
-
-
-# ---------------------------------------------------------------------------
 # Punto de entrada
-# ---------------------------------------------------------------------------
-
-
 def parse_args() -> argparse.Namespace:
     """Parsea los argumentos de línea de comandos."""
     parser = argparse.ArgumentParser(
@@ -686,16 +504,15 @@ def parse_args() -> argparse.Namespace:
         "--skip-synthetic",
         action="store_true",
         default=False,
-        help="Omitir la generación de tweets sintéticos con Ollama (pasos 3 y 4).",
+        help="Omitir la generación de tweets sintéticos con Ollama",
     )
     parser.add_argument(
         "--skip-build",
         action="store_true",
         default=False,
         help=(
-            "Omitir el paso 1 (traducción + limpieza) y cargar directamente "
-            f"{PREPROCESSED_CSV.name} ya existente. Útil para regenerar splits "
-            "sin repetir la traducción."
+            "Omitir la traducción + limpieza y cargar directamente "
+            f"{PREPROCESSED_CSV.name} ya existente. Útil para regenerar splits sin repetir la traducción."
         ),
     )
     return parser.parse_args()
@@ -704,9 +521,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """Ejecuta el pipeline completo de preprocesamiento y aumentación."""
     args = parse_args()
-    log.info("=== Pipeline EmoEvent — inicio ===")
+    log.info("Pipeline EmoEvent")
 
-    # ── PASO 1: construir o cargar dataset preprocesado base ─────────────────
+    # Construir o cargar dataset preprocesado base para evitar el Preprocesado pesado y solo leer el CSV creado
     if args.skip_build:
         if not PREPROCESSED_CSV.exists():
             log.error(
@@ -714,69 +531,48 @@ def main() -> None:
                 PREPROCESSED_CSV,
             )
             sys.exit(1)
-        log.info("── PASO 1 omitido: cargando %s ──", PREPROCESSED_CSV)
+        log.info("PASO 1 omitido: cargando %s ", PREPROCESSED_CSV)
         df_preprocessed = pd.read_csv(PREPROCESSED_CSV)
         log.info("Cargadas %d filas desde disco.", len(df_preprocessed))
     else:
         df_es, df_en = load_data()
         df_preprocessed = build_preprocessed(df_es, df_en)
 
-    # Deduplicar ANTES de guardar el CSV intermedio
+    # Deduplicar antes de guardar el CSV intermedio
     df_preprocessed = deduplicate_dataset(df_preprocessed)
     save_preprocessed(df_preprocessed, PREPROCESSED_CSV)
 
-    # ── PASO 2: splits sin sintéticos ────────────────────────────────────────
-    log.info("── PASO 2: splits sin sintéticos ──")
+    # Splits sin sintéticos
+    log.info("Splits sin sintéticos")
     train_base, val, test = split_dataset(df_preprocessed)
     verify_no_leakage(train_base, val, test)
     save_splits(train_base, val, test, subdir="no_synthetic")
 
     if args.skip_synthetic:
-        log.info("--skip-synthetic activo: se omiten los pasos 3 y 4.")
-        print_summary(train_base, val, test, title="SIN SINTÉTICOS — distribución por split")
-        log.info("=== Pipeline EmoEvent — completado (sin sintéticos) ===")
+        log.info("Pipeline EmoEvent completado (sin sintéticos)")
         return
 
-    # ── PASO 3: generación sintética ─────────────────────────────────────────
-    log.info("── PASO 3: generación sintética con Ollama ──")
+    # Generación sintética
+    log.info("Generación sintética con Ollama")
     synthetic = collect_synthetic_rows()
 
-    if synthetic.empty:
-        log.error("No se generaron muestras sintéticas. Abortando pasos 3 y 4.")
-        print_summary(train_base, val, test, title="SIN SINTÉTICOS — distribución por split")
-        log.info("=== Pipeline EmoEvent — completado (sin sintéticos) ===")
-        return
+    if not synthetic.empty:
+        # Combinar, deduplicar y guardar CSV sintético limpio ANTES del split
+        df_preprocessed_synthetic = pd.concat([df_preprocessed, synthetic], ignore_index=True)
+        df_preprocessed_synthetic = deduplicate_dataset(df_preprocessed_synthetic)
+        save_preprocessed(df_preprocessed_synthetic, PREPROCESSED_SYNTHETIC_CSV)
 
-    # Combinar, deduplicar y guardar CSV sintético limpio ANTES del split
-    df_preprocessed_synthetic = pd.concat(
-        [df_preprocessed, synthetic], ignore_index=True
-    )
-    df_preprocessed_synthetic = deduplicate_dataset(df_preprocessed_synthetic)
-    save_preprocessed(df_preprocessed_synthetic, PREPROCESSED_SYNTHETIC_CSV)
+        # Extraer los sintéticos que sobrevivieron la deduplicación
+        synthetic_clean = df_preprocessed_synthetic[df_preprocessed_synthetic["source"] == "synthetic"].reset_index(drop=True)
+        log.info("Sintéticos tras deduplicación: %d (de %d originales).", len(synthetic_clean), len(synthetic),)
 
-    # Extraer los sintéticos que sobrevivieron la deduplicación
-    synthetic_clean = df_preprocessed_synthetic[
-        df_preprocessed_synthetic["source"] == "synthetic"
-    ].reset_index(drop=True)
-    log.info(
-        "Sintéticos tras deduplicación: %d (de %d originales).",
-        len(synthetic_clean), len(synthetic),
-    )
+        # Splits con sintéticos (sintéticos solo en train)
+        log.info("Splits con sintéticos")
+        train_augmented, val_ws, test_ws = build_splits_with_synthetic(train_base, val, test, synthetic_clean)
+        verify_no_leakage(train_augmented, val_ws, test_ws)
+        save_splits(train_augmented, val_ws, test_ws, subdir="with_synthetic")
 
-    # ── PASO 4: splits con sintéticos (sintéticos solo en train) ─────────────
-    log.info("── PASO 4: splits con sintéticos ──")
-    train_augmented, val_ws, test_ws = build_splits_with_synthetic(
-        train_base, val, test, synthetic_clean
-    )
-    verify_no_leakage(train_augmented, val_ws, test_ws)
-    save_splits(train_augmented, val_ws, test_ws, subdir="with_synthetic")
-
-    # ── Resumen comparativo ───────────────────────────────────────────────────
-    print_comparison(
-        train_ns=train_base, val_ns=val,       test_ns=test,
-        train_ws=train_augmented, val_ws=val_ws, test_ws=test_ws,
-    )
-    log.info("=== Pipeline EmoEvent — completado ===")
+    log.info("Pipeline EmoEvent completado (con sintéticos)")
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
 """
-Prompt estructurado V2 — variante D del Experimento 5 de Prompt Engineering.
+Prompt estructurado V2 — variante D del Experimento de Prompt Engineering.
 
-Ganador del Exp. 5 frente a baseline (A), few-shot clínico (B) y CoT (C):
+Ganador del Exp. de Prompt Engineering frente a baseline (A), few-shot clínico (B) y CoT (C):
     83.4 % validación emocional vs. 63.4 % baseline.
 Referencia: notebooks/07_prompt_engineering_experiment.ipynb
 """
 
-SELECTED_VARIANT: str = "D"  # Ganador Exp. 5 — Prompt estructurado, 83.4 %
+SELECTED_VARIANT: str = "D"  # Ganador del Prompt Engineering Exp, 83.4 %
 
 ROL_Y_LIMITES: str = """
 Eres un asistente de apoyo emocional especializado en ciberacoso adolescente.
@@ -97,7 +97,7 @@ def build_prompt_v2(
     trend: str = "estable",
 ) -> list[dict]:
     """
-    Prompt estructurado V2 — variante D del Experimento 5 de PE.
+    Prompt estructurado V2 — variante D del Experimento de PE.
 
     Ganador frente a baseline (A), few-shot clínico (B) y CoT (C).
     Referencia: notebooks/07_prompt_engineering_experiment.ipynb.
@@ -122,7 +122,9 @@ def build_prompt_v2(
     effective_emotion = emotion if confidence >= 0.4 else "others"
     temperature = TEMPERATURE_BY_EMOTION[effective_emotion]
     emotion_variant = EMOTION_VARIANTS[effective_emotion]
+    
     emotional_block = emotional_context if emotional_context else "Sin datos de sesión previa."
+    rag_block = rag_context if rag_context else "Sin contexto clínico disponible para esta consulta."
 
     system = (
         "[ROL_Y_LIMITES]\n"
@@ -133,17 +135,10 @@ def build_prompt_v2(
         + f"Tendencia GRU: {trend}\n"
         + f"Contexto de sesión: {emotional_block}\n"
         + "[/ESTADO_EMOCIONAL_USUARIO]\n\n"
-    )
-
-    if rag_context:
-        system += (
-            "[CONTEXTO_CLINICO]\n"
-            + rag_context
-            + "\n[/CONTEXTO_CLINICO]\n\n"
-        )
-
-    system += (
-        "[OBJETIVO_TURNO]\n"
+        + "[CONTEXTO_CLINICO]\n"
+        + rag_block
+        + "\n[/CONTEXTO_CLINICO]\n\n"
+        + "[OBJETIVO_TURNO]\n"
         + emotion_variant
         + f"\nTemperatura ajustada: {temperature}\n"
         + "[/OBJETIVO_TURNO]"
@@ -152,13 +147,7 @@ def build_prompt_v2(
     return [{"role": "system", "content": system}] + history
 
 
-def get_system_prompt_preview_v2(
-    emotion: str = "others",
-    rag_context: str = "",
-    confidence: float = 1.0,
-    emotional_context: str = "",
-    trend: str = "estable",
-) -> str:
+def get_system_prompt_preview_v2(emotion: str = "others", rag_context: str = "", confidence: float = 1.0, emotional_context: str = "", trend: str = "estable") -> str:
     """Devuelve el system prompt sin historial para el panel debug de Gradio.
 
     Args:

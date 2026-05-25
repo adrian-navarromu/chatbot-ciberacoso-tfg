@@ -10,13 +10,15 @@ versión simplificada para texto sin modalidad audio/visual.
 
 from __future__ import annotations
 
+import logging
 from collections import Counter
 from dataclasses import dataclass, field
 
-# ---------------------------------------------------------------------------
-# Constantes de dominio emocional
-# ---------------------------------------------------------------------------
+# Configuración del logger
+log = logging.getLogger(__name__)
 
+
+# Constantes de dominio emocional
 EMOTION_LABELS: list[str] = [
     "anger",
     "disgust",
@@ -27,10 +29,10 @@ EMOTION_LABELS: list[str] = [
     "others",
 ]
 
-# Grupos para detectar tendencias (valor numérico ascendente)
-NEGATIVE_HIGH: list[str] = ["fear", "anger", "disgust"]   # 0 — malestar intenso
-NEGATIVE_LOW: list[str] = ["sadness", "surprise"]          # 1 — malestar moderado
-POSITIVE: list[str] = ["joy", "others"]                    # 2 — neutro o positivo
+# Convierte clases discretas en un espacio continuo simple (0 a 2) para poder calcular derivadas (tendencias) matemáticas en la ventana de tiempo.
+NEGATIVE_HIGH: list[str] = ["fear", "anger", "disgust"]    # 0 - malestar intenso
+NEGATIVE_LOW: list[str] = ["sadness", "surprise"]          # 1 - malestar moderado
+POSITIVE: list[str] = ["joy", "others"]                    # 2 - neutro o positivo
 
 _VALENCE_MAP: dict[str, float] = (
     {e: 0.0 for e in NEGATIVE_HIGH}
@@ -40,18 +42,14 @@ _VALENCE_MAP: dict[str, float] = (
 
 
 def _valence(emotion: str) -> float:
+    """Devuelve el valor numérico de la emoción. Default 1.0 (neutro/moderado) por seguridad."""
     return _VALENCE_MAP.get(emotion, 1.0)
 
 
-# ---------------------------------------------------------------------------
 # Dataclass resultado
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class TrendResult:
     """Resultado del análisis de tendencia emocional para un turno dado."""
-
     dominant_emotion: str
     current_emotion: str
     trend: str
@@ -60,76 +58,77 @@ class TrendResult:
     prompt_context: str = ""
 
 
-# ---------------------------------------------------------------------------
 # Clase principal
-# ---------------------------------------------------------------------------
-
-
 class EmotionalMemoryGRU:
     """
     Memoria emocional de sesión con detección de tendencias por ventana deslizante.
 
     Implementa una versión simplificada del módulo GRU-emotion del DMCGES,
-    operando únicamente sobre la modalidad texto.
+    operando únicamente sobre la modalidad texto para mantener el estado 
+    latente de la conversación a corto/medio plazo.
     """
 
     def __init__(self, window_size: int = 6) -> None:
-        """Inicializa la memoria con el tamaño de ventana especificado."""
+        """
+        Inicializa la memoria.
+        Args:
+            window_size: Tamaño de la memoria a corto plazo (turnos a evaluar).
+                         6 turnos = aprox. los últimos 3 intercambios completos.
+        """
         self.window_size: int = window_size
         self.emotion_history: list[str] = []
         self.turn_count: int = 0
 
-    # ------------------------------------------------------------------
-    # Registro
-    # ------------------------------------------------------------------
 
+    # Registro
     def update(self, emotion: str, confidence: float) -> None:
         """
         Registra la emoción del turno actual.
 
-        Si confidence < 0.4, registra 'others' independientemente de la etiqueta.
+        Filtro de incertidumbre: Si confidence < 0.4, registra 
+        'others' para evitar contaminar la memoria con falsos positivos del clasificador.
         """
         effective_emotion = emotion if confidence >= 0.4 else "others"
         self.emotion_history.append(effective_emotion)
         self.turn_count += 1
 
-    # ------------------------------------------------------------------
-    # Consultas sobre la ventana
-    # ------------------------------------------------------------------
 
+    # Consultas sobre la ventana
     def get_window(self) -> list[str]:
         """Devuelve los últimos window_size turnos."""
         return self.emotion_history[-self.window_size :]
 
     def get_dominant_emotion(self) -> str:
         """
-        Emoción más frecuente en la ventana actual.
-
-        En caso de empate, devuelve la más reciente.
+        Calcula la emoción más frecuente en la ventana actual.
+        Sistema de desempate temporal: En caso de empate de frecuencias, 
+        prioriza la emoción que haya ocurrido más recientemente.
         """
         window = self.get_window()
         if not window:
             return "others"
+        
         # Desempate por posición más reciente: índice mayor en window = más reciente
         counts = Counter(window)
         max_count = max(counts.values())
         candidates = [e for e, c in counts.items() if c == max_count]
+
         if len(candidates) == 1:
             return candidates[0]
-        # Entre empatadas, devolver la que aparece más recientemente
+        
+        # Desempate iterando desde el más reciente (final de la lista) hacia atrás
         for emotion in reversed(window):
             if emotion in candidates:
                 return emotion
-        return window[-1]  # fallback (unreachable)
+        
+        return window[-1]  # Fallback de seguridad (unreachable)
 
-    # ------------------------------------------------------------------
+
     # Tendencia
-    # ------------------------------------------------------------------
-
     def detect_trend(self) -> str:
         """
-        Detecta la tendencia comparando la primera mitad de la ventana
-        con la segunda mitad.
+        Detecta la tendencia calculando el gradiente de valencia entre la primera 
+        y la segunda mitad de la ventana de memoria.
 
         Mapeo: NEGATIVE_HIGH=0, NEGATIVE_LOW=1, POSITIVE=2.
         Umbral de cambio significativo: ±0.3.
@@ -152,10 +151,7 @@ class EmotionalMemoryGRU:
             return "deterioro"
         return "estable"
 
-    # ------------------------------------------------------------------
-    # Resultado completo
-    # ------------------------------------------------------------------
-
+    # Inyección de Contexto para el LLM (Prompt Engineering)
     def get_trend_result(self) -> TrendResult:
         """Genera el TrendResult completo con todos los campos."""
         current = self.emotion_history[-1] if self.emotion_history else "others"
@@ -208,10 +204,8 @@ class EmotionalMemoryGRU:
             f"Tendencia: {trend_phrase}."
         )
 
-    # ------------------------------------------------------------------
-    # Gestión de sesión
-    # ------------------------------------------------------------------
 
+    # Gestión de sesión
     def reset(self) -> None:
         """Reinicia la memoria al comenzar una nueva sesión."""
         self.emotion_history = []

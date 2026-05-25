@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import sys
 import time
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -25,38 +26,26 @@ try:
 except ImportError:
     from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# Garantiza que la raíz del proyecto está en sys.path al ejecutar el script directamente.
+# Configuración de Logging para trazabilidad
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+log = logging.getLogger(__name__)
+
+# Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.rag.experiments.utils import (  # noqa: E402
-    CORPUS_DIR,
-    TEST_CASES,
-    build_faiss_index_from_embeddings,
-    compute_hit_at_any,
-    compute_metrics_for_run,
-    compute_precision_at_k,
-    load_chunks_from_markdown,
-    save_results,
-)
+from src.rag.experiments.utils import CORPUS_DIR, TEST_CASES, build_faiss_index_from_embeddings, compute_hit_at_any, compute_metrics_for_run, compute_precision_at_k, load_chunks_from_markdown, save_results
 
-# ---------------------------------------------------------------------------
+
 # Constantes
-# ---------------------------------------------------------------------------
-
 TOP_K = 3
 
 
-# ---------------------------------------------------------------------------
 # Configuración de modelos
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class ModelConfig:
     """Configuración de un modelo de embeddings para el experimento."""
-
     short_name: str
     model_id: str
     dim: int
@@ -66,7 +55,9 @@ class ModelConfig:
     def __str__(self) -> str:
         return self.short_name
 
-
+# Selección de Candidatos: Se evalúa el baseline (mpnet), modelos masivos State-of-the-Art (bge-m3, e5-large) 
+# y un modelo Knowledge Distillation nativo en español (distilroberta) para evaluar 
+# el trade-off entre latencia y precisión semántica.
 MODELS: list[ModelConfig] = [
     ModelConfig(
         short_name="paraphrase-multilingual-mpnet",
@@ -96,16 +87,12 @@ MODELS: list[ModelConfig] = [
 ]
 
 
-# ---------------------------------------------------------------------------
 # Wrapper para multilingual-e5-large
-# ---------------------------------------------------------------------------
-
-
 class E5LargeEmbeddings:
-    """Wrapper para multilingual-e5-large que añade los prefijos
-    obligatorios según la documentación oficial del modelo.
-    Queries: prefijo 'query: '
-    Documentos: prefijo 'passage: '
+    """
+    Wrapper específico para la arquitectura E5.
+    Garantiza la asimetría de representación requerida por el modelo inyectando 
+    los prefijos 'query: ' y 'passage: ' para maximizar la similitud latente.
     Referencia: Wang et al. (2024) Multilingual E5 Text Embeddings.
     """
 
@@ -144,11 +131,7 @@ class E5LargeEmbeddings:
         return embeddings, float(np.mean(latencies))
 
 
-# ---------------------------------------------------------------------------
 # Carga de embeddings
-# ---------------------------------------------------------------------------
-
-
 def load_embeddings(config: ModelConfig) -> Any:
     """Carga el modelo de embeddings apropiado para la configuración dada.
 
@@ -172,15 +155,8 @@ def load_embeddings(config: ModelConfig) -> Any:
     )
 
 
-# ---------------------------------------------------------------------------
 # Medición de latencia de embeddings
-# ---------------------------------------------------------------------------
-
-
-def measure_query_latency(
-    embeddings_obj: Any,
-    queries: list[str],
-) -> tuple[list[list[float]], float]:
+def measure_query_latency(embeddings_obj: Any, queries: list[str]) -> tuple[list[list[float]], float]:
     """Mide la latencia media de embed_query para una lista de consultas.
 
     Args:
@@ -203,15 +179,8 @@ def measure_query_latency(
     return query_embeddings, float(np.mean(latencies))
 
 
-# ---------------------------------------------------------------------------
 # Evaluación por modelo
-# ---------------------------------------------------------------------------
-
-
-def evaluate_model(
-    config: ModelConfig,
-    docs: list,
-) -> dict:
+def evaluate_model(config: ModelConfig, docs: list) -> dict:
     """Evalúa un modelo de embeddings sobre las 10 consultas estándar.
 
     Pasos:
@@ -227,22 +196,19 @@ def evaluate_model(
     Returns:
         Dict con métricas y resultados por consulta.
     """
-    print(f"\n  [{config.short_name}]")
-    print(f"    Cargando modelo: {config.model_id}")
+    log.info(f"Evaluando candidato: {config.short_name} ")
     embeddings_obj = load_embeddings(config)
 
     # Codificar corpus
-    print(f"    Codificando {len(docs)} chunks...")
     t_corpus_start = time.perf_counter()
     doc_embeddings = embeddings_obj.embed_documents([doc.page_content for doc in docs])
     t_corpus = (time.perf_counter() - t_corpus_start) * 1000
-    print(f"    Corpus codificado en {t_corpus:.0f} ms.")
+    log.info(f"Corpus ({len(docs)} chunks) codificado geométricamente en {t_corpus:.0f} ms.")
 
     # Construir índice FAISS in-memory
     index = build_faiss_index_from_embeddings(doc_embeddings)
 
     # Medir latencia de query + obtener embeddings de las 10 consultas
-    print(f"    Midiendo latencia de embedding en 10 queries...")
     queries = [tc["query"] for tc in TEST_CASES]
     query_embeddings, latencia_media_ms = measure_query_latency(embeddings_obj, queries)
 
@@ -285,11 +251,7 @@ def evaluate_model(
     }
 
 
-# ---------------------------------------------------------------------------
 # Presentación de resultados
-# ---------------------------------------------------------------------------
-
-
 def _print_results_table(model_results: list[dict]) -> None:
     """Imprime la tabla comparativa de los modelos evaluados en consola."""
     sep = "=" * 80
@@ -310,26 +272,23 @@ def _print_results_table(model_results: list[dict]) -> None:
     print(f"{sep}")
 
 
-# ---------------------------------------------------------------------------
 # Main
-# ---------------------------------------------------------------------------
-
-
 def main() -> None:
     """Ejecuta el experimento comparativo de embeddings y guarda resultados en JSON."""
-    print("Cargando corpus con chunking manual terapéutico (ganador Exp. 1)...")
+    log.info("Iniciando Experimento 2: Evaluación del Espacio Latente Multilingüe.")
+    
     docs = load_chunks_from_markdown(CORPUS_DIR)
-    print(f"{len(docs)} chunks cargados.\n")
+    log.info(f"Corpus base (Chunking Manual): {len(docs)} unidades terapéuticas.")
 
     all_results: list[dict] = []
     for config in MODELS:
         result = evaluate_model(config, docs)
         all_results.append(result)
 
-    # ── Tabla comparativa ──────────────────────────────────────────────────
+    # Tabla comparativa
     _print_results_table(all_results)
 
-    # ── Guardar JSON ───────────────────────────────────────────────────────
+    # Guardar JSON
     prec_values = [r["precision_at_3_media"] for r in all_results]
     max_diff = round(max(prec_values) - min(prec_values), 4)
 

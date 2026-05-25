@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 import sys
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -25,49 +26,33 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
-# Garantiza que la raíz del proyecto está en sys.path al ejecutar el script directamente.
+# Configuración de Logging para trazabilidad
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+log = logging.getLogger(__name__)
+
+
+# Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.rag.experiments.utils import (  # noqa: E402
-    CORPUS_DIR,
-    RESULTS_DIR,
-    TEST_CASES,
-    compute_hit_at_any,
-    compute_metrics_for_run,
-    compute_precision_at_k,
-    load_chunks_from_markdown,
-    print_results_table,
-    save_results,
-)
+from src.rag.experiments.utils import CORPUS_DIR, RESULTS_DIR, TEST_CASES, compute_hit_at_any, compute_metrics_for_run, compute_precision_at_k, load_chunks_from_markdown, print_results_table, save_results
 
-# ---------------------------------------------------------------------------
+
 # Constantes
-# ---------------------------------------------------------------------------
-
 EMBEDDING_MODEL = "paraphrase-multilingual-mpnet-base-v2"
 TOP_K = 3
 
 
-# ---------------------------------------------------------------------------
 # Dataclass auxiliar (solo Estrategia B — auto-chunking sin front matter)
-# ---------------------------------------------------------------------------
-
-
 @dataclass
 class EvalChunk:
     """Chunk mínimo con pilar inferido del nombre de archivo (solo Estrategia B)."""
-
     pillar: int
     content: str
 
 
-# ---------------------------------------------------------------------------
 # Carga de corpus — Estrategia B (auto-chunking, específico de este experimento)
-# ---------------------------------------------------------------------------
-
-
 def _pillar_from_filename(path: Path) -> int:
     """Extrae el número de pilar del nombre de archivo (pillar3_hope.md → 3)."""
     match = re.search(r"pillar(\d+)", path.stem)
@@ -94,31 +79,29 @@ def load_auto_chunks(corpus_dir: Path) -> list[EvalChunk]:
         separators=["\n\n", "\n", ". ", " "],
     )
     chunks: list[EvalChunk] = []
+
     for md_file in sorted(corpus_dir.glob("*.md")):
         pillar = _pillar_from_filename(md_file)
         text = md_file.read_text(encoding="utf-8")
-        # Split por '---' y conservar solo las partes de contenido (índices pares ≥ 2)
+
+        # Eliminar metadatos YAML para aislar solo el contenido terapéutico
         parts = re.split(r"^---$", text, flags=re.MULTILINE)
         content_parts = [
             parts[i].strip() for i in range(2, len(parts), 2) if i < len(parts)
         ]
         plain_text = "\n\n".join(p for p in content_parts if p)
+
         if not plain_text:
             continue
         for fragment in splitter.split_text(plain_text):
             if fragment.strip():
                 chunks.append(EvalChunk(pillar=pillar, content=fragment.strip()))
+    
     return chunks
 
 
-# ---------------------------------------------------------------------------
 # Indexación FAISS (in-memory)
-# ---------------------------------------------------------------------------
-
-
-def build_faiss_index(
-    docs: list[Document], model: SentenceTransformer
-) -> faiss.IndexFlatIP:
+def build_faiss_index(docs: list[Document], model: SentenceTransformer) -> faiss.IndexFlatIP:
     """Genera embeddings e indexa en FAISS en memoria. No persiste en disco.
 
     Usa IndexFlatIP con vectores normalizados, equivalente a similitud coseno exacta.
@@ -142,17 +125,8 @@ def build_faiss_index(
     return index
 
 
-# ---------------------------------------------------------------------------
 # Evaluación
-# ---------------------------------------------------------------------------
-
-
-def evaluate_strategy(
-    docs: list[Document],
-    index: faiss.IndexFlatIP,
-    model: SentenceTransformer,
-    top_k: int = TOP_K,
-) -> list[dict]:
+def evaluate_strategy(docs: list[Document], index: faiss.IndexFlatIP, model: SentenceTransformer, top_k: int = TOP_K) -> list[dict]:
     """Evalúa precision@k y hit@any para las 10 consultas estándar.
 
     Args:
@@ -191,17 +165,8 @@ def evaluate_strategy(
     return results
 
 
-# ---------------------------------------------------------------------------
 # Presentación de resultados
-# ---------------------------------------------------------------------------
-
-
-def _print_summary(
-    manual_results: list[dict],
-    auto_results: list[dict],
-    n_manual: int,
-    n_auto: int,
-) -> None:
+def _print_summary(manual_results: list[dict], auto_results: list[dict], n_manual: int, n_auto: int) -> None:
     """Imprime resumen comparativo entre estrategias."""
     m_a = compute_metrics_for_run(manual_results)
     m_b = compute_metrics_for_run(auto_results)
@@ -217,51 +182,45 @@ def _print_summary(
     )
     print(f"  {'-'*45} {'-'*6} {'-'*8} {'-'*8}")
     print(
-        f"  {'A — Manual terapéutico (V1)':<46} {n_manual:>6}"
+        f"  {'A - Manual terapéutico (V1)':<46} {n_manual:>6}"
         f" {prec_a:>8.4f} {hit_a:>8.4f}"
     )
     print(
-        f"  {'B — Automático (chunk_size=300, overlap=50)':<46} {n_auto:>6}"
+        f"  {'B - Automático (chunk_size=300, overlap=50)':<46} {n_auto:>6}"
         f" {prec_b:>8.4f} {hit_b:>8.4f}"
     )
     print(f"{sep}\n")
 
 
-# ---------------------------------------------------------------------------
 # Main
-# ---------------------------------------------------------------------------
-
-
 def main() -> None:
     """Ejecuta el experimento comparativo de chunking y guarda resultados en JSON."""
-    print(f"Modelo de embeddings: {EMBEDDING_MODEL}")
-    print("Cargando modelo...")
+    log.info(f"Iniciando Experimento 1 - Modelo de embeddings: {EMBEDDING_MODEL}")
+    log.info("Cargando SentenceTransformer en memoria...")
     model = SentenceTransformer(EMBEDDING_MODEL)
 
-    # ── Estrategia A: chunking manual terapéutico ──────────────────────────
-    print("\n[A] Cargando chunks manuales (unidades terapéuticas)...")
+    # Estrategia A: chunking manual terapéutico
+    log.info("[Estrategia A] Cargando corpus con partición manual (YAML Front Matter)...")
     manual_docs = load_chunks_from_markdown(CORPUS_DIR)
-    print(f"    {len(manual_docs)} chunks cargados.")
-    print("[A] Indexando en FAISS (in-memory)...")
+    log.info(f"[Estrategia A] {len(manual_docs)} chunks terapéuticos indexados.")
+    
     manual_index = build_faiss_index(manual_docs, model)
-    print("[A] Evaluando con 10 consultas estándar...")
     manual_results = evaluate_strategy(manual_docs, manual_index, model)
 
-    # ── Estrategia B: chunking automático ─────────────────────────────────
-    print("\n[B] Generando chunks automáticos (RecursiveCharacterTextSplitter)...")
+    # Estrategia B: chunking automático
+    log.info("[Estrategia B] Generando partición automática (RecursiveCharacterTextSplitter)...")
     auto_chunks = load_auto_chunks(CORPUS_DIR)
-    print(f"    {len(auto_chunks)} chunks generados.")
+    log.info(f"[Estrategia B] {len(auto_chunks)} chunks algorítmicos generados.")
+    
     # Convertir EvalChunk a Document para usar la misma interfaz de evaluación
     auto_docs = [
         Document(page_content=c.content, metadata={"pillar": c.pillar, "chunk_id": ""})
         for c in auto_chunks
     ]
-    print("[B] Indexando en FAISS (in-memory)...")
     auto_index = build_faiss_index(auto_docs, model)
-    print("[B] Evaluando con 10 consultas estándar...")
     auto_results = evaluate_strategy(auto_docs, auto_index, model)
 
-    # ── Tablas individuales ────────────────────────────────────────────────
+    # Tablas individuales
     print_results_table(
         f"Estrategia A — Manual terapéutico (V1)  [{len(manual_docs)} chunks]",
         manual_results,
@@ -271,10 +230,10 @@ def main() -> None:
         auto_results,
     )
 
-    # ── Resumen comparativo ────────────────────────────────────────────────
+    # Resumen comparativo
     _print_summary(manual_results, auto_results, len(manual_docs), len(auto_docs))
 
-    # ── Guardar JSON ───────────────────────────────────────────────────────
+    # Guardar JSON
     m_a = compute_metrics_for_run(manual_results)
     m_b = compute_metrics_for_run(auto_results)
     prec_a, hit_a = m_a["precision_at_3_media"], m_a["hit_at_any_rate"]

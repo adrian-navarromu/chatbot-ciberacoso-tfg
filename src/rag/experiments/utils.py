@@ -1,5 +1,5 @@
 """
-Utilidades compartidas para los experimentos de comparación RAG (Exp. 1–4).
+Utilidades compartidas para los experimentos de comparación RAG (Exp. 1-4).
 
 Proporciona la fuente canónica de casos de test, funciones de métricas,
 carga del corpus, construcción de índice FAISS en memoria y guardado de JSON.
@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import logging
 from pathlib import Path
 from typing import Union
 
@@ -28,17 +29,14 @@ import numpy as np
 import yaml
 from langchain_core.documents import Document
 
-# ---------------------------------------------------------------------------
-# Rutas canónicas — fuente única de verdad para todos los experimentos
-# ---------------------------------------------------------------------------
+# Configuración del logger para consistencia con el proyecto
+log = logging.getLogger(__name__)
 
+# Rutas canónicas - fuente única para todos los experimentos
 CORPUS_DIR: Path = Path("data/rag_corpus")
 RESULTS_DIR: Path = Path("eval/rag_experiments")
 
-# ---------------------------------------------------------------------------
-# Casos de test canónicos — fuente única de verdad para todos los experimentos
-# ---------------------------------------------------------------------------
-
+# Casos de test canónicos - fuente única para todos los experimentos
 TEST_CASES: list[dict] = [
     {
         "id": "Q01",
@@ -122,6 +120,7 @@ TEST_CASES: list[dict] = [
     },
 ]
 
+# Set de pruebas Lexical-Search (BM25). Evalúa la capacidad del sistema para recuperar entidades exactas, contrarrestando la debilidad de los modelos densos (embeddings) con acrónimos.
 BM25_TEST_CASES: list[dict] = [
     {
         "id": "BM25_01",
@@ -197,11 +196,8 @@ BM25_TEST_CASES: list[dict] = [
     }
 ]
 
-# ---------------------------------------------------------------------------
+
 # Funciones de métricas
-# ---------------------------------------------------------------------------
-
-
 def compute_precision_at_k(retrieved: list[int], expected: set[int], k: int) -> float:
     """Fracción de los primeros k resultados que pertenecen a un pilar esperado.
 
@@ -274,16 +270,8 @@ def compute_metrics_for_run(results: list[dict]) -> dict:
     return out
 
 
-# ---------------------------------------------------------------------------
 # Presentación de resultados
-# ---------------------------------------------------------------------------
-
-
-def print_results_table(
-    config_name: str,
-    results: list[dict],
-    show_emotion: bool = False,
-) -> None:
+def print_results_table(config_name: str, results: list[dict], show_emotion: bool = False) -> None:
     """Imprime tabla de resultados por consulta en formato de consola.
 
     Detecta automáticamente si los resultados incluyen 'precision_at_1'
@@ -375,14 +363,8 @@ def print_results_table(
     print(sep)
 
 
-# ---------------------------------------------------------------------------
 # Índice FAISS en memoria
-# ---------------------------------------------------------------------------
-
-
-def build_faiss_index_from_embeddings(
-    embeddings: Union[list[list[float]], np.ndarray],
-) -> faiss.IndexFlatIP:
+def build_faiss_index_from_embeddings(embeddings: Union[list[list[float]], np.ndarray]) -> faiss.IndexFlatIP:
     """Construye un índice FAISS IndexFlatIP en memoria a partir de vectores precalculados.
 
     IndexFlatIP con vectores normalizados equivale a similitud coseno exacta.
@@ -400,11 +382,7 @@ def build_faiss_index_from_embeddings(
     return index
 
 
-# ---------------------------------------------------------------------------
 # Guardado de resultados
-# ---------------------------------------------------------------------------
-
-
 def save_results(filename: str, output: dict) -> Path:
     """Guarda resultados en JSON dentro de RESULTS_DIR y confirma en consola.
 
@@ -418,15 +396,11 @@ def save_results(filename: str, output: dict) -> Path:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out_path = RESULTS_DIR / filename
     out_path.write_text(json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Resultados guardados en {out_path}")
+    log.info(f"Resultados de evaluación guardados en {out_path}")
     return out_path
 
 
-# ---------------------------------------------------------------------------
 # Carga del corpus
-# ---------------------------------------------------------------------------
-
-
 def load_chunks_from_markdown(corpus_dir: Path) -> list[Document]:
     """Parsea los archivos .md del corpus RAG y devuelve Documents de LangChain.
 
@@ -435,8 +409,8 @@ def load_chunks_from_markdown(corpus_dir: Path) -> list[Document]:
     Solo se cargan chunks con los campos 'id' y 'pillar' presentes en el YAML.
 
     Los metadatos se serializan compatibles con ChromaDB:
-    - emotions (list) → JSON string
-    - therapeutic_technique (None) → ""
+    - emotions (list) --> JSON string
+    - therapeutic_technique (None) --> ""
 
     Args:
         corpus_dir: Directorio con los archivos .md del corpus RAG.

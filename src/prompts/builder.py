@@ -82,13 +82,7 @@ TEMPERATURE_BY_EMOTION: dict[str, float] = {
 }
 
 
-def build_prompt(
-    emotion: str,
-    rag_context: str,
-    history: list[dict],
-    confidence: float = 1.0,
-    emotional_context: str = "",
-) -> list[dict]:
+def build_prompt(emotion: str, rag_context: str, history: list[dict], confidence: float = 1.0, emotional_context: str = "") -> list[dict]:
     """
     Construye la lista de mensajes para el SLM.
 

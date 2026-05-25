@@ -8,14 +8,7 @@ mientras elimina ruido específico de Twitter y los placeholders del dataset.
 import re
 import emoji
 
-
-# ---------------------------------------------------------------------------
-# Patrones de compilación única (coste de compilación pagado una sola vez)
-# ---------------------------------------------------------------------------
-
 # Placeholders que EmoEvent usa para anonimizar menciones, hashtags y URLs.
-# Orden: variantes con prefijo (@USER, #HASHTAG) antes que la palabra sola
-# para evitar que el grupo más corto consuma solo parte del token.
 _PLACEHOLDER_RE = re.compile(
     r"@USER\b"          # mención anonimizada con arroba
     r"|#HASHTAG\b"      # hashtag anonimizado con almohadilla
@@ -57,20 +50,17 @@ def clean_tweet(text: str) -> str:
     if not isinstance(text, str):
         return ""
 
-    # 1. Eliminar placeholders y URLs reales
+    # Eliminar placeholders y URLs reales
     text = _PLACEHOLDER_RE.sub("", text)
 
-    # 2. Emojis → descripción en español
-    #    delimiters=(' ', ' ') rodea cada descripción con espacios para evitar
-    #    que se pegue a palabras adyacentes; los guiones bajos se convierten
-    #    en espacios para facilitar la tokenización posterior.
+    # Pasar emojis a descripción en español
     text = emoji.demojize(text, language="es", delimiters=(" ", " "))
     text = text.replace("_", " ")
 
-    # 3. Comillas escapadas → comilla simple
+    # Comillas escapadas a comilla simple
     text = _ESCAPED_QUOTES_RE.sub("'", text)
 
-    # 4. Colapsar espacios y limpiar márgenes
+    # Colapsar espacios y limpiar márgenes
     text = _WHITESPACE_RE.sub(" ", text).strip()
 
     return text
