@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFG Chatbot Emocional — Experimentos y Resultados</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: #f7f7f8;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      max-width: 680px;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 0.6rem;
+      color: #0f172a;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #64748b;
+    }
+
+    main {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 0.75rem;
+    }
+
+    ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    li a {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+      padding: 0.85rem 1rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    li a:hover {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+    }
+
+    .nb-number {
+      flex-shrink: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #6366f1;
+      background: #eef2ff;
+      border-radius: 4px;
+      padding: 0.2rem 0.45rem;
+      letter-spacing: 0.04em;
+    }
+
+    .nb-info { flex: 1; min-width: 0; }
+
+    .nb-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nb-desc {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 0.15rem;
+    }
+
+    .nb-arrow {
+      flex-shrink: 0;
+      color: #cbd5e1;
+      font-size: 1rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>TFG Chatbot Emocional<br>Experimentos y Resultados</h1>
+    <p>Adrián Navarro &middot; Ciencia e Ingeniería de Datos &middot; UMU</p>
+  </header>
+
+  <main>
+    <p class="section-label">Notebooks</p>
+    <ul>
+
+      <li>
+        <a href="01_emoevent_eda.html">
+          <span class="nb-number">01</span>
+          <span class="nb-info">
+            <span class="nb-title">Análisis exploratorio EmoEvent</span>
+            <span class="nb-desc">Distribución de emociones, longitudes de texto y calidad del dataset en español.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="02_eda_preprocessed_comparison.html">
+          <span class="nb-number">02</span>
+          <span class="nb-info">
+            <span class="nb-title">Preprocesamiento y balanceo de clases</span>
+            <span class="nb-desc">Limpieza de texto, datos sintéticos y comparativa de estratificación train/val/test.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="03_model_selection.html">
+          <span class="nb-number">03</span>
+          <span class="nb-info">
+            <span class="nb-title">Selección del clasificador emocional</span>
+            <span class="nb-desc">Comparativa BETO / RoBERTuito / MarIA — impacto de pesos de clase y métricas F1-macro.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="04_rag_test.html">
+          <span class="nb-number">04</span>
+          <span class="nb-info">
+            <span class="nb-title">Evaluación RAG V1 (FAISS)</span>
+            <span class="nb-desc">Primera validación del corpus clínico con FAISS y embeddings multilingües.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="05_mtlhate_prompt_experiment.html">
+          <span class="nb-number">05</span>
+          <span class="nb-info">
+            <span class="nb-title">Experimento MTLHate — descarte empírico</span>
+            <span class="nb-desc">Evaluación de MTLHate como señal de detección de acoso; justificación del descarte.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="06_rag_v2_comparison.html">
+          <span class="nb-number">06</span>
+          <span class="nb-info">
+            <span class="nb-title">Comparativa RAG V2 (4 experimentos)</span>
+            <span class="nb-desc">Chunking, embeddings, vectorstore y búsqueda híbrida — selección de la arquitectura final.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="07_prompt_engineering_experiment.html">
+          <span class="nb-number">07</span>
+          <span class="nb-info">
+            <span class="nb-title">Selección de variante de prompt engineering (A/B/C/D)</span>
+            <span class="nb-desc">Comparativa de 4 estrategias de system prompt sobre 15 casos con rúbrica clínica.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="08_slm_benchmark.html">
+          <span class="nb-number">08</span>
+          <span class="nb-info">
+            <span class="nb-title">Benchmark comparativo de 5 SLMs</span>
+            <span class="nb-desc">Eficiencia, adecuación clínica y coherencia conversacional de TinyLlama, Gemma, Phi-3 y Mistral.</span>
+          </span>
+          <span class="nb-arrow">›</span>
+        </a>
+      </li>
+
+    </ul>
+  </main>
+
+  <footer>
+    Generado con <a href="https://nbconvert.readthedocs.io" style="color:#94a3b8">nbconvert</a>
+    &middot; Trabajo de Fin de Grado &middot; Universidad de Murcia
+  </footer>
+
+</body>
+</html>
