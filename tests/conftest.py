@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MODEL_PATH = PROJECT_ROOT / "models" / "emotion_classifier" / "beto"
+DEFAULT_MODEL_PATH = PROJECT_ROOT / "models" / "emotion_classifier" / "robertuito"
 
 # Añade la raíz del proyecto al path para que `from src.xxx import ...` funcione
 # en todos los tests sin que cada archivo lo tenga que hacer individualmente.

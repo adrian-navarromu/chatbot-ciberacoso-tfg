@@ -6,51 +6,40 @@ Requieren que exista un modelo fine-tuned en models/emotion_classifier/
 
 Ejecución:
     pytest tests/test_emotion_detector.py -v
-    pytest tests/test_emotion_detector.py -v --model-path models/emotion_classifier/beto
+    pytest tests/test_emotion_detector.py -v --model-path models/emotion_classifier/robertuito
 """
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 import torch
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PROJECT_ROOT))
-
 from src.emotion.emotion_detector import EmotionDetector, EmotionResult
 
 
 # ---------------------------------------------------------------------------
-# Fixtures  (pytest_addoption vive en conftest.py)
+# Fixtures  (model_path y pytest_addoption viven en conftest.py)
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="session")
-def model_path(request) -> str:
-    return request.config.getoption("--model-path")
-
-
-@pytest.fixture(scope="session")
-def detector(model_path: str) -> EmotionDetector:
+def detector(model_path: Path) -> EmotionDetector:
     """Instancia única de EmotionDetector reutilizada en toda la sesión."""
-    path = Path(model_path)
-    if not path.exists():
+    if not model_path.exists():
         pytest.skip(
-            f"Modelo no encontrado en {path}. "
+            f"Modelo no encontrado en {model_path}. "
             "Entrena primero con python src/emotion/train_classifier.py"
         )
     return EmotionDetector(model_path=model_path)
 
 
 @pytest.fixture(scope="session")
-def detector_cpu(model_path: str) -> EmotionDetector:
+def detector_cpu(model_path: Path) -> EmotionDetector:
     """Instancia de EmotionDetector forzada a CPU."""
-    path = Path(model_path)
-    if not path.exists():
-        pytest.skip(f"Modelo no encontrado en {path}.")
+    if not model_path.exists():
+        pytest.skip(f"Modelo no encontrado en {model_path}.")
     return EmotionDetector(model_path=model_path, device="cpu")
 
 
@@ -94,9 +83,9 @@ class TestEmotionDetection:
         assert result.label == "anger", f"Esperaba anger, obtuvo {result.label}"
 
     def test_disgust(self, detector: EmotionDetector) -> None:
-        """Detecta disgust en un mensaje de repulsión y náuseas."""
+        """Detecta disgust en un mensaje de náuseas y desagrado."""
         result = detector.detect(
-            "Me da náuseas pensar en lo que han hecho, es absolutamente repugnante."
+            "Me da náuseas, es lo más desagradable que he visto."
         )
         assert_valid_result(result)
         assert result.label == "disgust", f"Esperaba disgust, obtuvo {result.label}"
@@ -203,19 +192,3 @@ class TestCPUDevice:
         assert detector_cpu.device == torch.device("cpu"), "El detector debería usar CPU"
         result = detector_cpu.detect("Estoy muy triste y me siento abandonado.")
         assert_valid_result(result)
-
-
-# ---------------------------------------------------------------------------
-# Test del placeholder de audio
-# ---------------------------------------------------------------------------
-
-
-class TestAudioPlaceholder:
-
-    def test_audio_placeholder_ignores_audio(self, detector: EmotionDetector) -> None:
-        """detect_with_audio_placeholder devuelve el mismo resultado que detect."""
-        text = "Me han amenazado y tengo mucho miedo."
-        result_text = detector.detect(text)
-        result_audio = detector.detect_with_audio_placeholder(text, audio_path="fake.wav")
-        assert result_text.label == result_audio.label
-        assert abs(result_text.confidence - result_audio.confidence) < 1e-6

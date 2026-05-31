@@ -12,7 +12,7 @@ Los tests del Grupo B usan BM25Retriever con los documentos reales del corpus
 comportamiento léxico de forma determinista y sin GPU/modelos pesados.
 
 Ejecución:
-    python src/rag/document_ingestion_v2.py
+    pytest tests/test_enriched_retriever.py -v
 
 Nota: No requiere que los experimentos se hayan ejecutado.
 """
@@ -251,7 +251,7 @@ def test_crisis_handled_by_failsafe() -> None:
 
     Verifica que el cortocircuito PAP funciona como primera capa de seguridad:
     el pipeline devuelve inmediatamente la respuesta de primeros auxilios
-    psicológicos sin invocar EmotionDetector, RAGRetriever ni el SLM.
+    psicológicos sin invocar EmotionDetector, EnrichedRetriever ni el SLM.
     """
     from src.pipeline.v2 import ChatbotV2
 
@@ -259,7 +259,8 @@ def test_crisis_handled_by_failsafe() -> None:
 
     with (
         patch("src.pipeline.v2.EmotionDetector"),
-        patch("src.pipeline.v2.RAGRetriever") as mock_rag_cls,
+        patch("src.pipeline.v2.DocumentIngesterV2"),
+        patch("src.pipeline.v2.EnrichedRetriever") as mock_rag_cls,
         patch("src.pipeline.v2.EmotionalMemoryGRU") as mock_memory_cls,
         patch("src.pipeline.v2.ChatOllama"),
         patch("src.pipeline.v2.CrisisDetector") as mock_crisis_cls,
@@ -285,7 +286,7 @@ def test_crisis_handled_by_failsafe() -> None:
     mock_crisis_instance.detect.assert_called_once_with(crisis_msg)
 
     # ── Verificación 2: el RAG NO fue consultado (cortocircuito PAP) ──────
-    mock_rag_instance.retrieve.assert_not_called()
+    mock_rag_instance.retrieve_with_routing.assert_not_called()
 
     # ── Verificación 3: la respuesta señala 'crisis' correctamente ────────
     assert result.emotion_label == "crisis", (
