@@ -1,0 +1,106 @@
+model,conv_id,turno,user_msg,chatbot_response,continuidad_score,adaptacion_score,total_score,notas
+tinyllama,Conv1,2,¿puedo denunciarlo?,"No es una manera de denunciarlo. El uso de esta frase está fuera del lugar y no debe ser utilizado en una frase completa. Los procesos legales necesitan información específica para poder acción legal, así que la frase ""denunciarllo"" solo puede ser utilizada en su traducción literal o a través de un traductor asistido. Si desea denunciar al usuario por sus acciones, debe hacerlo con una traducción de su propia frase literal en su idioma nativo.",0,0,0,No adapta el ROL de este chatbot
+tinyllama,Conv1,3,me da miedo hacerlo,"Sí, puedes denunciar al usuario por sus acciones. La frase ""denunciarllo"" está fuera del lugar para ser utilizada como una traducción literal o de un traductor asiístico. Los procesos legales necesitan información específica para poder acción legal, así que la frase ""denunciarllo"" solo puede ser utilizada en su traducción literal o a través de un traductor asiístico. Si deseas denunciar al usuario por sus acciones, puedes hacerlo con una traducción de tu propiya frase literal en el idioma natural del usuario.",0,0,0,No adapta el ROL de este chatbot
+tinyllama,Conv2,2,"sí, en WhatsApp","Sí, se describe como una asociación de palabras que no pueden ser confiadas a menudo en situaciones de ciberacocio. Los siguientes ejemplos incluyen las palabras ""toe"" (prefijo ""tendo"") y ""denunciar"" (con excépción del uso del ""toe"" en el prefijo ""tendo""), que son expresiones que pueden ser confiadas con un grado limitado de seguridad, mientras que ""bloquear"", ""denunciar"", ""buscar apoyo"" y otros más no se incluyen. Además, se describen las prácticas o comportamientos concretos de ciberacoso que ocurren en situaciones de ciberacocio, como bloqueo de mensajes, denunciar y buscar apoyo.",0,0,0,No adapta el ROL de este chatbot
+tinyllama,Conv2,3,llevo 3 semanas,"En el contexto del texto anterior, la respuesta ""llevo 3 semanas"" es correcta y no es una frase corta. Se describe que ha estado en esta situación durante tres semanas, con la información añadida de que se refiere a una experiencia cotidiana o diaria.",0,0,0,No adapta el ROL de este chatbot
+tinyllama,Conv3,2,me ha apoyado mucho,"Según el texto anterior, las personas que apoyan a otro pueden tener una gran cantidad de impacto en su vida. En particular, Ayers, la madre de este estudiante, ha ayudado considerablemente a ella y a otros miembros de la escuela. A pesar de que se supone que todos están esperando su ayuda o necesitan ayuda, este estudiante vio a un grupo de personas que estaban acerqueando al instituto. Esta situación podría haber sido inminente si no fuera por las múltiples ayudas y apoyos que Ayers proporcionó. El texto también muestra cómo Ayers ha estado ayudando a la comunidad de una manera muy importante, no solo a través del trabajo en el instituto sino también a través de su propio comportamiento positivo. Por eso, se puede considerar que Ayers es un apoyo para toda la comunidad escolar y por lo tanto, tiene una gran cantidad de impacto en su vida.",0,0,0,No adapta el ROL de este chatbot
+tinyllama,Conv3,3,ahora me siento mejor,"Según el texto anterior, ayudar al estudiante es un hecho positivo que hacen todos y puede tener muchas ventajas. En particular, Ayers se ha ayudado a la comunidad escolar a través de su comportamiento positivo, generando una mejor impresión en sus compañeros y ayudándolos a obtener el apoyo necesario para que cumplan con sus objetivos. También puede considerarse que Ayers es un apoyo para toda la comunidad escolar, ya que puede ayudar a todos los miembros de esta entidad a desarrollarse positivamente en diferentes áreas, desde aprender a hablar inglés hasta desarrollar su capacidad de liderazgo. Por eso, se puede considerar que Ayers ha mejorado la calidad de vida de la comunidad escolar, ya que está ayudando a todos los miembros a alcanzar sus objetivos y generando una buena imagen en el exterior.",0,0,0,No adapta el ROL de este chatbot
+gemma:2b,Conv1,2,¿puedo denunciarlo?,"Sí, puedes denunciar al ciberacoso. Es importante que no dejes que la gente que te amenaza te haga sentir sola.",1,2,3,Respuesta buena. Tono serio y de aportar información
+gemma:2b,Conv1,3,me da miedo hacerlo,"Es importante que no dejes que la gente que te amenaza te haga sentir sola. Si es necesario, puedes llamar al 112 o a un familiar de confianza.",1,1,2,"Respuesta buena. Sigue el mismo hilo, pero de forma breve y segura"
+gemma:2b,Conv2,2,"sí, en WhatsApp",Entiendo que la situación es complicada. Es importante que no tengas miedo de confinar en un profesional especializado en ciberacoso.,1,1,2,Respuesta correcta.
+gemma:2b,Conv2,3,llevo 3 semanas,Entiendo que la experiencia ha sido dura y te has sentido incómodo. Es importante que no tengas miedo de confinar en un profesional especializado en ciberacoso.,1,2,3,Respuesta buena.
+gemma:2b,Conv3,2,me ha apoyado mucho,Entiendo que te sentirás incómodo por no poder hablar con tu madre sobre esto. Es importante que confides en alguien que te conozca bien.,0,1,1,Respuesta que no ha captado bien semánticamente que realmente se lo ha dicho a su madre
+gemma:2b,Conv3,3,ahora me siento mejor,Me alegro de oírlo. Te quiero acompañarte en esto. ¿Qué te parece que hacer hoy para sentirte mejor?,1,2,3,Respuesta correcta. No tiene en cuenta lo anterior
+phi3:mini,Conv1,2,¿puedo denunciarlo?,"Sí, definitivamente tiens los derechos para reportar cualquier forma de acoso que experimentes a las autoridades competentes del instituto o escolar donde te encuentras y si es necesario ante la justicia. La seguridad en el ambiente educativo debe ser una prioridad absoluta tanto para ti como para todos aquellos alrededor, así que no dudes en tomar medidas legales para protegerte de manera adecuada.",2,2,4,Respuesta perfecta.
+phi3:mini,Conv1,3,me da miedo hacerlo,"Comprendo completamente cómo podrías sentir temor a reportarlo por preocupaciones sobre consecuencias, pero es importante recordarte que tus derechos y tu seguridad son lo más cruciales. Las instituciones educativas tienen políticas contra el ciberacoso para proteger a los estudiantes como tú. Al denunciar un delito grave, no eres culpable ni responsable por la conducta de otros; solo buscas una solución y tu bienestar personal. Además, es importante que te sientas seguro/a en el entorno escolar donde estudias. Si tienes miedo, puedes hablar con un adulto cercano o profesional para recibir apoyo emocional mientras tomas esta decisión tan valiente.",2,2,4,Respuesta perfecta.
+phi3:mini,Conv2,2,"sí, en WhatsApp","Entiendo completamente lo que sientes. Las interacciones negativas pueden ser particularmente difíciles dado el sentido de permanencia e invisibilidad asociados al ciberacoso. Sin embargo, siempre puedes decidir qué publicaciones te consideras acosadoras y bloquear o reportar a aquellos que las publiquen sin tus permisos explícitos (por ejemplo WhatsApp).
+
+La AEPD Canal Joven no puede actuar directamente sobre la plataforma de mensajería privada como WhatsApp, pero recuerda que tu propia seguridad y bienestar tienen prioridad. En el ciberacoso graves o persistentes:
+- Es importante mantener un registro detallado con fechas y horas para las publicaciones problemáticas (con la información visible). Esto te ayudará en caso de necesitar reportar al acosador a los servicios correspondientes.
+- En WhatsApp, hay opciones como ""Configuración"" → ""Privacidad"", donde puedes limitar quién puede añadirte o iniciar conversaciones sin tu consentimiento directo (puntualmente para grupos). Esto es importante no solo por la privacidad sino también por evitar situaciones que te hagan sentir alienado.
+- Si encuent",2,2,4,Respuesta buena. Cortada y Verbosa
+phi3:mini,Conv2,3,llevo 3 semanas,"Entiendo, tres semanas puede ser una duración significativa en el contexto del ciberacoso y experiencias desagradables como la de tu escuela o WhatsApp no mejoran con el tiempo. Dentro de esta situación complicada:
+- Es crucial mantenerte seguro/a, tanto a nivel físico (si tienes que estar cerca del acosador) como emocional y psicológicamente (por ejemplo, buscando apoyo en un adulto o profesional).
+- Explícale al consejero escolar u organizador de grupos WhatsApp la situación. Aunque no pueda actuar directamente sobre los acosadores debido a las limitaciones legales y técnicas, puede brindarte apoyo adicional y asesoría para enfrentar este tipo de problemas.
+- Considera hablar con un terapeuta o consejero externo que te permita procesar estas experiencias emocionales sin juicios ni presiones del entorno escolar/WhatsApp, donde podrás expresarte libremente y encontrar estrategias para superar estos momentos difíciles.
+- Además de reportar los comportamientos acosadores que te incomoden en WhatsApp si están dirigidos hacia ti específicamente, también puedes buscar formas constructivas de",2,2,4,Respuesta muy buena. Cortada
+phi3:mini,Conv3,2,me ha apoyado mucho,"Es maravilloso saber que tu madre está ahí por ti, y su amor puede ser una fuente de fuerza mientras enfrentas el acoso cibernético. ¿Qué otras formas te ayudan a sentirte protegido? Es importante recordar que tus propias acciones son clave para mantener esa sensación de seguridad.
+---",2,2,4,Respuesta perfecta.
+phi3:mini,Conv3,3,ahora me siento mejor,"Eso es excelente escuchar y demuestra un progreso en tu bienestar emocional. Mantenerte consciente sobre tus sentimientos te ayudará a seguir moviéndote hacia la tranquilidad que buscas, tanto virtual como real. ¿Qué pequeño paso podrías tomar hoy para mantener esa sensación de mejora?
+---",2,2,4,Respuesta perfecta.
+mistral:7b,Conv1,2,¿puedo denunciarlo?,"  Sí, puedes denunciar el ciberacoso y es importante que hagas lo necesario para protegerte. Aquí hay algunos pasos a seguir:
+
+1. Guarda las pruebas: capturas de los mensajes donde te amenazan, con fecha y nombre del usuario visibles. También puedes grabar pantallas si tienes un teléfono móvil android o iOS.
+2. Cuéntaselo a alguien que confíes: un familiar, el orientador de tu instituto, un profesor o un adulto que te pueda ayudar a encontrar soluciones.
+3. Puedes denunciar el ciberacoso a la policía o a los servicios de atención a víctimas de agresiones.
+4. También puedes ponerse en contacto con organizaciones especializadas que pueden ayudarte:
+   - ANAR (Asociación Nacional de Adolescentes y Jóvenes Reporteros) 900 202 010
+   - Fundación Telefónica
+   - UNESCO Mujeres en Igualdad
+5. Si sientes peligro inmediato, llama al 112.",1,1,2,Respuesta correcta.
+mistral:7b,Conv1,3,me da miedo hacerlo," Estoy aquí para ayudarte, no tienes que enfrentar esto solo/a. Puede ser difícil hablar sobre lo que te está pasando, pero es importante que contaras a alguien de confianza hoy mismo.
+
+Si sientes peligro inmediato, llama al 112. Si no hay peligro inmediato, puedes llamar a un familiar o el orientador del instituto.
+
+Además, guarda las pruebas: capturas de los mensajes donde te amenazan, con fecha y nombre del usuario visibles.
+
+No olvides que es normal sentir miedo después de lo que ha pasado, pero no es tu culpa. No tienes que explicar ni justificar por qué sientes miedo. Es válido.
+
+La vergüenza puede ser especialmente intensa en el ciberacoso, pero contarlo a alguien de confianza suele aliviar la vergüenza, aunque al principio dé miedo. La vergüenza crece en el silencio y se reduce cuando se comparte.
+
+No voy a pedirte que cuentes de nuevo lo que pasó si ya lo has contado. Si quieres hablar de cómo estás",1,1,2,Respuesta correcta.
+mistral:7b,Conv2,2,"sí, en WhatsApp"," Estoy aquí para ayudarte con lo que estés pasando. Me he percatado de algunas frases que suenan familiares para ti y puedes estar cayendo en un patrón de pensamiento negativo. ¿Te parece?
+
+Es normal que en situaciones difíciles como la tuya, la mente se vuelva más critica y exagerada. Pero recuerda que lo que te estás diciendo a ti mismo/a no es siempre verdadero.
+
+Aquí hay algunos consejos para aprender a cuestionar los pensamientos negativos que te disparan en esta situación:
+
+- **Revisa la evidencia:** ¿Cuáles son las cosas que realmente pasaron? ¿Qué probaste de lo que piensas?
+- **Reescribe las frases:** Cambia los términos negativos por positivos. Por ejemplo, ""todo el mundo me odia"" se puede reescribir como ""hay personas que me apoyan y están aquí para mí"".
+- **Pregunta a alguien confiable:** Habla con alguien que te pueda ayudar a ver la situación desde otra perspectiva.
+- **Desafía tus creencias:**",0,0,0,Respuesta muy mala.
+mistral:7b,Conv2,3,llevo 3 semanas," Hola! A veces la vida es difícil y podemos sentirnos muy solitarios, pero siempre hay algo que se puede hacer para mejorar el estado de ánimo. ¿Qué ha dejado de hacer últimamente que antes te gustaba? Podrías probar a volver a practicarlo, por ejemplo, escuchar música que te gusta durante 15 minutos o salir a caminar un rato corto. El importante es empezar, no esperar a tener ganas para hacerlo.
+
+Recuerda que siempre puedes hablar con alguien de confianza y buscar ayuda si lo necesitas. Si estás siendo molestado o acosado en internet, no dudes en pedir ayuda y denunciarlo. No es normal que te hagan sentir mal.
+
+Espero que esta conversación te haya ayudado un poco a sentirte mejor. Sigo aquí si necesitas hablar más sobre ello o cualquier otra cosa.",0,0,0,Respuesta muy mala. Ignora el historial seguido
+mistral:7b,Conv3,2,me ha apoyado mucho," Estoy encantado de escuchar que hayas encontrado apoyo, y es increíble que hayas vuelto a sentir confianza en ti mismo/a. ¿Qué has hecho recientemente que te haya hecho sentir así?
+
+Para seguir adelante, puedes pensar en algunos pequeños pasos que podrías tomar para mejorar tu situación:
+- Puedes pedir ayuda a un amigo o a la familia si tienes alguna preocupación sobre el ciberacoso.
+- Si tienes dudas sobre cómo interactuar en línea, no dudes en preguntar por consejos a alguien que sepa más sobre esto.
+- Puedes buscar información sobre cómo protegerte en las redes sociales y mantener tu privacidad.
+
+Tu vida es tuya y tienes el poder para cambiarla. No hay nada que sea imposible si tienes la intención de mejorarlo. ¡A ti te puedes poner mejor!",0,1,1,Respuesta mala.
+mistral:7b,Conv3,3,ahora me siento mejor," ¡Sabes que lo que estás viviendo no es fácil, pero tienes una gran fuerza dentro de ti! Lo que has hecho hasta ahora demuestra que eres capaz de luchar y buscar ayuda cuando necesitas.
+
+Si lo que quieres es sentirte más tranquilo/a en línea, es posible. Una forma de conseguirlo puede ser definir una meta pequeña y concreta, como ""quiero poder mirar el móvil sin ponerme nervioso/a"".
+
+Si ahora mismo no se te ocurre nadie que pueda apoyarte en esta situación, esa es la normalidad. La investigación muestra que es importante tener un solo apoyo para sentirnos más seguros/as. Si no sabes quién puede ser esa persona, recuerda que hay líneas de ayuda preparadas para escucharte:
+- ANAR 900 202 010 — Para menores, 24 horas, confidencial.
+- 024 — Si estás en un momento muy difícil.
+
+También puedes buscar apoyo en tus amigos y familiares. No hay que estar al límite para pedir ayuda. Saber que hay alguien",0,1,1,Respuesta mala.
+gemma:7b,Conv1,2,¿puedo denunciarlo?,"Sí, puedes denunciarlo. Puedes reportarlo a un docente o al orientador del instituto. También puedes informar a la policía o a la ANAR.",2,2,4,Respuesta perfecta.
+gemma:7b,Conv1,3,me da miedo hacerlo,"Es natural sentir miedo, pero es importante tomar medidas. Puedes intentar hablar con el/la agresor/a y pedirle que se detenga. Si eso no funciona, puedes informar a alguien de confianza.",1,1,2,Respuesta mala.
+gemma:7b,Conv2,2,"sí, en WhatsApp","Es comprensible que sientes emociones intensas en WhatsApp. La buena noticia es que puedes tomar medidas para protegerte. Puedes considerar:
+
+* **Bloquear** a los usuarios que te hacen sentir incómodo.
+* **Evitar** que te añadan a grupos donde no quieras estar.
+* **Guardar** las pruebas de cualquier comportamiento ciberacoso para poder denunciarlo posteriormente.
+
+Es importante recordar que estás en control de tu propio bienestar y que puedes tomar decisiones para protegerte de situaciones que no son saludables.",1,1,2,Respuesta buena.
+gemma:7b,Conv2,3,llevo 3 semanas,"Es comprensible que estés sin ganas de hacer nada. A veces cuando estamos experimentando emociones intensas, es normal que se nos dificulte realizar actividades que disfrutamos. Sin embargo, es importante intentar mantener alguna actividad, incluso si es pequeña, para evitar el aislamiento. Puedes intentar:
+
+* Escuchar música que te guste.
+* Tomar un pequeño paseo.
+* Charlar con un amigo o familiar.
+* Realizar un hobby.
+
+Recuerda que incluso realizar una actividad pequeña puede ayudarte a sentir mejor y volver a disfrutar de las cosas que te gusta.",1,1,2,Respuesta correcta.
+gemma:7b,Conv3,2,me ha apoyado mucho,"Es increíble escuchar que estás rodeada de apoyo. Es importante celebrar esos pequeños logros, como hablar con tu madre o buscar apoyo en línea. 
+
+No olvides que puedes tomar otro pequeño paso. ¿Hay algún amigo o familiar con quien puedes hablar sobre cómo estás?",2,1,3,Respuesta buena. Aquí se nota que no adpata la intervención al anterior mensaje
+gemma:7b,Conv3,3,ahora me siento mejor,"Es increíble escuchar que estás sintiendo mejor. Es importante mantener ese sentido de esperanza y seguir avanzando. 
+
+Recuerda que puedes tomar otro pequeño paso. ¿Hay algún aspecto del ciberacoso que puedes intentar gestionar de mejor forma en las próximas semanas?",1,1,2,Respuesta buena

@@ -3,9 +3,9 @@
 .claude/
 CACHEDIR.TAG
 CLAUDE.md
+MEMORY.md
 
-# 2. MODELOS Y CHECKPOINTS (La causa de que tarde tanto)
-# Ignorar los pesos de los modelos y puntos de control, pero conservar los scripts/configs si los hay
+# 2. MODELOS Y CHECKPOINTS
 **/checkpoint-*/
 *.safetensors
 *.bin
@@ -13,28 +13,18 @@ CLAUDE.md
 *.pt
 *.h5
 
-# 3. DATOS Y DATASETS (Evita subir datos masivos)
-# Ignoramos el contenido de estas carpetas pero mantenemos su estructura si usas .gitkeep
-data/raw/
-data/processed/
-data/figures/
-
-# 4. BASES DE DATOS VECTORIALES
-# Los índices FAISS son binarios pesados que debes generar localmente
+# 3. BASES DE DATOS VECTORIALES
 data/vectorstore/
 *.faiss
 
-# 5. DOCUMENTACIÓN Y RESÚMENES
-# Ignorar todas las fichas y guías generadas
+# 4. DOCUMENTACIÓN LOCAL GENERADA
 docs/rag_summaries/
 
-
-# 4. RESULTADOS DE EVALUACIÓN
-# Si generan archivos muy pesados, descomenta las siguientes líneas:
+# 5. RESULTADOS DE EVALUACIÓN PESADOS (descomentar si es necesario)
 # eval/*.png
 # eval/*_results/
 
-# 5. ARCHIVOS TEMPORALES DE PYTHON Y CACHÉ
+# 6. ARCHIVOS TEMPORALES DE PYTHON Y CACHÉ
 __pycache__/
 *.pyc
 .pytest_cache/
