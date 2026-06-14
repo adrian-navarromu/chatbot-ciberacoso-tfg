@@ -15,7 +15,7 @@ Si el acoso está ocurriendo en Instagram, aquí tienes las acciones concretas q
 Ve al perfil de la persona → toca los tres puntos (⋮) → Bloquear. Cuando bloqueas a alguien, no puede ver tu perfil ni contactarte.
 
 **Restringir (más discreto que bloquear):**
-En un comentario suyo, deslízalo hacia la izquierda → Restringir. Sus comentarios en tus publicaciones solo los verá él/ella, nadie más. No sabrá que le has restringido.
+En un comentario suyo, deslízalo hacia la izquierda → Restringir. Sus comentarios en tus publicaciones solo serán visibles para quien los escribió, nadie más los verá. No sabrá que le has restringido.
 
 **Reportar un comentario:**
 En iOS: desliza el comentario a la izquierda → toca el icono de exclamación → Reportar.
@@ -61,7 +61,7 @@ Si un vídeo tuyo aparece en un hashtag que no quieres, mantén pulsado el víde
 
 **Si tienes menos de 16 años:** Tu cuenta ya está configurada como privada por defecto y los comentarios solo los pueden hacer personas que sigues y te siguen.
 
-Reportar de forma colectiva (que varias personas reporten el mismo contenido) tiene más impacto que hacerlo solo/a. Si tienes amigos/as, podéis hacerlo juntos.
+Reportar de forma colectiva (que varias personas reporten el mismo contenido) tiene más impacto que hacerlo de forma individual. Si tienes amigos, podéis hacerlo juntos.
 
 ---
 id: P5_003
@@ -88,7 +88,7 @@ Configuración → Privacidad → Grupos → Mis contactos (solo personas que ti
 **Guardar evidencias ANTES de bloquear:**
 Haz una captura de pantalla de los mensajes con la fecha y el nombre del contacto visibles. Esas pruebas son necesarias si decides denunciar.
 
-**Importante:** La AEPD Canal Joven no puede actuar sobre WhatsApp porque es mensajería privada. Si el acoso por WhatsApp es grave, la vía es la denuncia directa en la policía. Puedes ir acompañado/a de un familiar. El **112** te puede orientar si no sabes cómo proceder.
+**Importante:** La AEPD Canal Joven no puede actuar sobre WhatsApp porque es mensajería privada. Si el acoso por WhatsApp es grave, la vía es la denuncia directa en la policía. Puedes ir acompañado de un familiar. El **112** te puede orientar si no sabes cómo proceder.
 
 Guardar las pruebas antes de bloquear no es darle más vueltas: es protegerte.
 
@@ -176,7 +176,7 @@ osi.es — Guías y recursos sobre seguridad digital para adolescentes.
 **Policía Nacional y Guardia Civil**
 Tienen unidades especializadas en delitos online. Puedes denunciar con las capturas de pantalla como evidencia.
 
-No tienes que resolver esto solo/a. Pedir ayuda es el paso correcto.
+No tienes que resolver esto sin apoyo. Pedir ayuda es el paso correcto.
 
 ---
 id: P5_007

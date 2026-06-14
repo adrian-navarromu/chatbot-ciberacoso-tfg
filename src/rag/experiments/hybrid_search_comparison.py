@@ -23,11 +23,14 @@ Uso:
 from __future__ import annotations
 
 import sys
+import random
 import logging
 from pathlib import Path
 from typing import Callable
 
 import chromadb
+import numpy as np
+import torch
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import Chroma
@@ -39,10 +42,20 @@ from sentence_transformers import SentenceTransformer
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
+# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
+SEED = 112
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+
 # Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
+
+from rank_bm25 import BM25Okapi
 
 from src.rag.experiments.utils import CORPUS_DIR, BM25_TEST_CASES, TEST_CASES, build_faiss_index_from_embeddings, compute_hit_at_any, compute_metrics_for_run, compute_precision_at_1, compute_precision_at_k, load_chunks_from_markdown, save_results
 
@@ -51,23 +64,86 @@ from src.rag.experiments.utils import CORPUS_DIR, BM25_TEST_CASES, TEST_CASES, b
 # Modelo ganador del Exp. 3 (Configurado manualmente tras análisis)
 EMBEDDING_MODEL_WINNER = "hackathon-pln-es/paraphrase-spanish-distilroberta"
 TOP_K = 3
+# Pesos fusión: combinación lineal ponderada de scores normalizados (NO RRF)
+BM25_WEIGHT: float = 0.4
+SEM_WEIGHT: float = 0.6
 
-# Routing determinista por emoción --> pilares.
-# NOTA CLÍNICA: P4 ausente en sadness: el failsafe PAP (crisis_detector.py) intercepta esos
-# mensajes antes de llegar al retriever, por lo que forzar P4 aquí inflaría
-# artificialmente las métricas sin reflejar el comportamiento real del sistema.
+# Routing determinista por emoción --> pilares (MODO ORÁCULO, sin tendencia).
+# En producción (enriched_retriever.py), sadness+estable usa [2,3,4] con P4 penalizado.
+# Aquí, oracle mode sin tendencia usa rama estable sin P4 para limpiar la evaluación.
+# disgust incluye P5 desde Tarea 1a: muchos casos de asco implican exposición digital.
 PILLAR_ROUTING: dict[str, list[int] | None] = {
     "fear": [2, 4, 1],
-    "sadness": [2, 3],
+    "sadness": [2, 3],      # oracle mode: sin tendencia → rama estable sin P4
     "anger": [1, 2],
-    "disgust": [2, 3],
+    "disgust": [2, 5, 1],   # P5 digital + P1 protocolo: exposición pública y sextorsión
     "joy": [3],
     "surprise": [2, 1],
-    "others": None,        # sin filtro --> búsqueda global
+    "others": None,         # sin filtro --> búsqueda global
 }
 
 # Conjunto completo: 10 consultas estándar + 5 BM25 (importadas de utils)
 ALL_QUERIES: list[dict] = TEST_CASES + BM25_TEST_CASES
+
+
+# Fusión min-max ponderada (reemplaza EnsembleRetriever RRF)
+def _minmax_normalize(scores: list[float]) -> list[float]:
+    """Normalización min-max a [0,1]. Si max==min devuelve lista de 1.0."""
+    mn, mx = min(scores), max(scores)
+    if mx == mn:
+        return [1.0] * len(scores)
+    return [(s - mn) / (mx - mn) for s in scores]
+
+
+def _manual_hybrid(
+    query: str,
+    bm25_docs: list[Document],
+    chroma: Chroma,
+    chroma_filter: dict | None,
+    top_k: int = TOP_K,
+) -> list[Document]:
+    """Fusión lineal ponderada de BM25 y semántico con normalización min-max.
+
+    Reemplaza EnsembleRetriever (RRF) por combinación lineal ponderada:
+        score = BM25_WEIGHT * bm25_norm + SEM_WEIGHT * sem_norm
+    Cada canal se normaliza min-max a [0,1] independientemente.
+    Si max==min en un canal, todos los scores de ese canal = 1.0.
+
+    Args:
+        query: Texto de la consulta.
+        bm25_docs: Subconjunto de documentos para el índice BM25 (puede ser global).
+        chroma: Vectorstore ChromaDB en memoria.
+        chroma_filter: Filtro WHERE para ChromaDB, o None para búsqueda global.
+        top_k: Número de documentos a devolver.
+
+    Returns:
+        Lista de top_k Documents ordenados por score combinado descendente.
+    """
+    n = len(bm25_docs)
+
+    # Scores BM25 sobre el subconjunto
+    tokenized = [d.page_content.split() for d in bm25_docs]
+    bm25_model = BM25Okapi(tokenized)
+    bm25_raw = list(bm25_model.get_scores(query.split()))
+
+    # Scores semánticos de ChromaDB
+    search_kwargs: dict = {"k": n}
+    if chroma_filter:
+        search_kwargs["filter"] = chroma_filter
+    sem_results = chroma.similarity_search_with_relevance_scores(query, **search_kwargs)
+    sem_map: dict[str, float] = {doc.metadata["chunk_id"]: score for doc, score in sem_results}
+    sem_raw = [sem_map.get(d.metadata["chunk_id"], 0.0) for d in bm25_docs]
+
+    # Normalización + combinación
+    bm25_norm = _minmax_normalize(bm25_raw)
+    sem_norm = _minmax_normalize(sem_raw)
+
+    scored = [
+        (doc, BM25_WEIGHT * b + SEM_WEIGHT * s)
+        for doc, b, s in zip(bm25_docs, bm25_norm, sem_norm)
+    ]
+    scored.sort(key=lambda x: x[1], reverse=True)
+    return [doc for doc, _ in scored[:top_k]]
 
 
 # Adaptador de embeddings (LangChain Embeddings sobre SentenceTransformer)
@@ -216,17 +292,17 @@ def evaluate_config_c(chroma: Chroma, queries: list[dict], top_k: int = TOP_K) -
 
 # Evaluación — Config D (BM25 dinámico sobre subconjunto filtrado + ChromaDB filtrado)
 def evaluate_config_d(chroma: Chroma, documents: list[Document], queries: list[dict], top_k: int = TOP_K) -> list[dict]:
-    """Config D: EnsembleRetriever con BM25 y ChromaDB ambos sobre el subconjunto filtrado.
+    """Config D: BM25 dinámico + ChromaDB ambos sobre el subconjunto filtrado.
+
+    Fusión lineal ponderada con normalización min-max (BM25_WEIGHT=0.4, SEM_WEIGHT=0.6).
+    Reemplaza EnsembleRetriever (RRF) por combinación lineal ponderada de scores
+    normalizados min-max (TAREA 3 original): score = 0.4*bm25_norm + 0.6*sem_norm.
 
     Para cada consulta:
-      1. Se seleccionan los Documents cuyo pillar pertenece a la lista de routing.
-      2. Se instancia BM25Retriever sobre ese subconjunto filtrado.
-      3. Se construye un ChromaDB retriever con el mismo filtro WHERE pillar IN [...].
-      4. El EnsembleRetriever (BM25 0.4 + semántico 0.6) opera SOLO sobre ese
-         subconjunto, evitando que BM25 recupere chunks de pilares no relevantes.
+      1. Filtra el corpus por pillar_filter según PILLAR_ROUTING(emotion).
+      2. Llama a _manual_hybrid() sobre el subconjunto filtrado.
 
-    Si la emoción es 'others' o el filtro está vacío, el ensemble opera sobre
-    el corpus completo (comportamiento idéntico a Config B).
+    Si la emoción es 'others' o el filtro está vacío, opera sobre el corpus completo.
 
     Args:
         chroma: Vectorstore ChromaDB en memoria (completo).
@@ -242,30 +318,15 @@ def evaluate_config_d(chroma: Chroma, documents: list[Document], queries: list[d
         pillar_filter = PILLAR_ROUTING.get(tc.get("emotion", "others"))
 
         if pillar_filter is None:
-            # Sin filtro: ensemble sobre corpus completo
-            bm25 = BM25Retriever.from_documents(documents, k=top_k)
-            chroma_r = chroma.as_retriever(search_kwargs={"k": top_k})
+            bm25_docs = documents
+            chroma_filter = None
         else:
-            # Filtrar corpus por pillar antes de instanciar BM25
-            filtered = [d for d in documents if d.metadata.get("pillar") in pillar_filter]
-            if not filtered:
-                # Degenerate fallback: sin chunks en el filtro
-                filtered = documents
+            bm25_docs = [d for d in documents if d.metadata.get("pillar") in pillar_filter]
+            if not bm25_docs:
+                bm25_docs = documents
+            chroma_filter = {"pillar": {"$in": pillar_filter}}
 
-            bm25 = BM25Retriever.from_documents(filtered, k=top_k)
-            chroma_r = chroma.as_retriever(
-                search_kwargs={
-                    "k": top_k,
-                    "filter": {"pillar": {"$in": pillar_filter}},
-                }
-            )
-
-        # Fusión de rankings
-        ensemble = EnsembleRetriever(
-            retrievers=[bm25, chroma_r],
-            weights=[0.4, 0.6],
-        )
-        docs = ensemble.invoke(tc["query"])
+        docs = _manual_hybrid(tc["query"], bm25_docs, chroma, chroma_filter, top_k)
         results.append(_make_result(tc, docs, top_k, {"pillar_filter_aplicado": pillar_filter}))
     return results
 
@@ -378,15 +439,10 @@ def main() -> None:
     log.info("[A] Configurando retriever semántico puro...")
     semantic_fn = lambda q: chroma.as_retriever(search_kwargs={"k": TOP_K}).invoke(q)
 
-    # Config B: híbrido BM25 + semántico (corpus completo)
-    log.info("[B] Configurando retriever híbrido estático (BM25 + ChromaDB)...")
-    bm25_global = BM25Retriever.from_documents(documents, k=TOP_K)
-    chroma_global = chroma.as_retriever(search_kwargs={"k": TOP_K})
-    ensemble_global = EnsembleRetriever(
-        retrievers=[bm25_global, chroma_global],
-        weights=[0.4, 0.6],
-    )
-    hybrid_fn = lambda q: ensemble_global.invoke(q)
+    # Config B: híbrido BM25 + semántico (corpus completo, sin routing)
+    # Usa fusión lineal ponderada min-max (BM25_WEIGHT=0.4, SEM_WEIGHT=0.6), no RRF.
+    log.info("[B] Configurando retriever híbrido estático (BM25 + ChromaDB, fusión min-max)...")
+    hybrid_fn = lambda q: _manual_hybrid(q, documents, chroma, None, TOP_K)
 
     # Config C: semántica con pre-filtro WHERE pillar IN [...]
     log.info("[C] Configurando retriever semántico con pre-filtro de pilar...")
@@ -453,8 +509,8 @@ def main() -> None:
             "resultados_por_consulta": results_a,
         },
         "configuracion_b_hibrida": {
-            "descripcion": "EnsembleRetriever BM25+ChromaDB [0.4/0.6] sobre corpus completo, sin routing",
-            "bm25_weight": 0.4, "semantic_weight": 0.6,
+            "descripcion": "Fusión lineal min-max BM25+ChromaDB [0.4/0.6] sobre corpus completo, sin routing",
+            "bm25_weight": BM25_WEIGHT, "semantic_weight": SEM_WEIGHT,
             **agg_b,
             "resultados_por_consulta": results_b,
         },

@@ -15,6 +15,9 @@ import pytest
 
 from src.safety.crisis_detector import (
     CRISIS_RESPONSE_HIGH,
+    CRISIS_RESPONSE_IDEACION,
+    CRISIS_RESPONSE_AMENAZA,
+    CRISIS_RESPONSE_TERCERO,
     CrisisDetector,
     CrisisResult,
 )
@@ -42,7 +45,12 @@ def _assert_crisis(result: CrisisResult) -> None:
     )
     assert isinstance(result.triggered_keywords, list)
     assert len(result.triggered_keywords) > 0
-    assert isinstance(result.response, str)
+    if result.level == "HIGH":
+        assert isinstance(result.response, str) and len(result.response) > 0
+    else:  # MEDIUM → genera con SLM, response=None
+        assert result.requires_generation is True
+        assert result.suggested_pillar == 4
+        assert result.response is None
 
 
 def _assert_normal(result: CrisisResult, text: str) -> None:
@@ -157,10 +165,18 @@ class TestNormalCases:
 
 
 def test_response_contains_numbers() -> None:
-    """CRISIS_RESPONSE_HIGH debe contener los tres teléfonos de emergencia."""
-    assert "024" in CRISIS_RESPONSE_HIGH, "Falta el teléfono 024"
-    assert "900 202 010" in CRISIS_RESPONSE_HIGH, "Falta el teléfono ANAR 900 202 010"
-    assert "112" in CRISIS_RESPONSE_HIGH, "Falta el teléfono de emergencias 112"
+    """Las plantillas HIGH deben contener los teléfonos de emergencia pertinentes."""
+    # IDEACION_PROPIA (≡ CRISIS_RESPONSE_HIGH): 024 + ANAR + 112
+    assert "024" in CRISIS_RESPONSE_IDEACION, "Falta el teléfono 024 en IDEACION"
+    assert "900 202 010" in CRISIS_RESPONSE_IDEACION, "Falta ANAR en IDEACION"
+    assert "112" in CRISIS_RESPONSE_IDEACION, "Falta 112 en IDEACION"
+    assert CRISIS_RESPONSE_HIGH is CRISIS_RESPONSE_IDEACION, "CRISIS_RESPONSE_HIGH debe ser alias de IDEACION"
+    # AMENAZA_FISICA: 112 prioritario
+    assert "112" in CRISIS_RESPONSE_AMENAZA, "Falta 112 en AMENAZA"
+    # TERCERO_RIESGO: 024 o ANAR
+    assert "024" in CRISIS_RESPONSE_TERCERO or "900 202 010" in CRISIS_RESPONSE_TERCERO, (
+        "Falta teléfono de crisis en TERCERO"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -188,8 +204,25 @@ class TestCrisisResultStructure:
         assert len(result.response) > 0
 
     def test_medium_result_structure(self, detector: CrisisDetector) -> None:
-        """Resultado MEDIUM tiene requires_immediate_response=False."""
+        """Resultado MEDIUM marca requires_generation=True y response=None."""
         result = detector.detect("no puedo más con todo esto")
         assert result.level in ("MEDIUM", "HIGH")
         assert isinstance(result.triggered_keywords, list)
-        assert isinstance(result.response, str)
+        if result.level == "MEDIUM":
+            assert result.requires_generation is True
+            assert result.suggested_pillar == 4
+            assert result.response is None
+        else:
+            assert isinstance(result.response, str) and len(result.response) > 0
+
+    def test_high_subtype_ideacion(self, detector: CrisisDetector) -> None:
+        """Ideación propia → subtype=IDEACION_PROPIA."""
+        result = detector.detect("me quiero morir")
+        assert result.level == "HIGH"
+        assert result.subtype == "IDEACION_PROPIA"
+
+    def test_high_subtype_amenaza(self, detector: CrisisDetector) -> None:
+        """Amenaza física del acosador → subtype=AMENAZA_FISICA."""
+        result = detector.detect("me van a pegar a la salida del instituto")
+        assert result.level == "HIGH"
+        assert result.subtype == "AMENAZA_FISICA"

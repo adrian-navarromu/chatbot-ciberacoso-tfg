@@ -1,5 +1,5 @@
 """
-Tests del módulo EmotionalMemoryGRU.
+Tests del módulo EmotionalMemoryTracker (antes EmotionalMemoryGRU).
 
 Cubre: update, get_window, get_dominant_emotion, detect_trend,
        get_trend_result, get_prompt_context, reset, to_dict.
@@ -17,7 +17,7 @@ from src.memory.emotional_memory import (
     NEGATIVE_HIGH,
     NEGATIVE_LOW,
     POSITIVE,
-    EmotionalMemoryGRU,
+    EmotionalMemoryTracker,
     TrendResult,
 )
 
@@ -28,9 +28,9 @@ from src.memory.emotional_memory import (
 
 
 @pytest.fixture
-def mem() -> EmotionalMemoryGRU:
+def mem() -> EmotionalMemoryTracker:
     """Instancia fresca para cada test."""
-    return EmotionalMemoryGRU(window_size=6)
+    return EmotionalMemoryTracker(window_size=6)
 
 
 # ---------------------------------------------------------------------------
@@ -57,24 +57,24 @@ class TestConstants:
 
 
 class TestUpdate:
-    def test_single_update_increments_turn_count(self, mem: EmotionalMemoryGRU) -> None:
+    def test_single_update_increments_turn_count(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         assert mem.turn_count == 1
 
-    def test_low_confidence_records_others(self, mem: EmotionalMemoryGRU) -> None:
+    def test_low_confidence_records_others(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("anger", 0.39)
         assert mem.emotion_history[-1] == "others"
 
-    def test_exact_threshold_keeps_label(self, mem: EmotionalMemoryGRU) -> None:
+    def test_exact_threshold_keeps_label(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("sadness", 0.4)
         assert mem.emotion_history[-1] == "sadness"
 
-    def test_window_respects_window_size(self, mem: EmotionalMemoryGRU) -> None:
+    def test_window_respects_window_size(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(10):
             mem.update("fear", 0.9)
         assert len(mem.get_window()) == 6
 
-    def test_full_history_grows_beyond_window(self, mem: EmotionalMemoryGRU) -> None:
+    def test_full_history_grows_beyond_window(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(10):
             mem.update("joy", 0.9)
         assert len(mem.emotion_history) == 10
@@ -86,21 +86,21 @@ class TestUpdate:
 
 
 class TestDominantEmotion:
-    def test_empty_history_returns_others(self, mem: EmotionalMemoryGRU) -> None:
+    def test_empty_history_returns_others(self, mem: EmotionalMemoryTracker) -> None:
         assert mem.get_dominant_emotion() == "others"
 
-    def test_clear_majority(self, mem: EmotionalMemoryGRU) -> None:
+    def test_clear_majority(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear", "fear", "fear", "joy", "joy"]:
             mem.update(e, 0.9)
         assert mem.get_dominant_emotion() == "fear"
 
-    def test_tie_returns_most_recent(self, mem: EmotionalMemoryGRU) -> None:
+    def test_tie_returns_most_recent(self, mem: EmotionalMemoryTracker) -> None:
         # fear y sadness empatados; sadness es el más reciente
         for e in ["fear", "sadness", "fear", "sadness"]:
             mem.update(e, 0.9)
         assert mem.get_dominant_emotion() == "sadness"
 
-    def test_single_turn(self, mem: EmotionalMemoryGRU) -> None:
+    def test_single_turn(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("anger", 0.8)
         assert mem.get_dominant_emotion() == "anger"
 
@@ -111,37 +111,37 @@ class TestDominantEmotion:
 
 
 class TestDetectTrend:
-    def test_empty_is_stable(self, mem: EmotionalMemoryGRU) -> None:
+    def test_empty_is_stable(self, mem: EmotionalMemoryTracker) -> None:
         assert mem.detect_trend() == "estable"
 
-    def test_single_turn_is_stable(self, mem: EmotionalMemoryGRU) -> None:
+    def test_single_turn_is_stable(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         assert mem.detect_trend() == "estable"
 
-    def test_mejora(self, mem: EmotionalMemoryGRU) -> None:
+    def test_mejora(self, mem: EmotionalMemoryTracker) -> None:
         # Primera mitad: fear (0), Segunda mitad: joy (2) → diff = +2 > 0.3
         for e in ["fear", "fear", "fear", "joy", "joy", "joy"]:
             mem.update(e, 0.9)
         assert mem.detect_trend() == "mejora"
 
-    def test_deterioro(self, mem: EmotionalMemoryGRU) -> None:
+    def test_deterioro(self, mem: EmotionalMemoryTracker) -> None:
         # Primera mitad: joy (2), Segunda mitad: fear (0) → diff = -2 < -0.3
         for e in ["joy", "joy", "joy", "fear", "fear", "fear"]:
             mem.update(e, 0.9)
         assert mem.detect_trend() == "deterioro"
 
-    def test_estable_same_emotion(self, mem: EmotionalMemoryGRU) -> None:
+    def test_estable_same_emotion(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(6):
             mem.update("sadness", 0.9)
         assert mem.detect_trend() == "estable"
 
-    def test_estable_within_threshold(self, mem: EmotionalMemoryGRU) -> None:
+    def test_estable_within_threshold(self, mem: EmotionalMemoryTracker) -> None:
         # Primera mitad: sadness (1), Segunda mitad: sadness (1) → diff = 0
         for e in ["sadness", "sadness", "sadness", "sadness", "sadness", "sadness"]:
             mem.update(e, 0.9)
         assert mem.detect_trend() == "estable"
 
-    def test_trend_only_uses_window(self, mem: EmotionalMemoryGRU) -> None:
+    def test_trend_only_uses_window(self, mem: EmotionalMemoryTracker) -> None:
         # Historia larga de fear seguida de ventana de joy → debe detectar mejora
         for _ in range(20):
             mem.update("fear", 0.9)
@@ -156,30 +156,30 @@ class TestDetectTrend:
 
 
 class TestGetPromptContext:
-    def test_no_turns_empty_string(self, mem: EmotionalMemoryGRU) -> None:
+    def test_no_turns_empty_string(self, mem: EmotionalMemoryTracker) -> None:
         assert mem.get_prompt_context() == ""
 
-    def test_turn_1(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_1(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         ctx = mem.get_prompt_context()
         assert ctx.startswith("Primera interacción.")
         assert "fear" in ctx
 
-    def test_turn_2(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_2(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         mem.update("sadness", 0.9)
         ctx = mem.get_prompt_context()
         assert "Emociones registradas:" in ctx
         assert "sadness" in ctx
 
-    def test_turn_3(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_3(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear", "sadness", "anger"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
         assert "Emociones registradas:" in ctx
         assert "anger" in ctx
 
-    def test_turn_4_contains_tendencia(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_4_contains_tendencia(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear", "fear", "fear", "sadness"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
@@ -187,26 +187,26 @@ class TestGetPromptContext:
         assert "fear" in ctx
         assert "sadness" in ctx
 
-    def test_turn_4_mejora_phrase(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_4_mejora_phrase(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear", "fear", "joy", "joy"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
         assert "mejora" in ctx
 
-    def test_turn_4_deterioro_phrase(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_4_deterioro_phrase(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["joy", "joy", "fear", "fear"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
         assert "deterioro" in ctx
         assert "presta especial atención" in ctx
 
-    def test_turn_4_estable_phrase(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_4_estable_phrase(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["sadness", "sadness", "sadness", "sadness"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
         assert "estable" in ctx
 
-    def test_window_size_reflected_in_context(self, mem: EmotionalMemoryGRU) -> None:
+    def test_window_size_reflected_in_context(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear", "fear", "fear", "fear"]:
             mem.update(e, 0.9)
         ctx = mem.get_prompt_context()
@@ -219,30 +219,30 @@ class TestGetPromptContext:
 
 
 class TestGetTrendResult:
-    def test_returns_trend_result_instance(self, mem: EmotionalMemoryGRU) -> None:
+    def test_returns_trend_result_instance(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("joy", 0.9)
         result = mem.get_trend_result()
         assert isinstance(result, TrendResult)
 
-    def test_current_emotion_matches_last_update(self, mem: EmotionalMemoryGRU) -> None:
+    def test_current_emotion_matches_last_update(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         mem.update("joy", 0.8)
         result = mem.get_trend_result()
         assert result.current_emotion == "joy"
 
-    def test_turn_count_correct(self, mem: EmotionalMemoryGRU) -> None:
+    def test_turn_count_correct(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(5):
             mem.update("sadness", 0.9)
         result = mem.get_trend_result()
         assert result.turn_count == 5
 
-    def test_window_emotions_bounded(self, mem: EmotionalMemoryGRU) -> None:
+    def test_window_emotions_bounded(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(10):
             mem.update("anger", 0.9)
         result = mem.get_trend_result()
         assert len(result.window_emotions) <= 6
 
-    def test_prompt_context_non_empty_after_update(self, mem: EmotionalMemoryGRU) -> None:
+    def test_prompt_context_non_empty_after_update(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("sadness", 0.9)
         result = mem.get_trend_result()
         assert isinstance(result.prompt_context, str)
@@ -255,14 +255,14 @@ class TestGetTrendResult:
 
 
 class TestReset:
-    def test_reset_clears_history(self, mem: EmotionalMemoryGRU) -> None:
+    def test_reset_clears_history(self, mem: EmotionalMemoryTracker) -> None:
         for _ in range(5):
             mem.update("fear", 0.9)
         mem.reset()
         assert mem.emotion_history == []
         assert mem.turn_count == 0
 
-    def test_reset_allows_new_session(self, mem: EmotionalMemoryGRU) -> None:
+    def test_reset_allows_new_session(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         mem.reset()
         mem.update("joy", 0.9)
@@ -276,13 +276,13 @@ class TestReset:
 
 
 class TestToDict:
-    def test_to_dict_keys(self, mem: EmotionalMemoryGRU) -> None:
+    def test_to_dict_keys(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("joy", 0.9)
         d = mem.to_dict()
         expected_keys = {"turn_count", "window", "dominant_emotion", "trend", "full_history"}
         assert set(d.keys()) == expected_keys
 
-    def test_to_dict_types(self, mem: EmotionalMemoryGRU) -> None:
+    def test_to_dict_types(self, mem: EmotionalMemoryTracker) -> None:
         mem.update("fear", 0.9)
         d = mem.to_dict()
         assert isinstance(d["turn_count"], int)
@@ -291,13 +291,13 @@ class TestToDict:
         assert isinstance(d["trend"], str)
         assert isinstance(d["full_history"], list)
 
-    def test_to_dict_empty_memory(self, mem: EmotionalMemoryGRU) -> None:
+    def test_to_dict_empty_memory(self, mem: EmotionalMemoryTracker) -> None:
         d = mem.to_dict()
         assert d["turn_count"] == 0
         assert d["window"] == []
         assert d["full_history"] == []
 
-    def test_to_dict_full_history_exceeds_window(self, mem: EmotionalMemoryGRU) -> None:
+    def test_to_dict_full_history_exceeds_window(self, mem: EmotionalMemoryTracker) -> None:
         for e in ["fear"] * 4 + ["joy"] * 6:
             mem.update(e, 0.9)
         d = mem.to_dict()
@@ -311,7 +311,7 @@ class TestToDict:
 
 
 class TestIntegration:
-    def test_full_session_deterioro(self, mem: EmotionalMemoryGRU) -> None:
+    def test_full_session_deterioro(self, mem: EmotionalMemoryTracker) -> None:
         """Sesión que empieza bien y empeora → debe detectar deterioro."""
         progression = ["joy", "joy", "joy", "fear", "anger", "disgust"]
         for e in progression:
@@ -320,7 +320,7 @@ class TestIntegration:
         assert result.trend == "deterioro"
         assert result.current_emotion == "disgust"
 
-    def test_full_session_mejora(self, mem: EmotionalMemoryGRU) -> None:
+    def test_full_session_mejora(self, mem: EmotionalMemoryTracker) -> None:
         """Sesión que empieza mal y mejora → debe detectar mejora."""
         progression = ["fear", "anger", "disgust", "sadness", "joy", "joy"]
         for e in progression:
@@ -329,7 +329,7 @@ class TestIntegration:
         assert result.trend == "mejora"
         assert result.current_emotion == "joy"
 
-    def test_low_confidence_affects_trend(self, mem: EmotionalMemoryGRU) -> None:
+    def test_low_confidence_affects_trend(self, mem: EmotionalMemoryTracker) -> None:
         """Confianza baja degrada a 'others' (valencia 2) y puede cambiar la tendencia."""
         # Con confianza alta: fear → deterioro
         # Con confianza baja: fear se convierte en others (positivo) → no deterioro
@@ -343,7 +343,7 @@ class TestIntegration:
 
     def test_custom_window_size(self) -> None:
         """window_size personalizado respetado correctamente."""
-        m = EmotionalMemoryGRU(window_size=3)
+        m = EmotionalMemoryTracker(window_size=3)
         for e in ["fear", "fear", "fear", "joy", "joy", "joy"]:
             m.update(e, 0.9)
         assert len(m.get_window()) == 3

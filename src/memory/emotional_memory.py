@@ -1,5 +1,5 @@
 """
-Módulo de memoria emocional (EmotionalMemoryGRU).
+Módulo de memoria emocional (EmotionalMemoryTracker).
 
 Rastrea la evolución afectiva del usuario turno a turno y genera
 metadatos para inyectar en el prompt dinámico.
@@ -59,12 +59,12 @@ class TrendResult:
 
 
 # Clase principal
-class EmotionalMemoryGRU:
+class EmotionalMemoryTracker:
     """
     Memoria emocional de sesión con detección de tendencias por ventana deslizante.
 
-    Implementa una versión simplificada del módulo GRU-emotion del DMCGES,
-    operando únicamente sobre la modalidad texto para mantener el estado 
+    Implementa una versión heurística (sin GRU real) del rastreo afectivo del DMCGES,
+    operando únicamente sobre la modalidad texto para mantener el estado
     latente de la conversación a corto/medio plazo.
     """
 

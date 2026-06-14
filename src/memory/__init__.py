@@ -1,5 +1,5 @@
 """Módulo de memoria emocional de sesión."""
 
-from src.memory.emotional_memory import EmotionalMemoryGRU, TrendResult
+from src.memory.emotional_memory import EmotionalMemoryTracker, TrendResult
 
-__all__ = ["EmotionalMemoryGRU", "TrendResult"]
+__all__ = ["EmotionalMemoryTracker", "TrendResult"]

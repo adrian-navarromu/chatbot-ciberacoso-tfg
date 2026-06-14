@@ -38,7 +38,7 @@ audience: adolescente
 
 A veces la cabeza se queda enganchada en lo que pasó o en todo lo que podría pasar. La técnica de grounding (o "tocar base") sirve para traerte al momento presente usando los sentidos.
 
-Es sencilla: fíjate en lo que hay a tu alrededor y dime (o dite a ti mismo/a):
+Es sencilla: fíjate en lo que hay a tu alrededor y dime (o repítetelo en voz baja):
 
 - **5 cosas que puedes VER** ahora mismo donde estás.
 - **4 cosas que puedes TOCAR** — su textura, si son frías o cálidas.
@@ -65,9 +65,9 @@ Las emociones no son todo o nada. Tienen distintas intensidades, y aprender a me
 
 Imagina un termómetro del 0 al 10:
 
-- **0-2:** Tranquilo/a. Puedes pensar con claridad.
-- **3-4:** Algo incómodo/a. Noto la emoción pero la puedo manejar.
-- **5-6:** Bastante activado/a. Me cuesta pensar bien, necesito calmarme antes.
+- **0-2:** Con calma. Puedes pensar con claridad.
+- **3-4:** Algo de malestar. Noto la emoción pero la puedo manejar.
+- **5-6:** Bastante activo. Me cuesta pensar bien, necesito calmarme antes.
 - **7-8:** Muy intenso. Difícil razonar, el cuerpo también lo nota.
 - **9-10:** Al límite. Necesito ayuda ahora.
 
@@ -88,7 +88,7 @@ therapeutic_technique: psicoeducacion_cognitiva
 audience: adolescente
 ---
 
-Cuando algo malo pasa, lo que más duele no siempre es el hecho en sí, sino lo que te dices a ti mismo/a sobre lo que pasó.
+Cuando algo malo pasa, lo que más duele no siempre es el hecho en sí, sino lo que te dices sobre lo que pasó.
 
 Por ejemplo: alguien publica algo desagradable sobre ti. Eso es el **hecho**. Pero luego viene un pensamiento automático, rápido, que casi no notas: "todos me odian" o "esto me va a arruinar la vida". Y ese pensamiento es el que genera la emoción (tristeza, miedo, rabia) y la acción que sigues (meterte en casa, no abrir el móvil, no ir al cole).
 
@@ -121,10 +121,10 @@ Cuando vivimos algo muy duro, la mente cae fácilmente en patrones de pensamient
 - **Lectura del pensamiento:** "Sé que todos se ríen de mí." No puedes saber lo que piensa nadie.
 - **Generalización:** "Siempre me pasa esto, nunca le caigo bien a nadie." Una situación no define tu vida entera.
 - **Filtro mental:** Quedarte solo con el comentario malo e ignorar los diez buenos.
-- **Razonamiento emocional:** "Me siento feo/a, por eso me atacan." Sentirlo no lo hace real.
-- **Etiquetado:** "Soy un fracasado/a, un bicho raro." Eso no eres tú, es una etiqueta.
+- **Razonamiento emocional:** "Me siento mal con mi cuerpo, por eso me atacan." Sentirlo no lo hace real.
+- **Etiquetado:** "Soy un fracasado, un bicho raro." Eso no eres tú, es una etiqueta.
 
-¿Reconoces alguno de estos en lo que te estás diciendo a ti mismo/a últimamente?
+¿Reconoces alguno de estos en lo que te estás diciendo últimamente?
 
 ---
 id: P2_006
@@ -149,7 +149,7 @@ Hazte estas preguntas:
 
 Por ejemplo: si piensas "es culpa mía que me acosen", pregúntate qué hechos concretos apoyarían eso y cuáles lo contradicen. Casi siempre, las evidencias a favor son sensaciones ("lo siento así") y las evidencias en contra son hechos reales.
 
-No se trata de pensar en positivo ni de fingir que todo va bien. Se trata de pensar de forma más precisa y justa contigo mismo/a.
+No se trata de pensar en positivo ni de fingir que todo va bien. Se trata de pensar de forma más precisa y justa contigo mismo.
 
 ---
 id: P2_007
@@ -170,7 +170,7 @@ Dos formas de interrumpirlo:
 Cuando notes que estás en el bucle, di mentalmente "para" (o dilo en voz alta si puedes). Después pon la atención en algo físico: los pies en el suelo, tus manos, lo que hay delante de ti. Es una interrupción, no una solución definitiva, pero da un respiro.
 
 **Mindfulness básico:**
-Observa el pensamiento sin meterte dentro de él. En vez de "soy un fracasado/a", prueba: "estoy teniendo el pensamiento de que soy un fracasado/a". No es lo mismo. En el primer caso el pensamiento eres tú. En el segundo, lo observas desde fuera.
+Observa el pensamiento sin meterte dentro de él. En vez de "soy un fracasado", prueba: "estoy teniendo el pensamiento de que soy un fracasado". No es lo mismo. En el primer caso el pensamiento eres tú. En el segundo, lo observas desde fuera.
 
 Los pensamientos son como nubes: aparecen, pasan. No tienes que creerte todos ni pelear con ellos. Solo dejarlos pasar.
 

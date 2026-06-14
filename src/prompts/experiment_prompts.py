@@ -178,8 +178,13 @@ def _build_variant_c(emotion: str, rag_context: str, history: list[dict], confid
     return [{"role": "system", "content": system}] + history
 
 
-def _build_variant_d(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str) -> list[dict]:
-    """Prompt estructurado con bloques etiquetados explícitamente."""
+def _build_variant_d(emotion: str, rag_context: str, history: list[dict], confidence: float, emotional_context: str, trend: str = "estable") -> list[dict]:
+    """Prompt estructurado con bloques etiquetados explícitamente (variante D ganadora).
+
+    Usa el mismo esquema que builder_v2.build_prompt_v2 pero con el BASE_SYSTEM_PROMPT
+    de V1 para mantener la comparabilidad con las variantes A, B y C del experimento.
+    El literal de tendencia emocional es el que emite EmotionalMemoryTracker.
+    """
     effective_emotion = emotion if confidence >= 0.4 else "others"
     temperature = TEMPERATURE_BY_EMOTION[effective_emotion]
     emotion_variant = EMOTION_VARIANTS[effective_emotion]
@@ -192,7 +197,8 @@ def _build_variant_d(emotion: str, rag_context: str, history: list[dict], confid
         + "\n[/ROL_Y_LIMITES]\n\n"
         + "[ESTADO_EMOCIONAL_USUARIO]\n"
         + f"Emoción detectada: {effective_emotion} (confianza: {confidence:.0%})\n"
-        + f"Tendencia de sesión: {emotional_block}\n"
+        + f"Tendencia emocional: {trend}\n"
+        + f"Contexto de sesión: {emotional_block}\n"
         + "[/ESTADO_EMOCIONAL_USUARIO]\n\n"
         + "[CONTEXTO_CLINICO]\n"
         + rag_block
@@ -215,7 +221,7 @@ _VARIANT_BUILDERS: dict = {
 }
 
 
-def build_prompt_variant(variant: str, emotion: str, rag_context: str, history: list[dict], confidence: float = 1.0, emotional_context: str = "") -> list[dict]:
+def build_prompt_variant(variant: str, emotion: str, rag_context: str, history: list[dict], confidence: float = 1.0, emotional_context: str = "", trend: str = "estable") -> list[dict]:
     """
     Construye el prompt para una de las 4 variantes del experimento de PE.
 
@@ -225,7 +231,9 @@ def build_prompt_variant(variant: str, emotion: str, rag_context: str, history: 
         rag_context: Texto de los chunks RAG recuperados (puede ser vacío).
         history: Historial en formato OpenAI/Ollama (incluye mensaje del usuario).
         confidence: Confianza del clasificador (< 0.4 → usa 'others').
-        emotional_context: Cadena de memoria emocional de sesión (V2).
+        emotional_context: Cadena de EmotionalMemoryTracker (V2).
+        trend: Tendencia emocional de EmotionalMemoryTracker ('estable', 'mejora', 'deterioro').
+               Solo usada por la variante D; ignorada en A, B y C.
 
     Returns:
         Lista de mensajes en formato OpenAI/Ollama chat.
@@ -236,6 +244,15 @@ def build_prompt_variant(variant: str, emotion: str, rag_context: str, history: 
     if variant not in _VARIANT_BUILDERS:
         raise ValueError(
             f"Variante desconocida: {variant!r}. Usa 'A', 'B', 'C' o 'D'."
+        )
+    if variant == "D":
+        return _build_variant_d(
+            emotion=emotion,
+            rag_context=rag_context,
+            history=history,
+            confidence=confidence,
+            emotional_context=emotional_context,
+            trend=trend,
         )
     return _VARIANT_BUILDERS[variant](
         emotion=emotion,

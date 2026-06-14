@@ -89,14 +89,14 @@ Si llevas un tiempo viviendo ciberacoso, puede que notes cosas en ti que no enti
 - Alejarte de amigos o dejar de hacer cosas que antes te gustaban.
 - Sentirte muy mal contigo mismo o contigo misma.
 
-Que te ocurran estas cosas no significa que estés "loco/a" ni que seas débil. Son reacciones normales ante algo que te está haciendo daño. Lo que sientes tiene sentido.
+Que te ocurran estas cosas no significa que tengas ningún problema ni que seas débil. Son reacciones normales ante algo que te está haciendo daño. Lo que sientes tiene sentido.
 
 Si además tienes pensamientos de hacerte daño o de que todo sería mejor sin ti, es importante que lo cuentes a alguien ahora.
 
 ---
 id: P1_005
 pillar: 1
-title: Señales de que alguien está sufriendo ciberacoso — para ti o para un amigo/a
+title: Señales de que alguien está sufriendo ciberacoso — para ti o para alguien cercano
 source: Guía Clínica SEMA-Red.es (2015), cap. 6; Manual RedesConCorazón (2019), p. 9; Guía Madrid (2015-2016), sección 3
 emotions: [others, sadness]
 trigger: conditional
@@ -135,7 +135,7 @@ Si estás recibiendo ciberacoso ahora mismo, esto es lo que puedes hacer:
 
 3. **Bloquea y reporta.** En todas las redes puedes bloquear a alguien y reportar el contenido. Hazlo. No es "exagerar".
 
-4. **Cuéntaselo a alguien de confianza.** Un familiar, un profesor, el orientador del colegio. No tienes que cargar con esto solo/a. Pedir ayuda no es señal de debilidad.
+4. **Cuéntaselo a alguien de confianza.** Un familiar, un profesor, el orientador del colegio. No tienes que cargar con esto en soledad. Pedir ayuda no es señal de debilidad.
 
 5. **No cedas a chantajes.** Si alguien te amenaza con publicar algo si no haces lo que pide, ceder suele empeorar las cosas. Cuéntaselo a un adulto.
 
@@ -156,19 +156,19 @@ El grooming es cuando una persona adulta usa internet para ganarse tu confianza 
 
 Suele ocurrir en tres fases:
 
-**Fase 1 — Amistad y confianza.** La persona se muestra muy interesada en ti, te halaga, escucha todo lo que dices, te hace sentir especial y comprendido/a. Puede llevar semanas o meses en esta fase.
+**Fase 1 — Amistad y confianza.** La persona se muestra muy interesada en ti, te halaga, escucha todo lo que dices, te hace sentir especial y comprendido. Puede llevar semanas o meses en esta fase.
 
-**Fase 2 — Intimidad forzada.** Empieza a pedirte cosas más personales: fotos, secretos, que hables con él/ella y no con nadie más, que no le cuentes a tus padres que os habláis.
+**Fase 2 — Intimidad forzada.** Empieza a pedirte cosas más personales: fotos, secretos, que hables solo con esa persona y no con nadie más, que no le cuentes a tus padres que os habláis.
 
 **Fase 3 — Componente sexual.** Pide imágenes íntimas o intenta quedar en persona. A veces usa las fotos ya enviadas como chantaje para exigir más.
 
 Señales de alerta:
 - Alguien que no conoces en persona quiere hablar contigo a todas horas.
 - Te pide que mantengáis vuestra relación en secreto.
-- Te dice que solo él/ella te entiende de verdad.
+- Te dice que solo esa persona te entiende de verdad.
 - Te presiona para que hagas o compartas algo que te incomoda.
 
-Si algo te genera incomodidad en una conversación online con alguien que no conoces en persona, cuéntaselo a un adulto de confianza. No tienes que esperar a estar seguro/a de que hay algo raro.
+Si algo te genera incomodidad en una conversación online con alguien que no conoces en persona, cuéntaselo a un adulto de confianza. No tienes que tener la certeza de que hay algo raro para pedir ayuda.
 
 ---
 id: P1_008
@@ -195,4 +195,4 @@ Lo más importante si estás en esta situación:
 
 **Pide ayuda para retirar el contenido.** La AEPD Canal Joven puede solicitar la retirada urgente de imágenes íntimas a las plataformas.
 
-No tienes que enfrentarte a esto solo/a, y no tienes que sentir vergüenza para pedir ayuda.
+No tienes que enfrentarte a esto en soledad, y no tienes que sentir vergüenza para pedir ayuda.

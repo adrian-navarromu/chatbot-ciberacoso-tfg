@@ -25,17 +25,27 @@ Uso:
 from __future__ import annotations
 
 import sys
+import random
 import logging
 from pathlib import Path
 
 import chromadb
 import numpy as np
+import torch
 from langchain_core.documents import Document
 from sentence_transformers import SentenceTransformer
 
 # Configuración de Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
+
+# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
+SEED = 112
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 
 # Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
@@ -57,9 +67,9 @@ TOP_K = 3
 # El módulo GRU no está añdido como filtro en este experimento
 PILLAR_ROUTING: dict[str, list[int] | None] = {
     "fear": [2, 4, 1],
-    "sadness": [2, 3],
+    "sadness": [2, 3],      # oracle mode: sin tendencia, usa rama estable sin P4
     "anger": [1, 2],
-    "disgust": [2, 3],
+    "disgust": [2, 5, 1],   # P5 digital + P1 protocolo: exposición pública y sextorsión
     "joy": [3],
     "surprise": [2, 1],
     "others": None,

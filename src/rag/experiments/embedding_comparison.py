@@ -13,12 +13,14 @@ from __future__ import annotations
 
 import sys
 import time
+import random
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+import torch
 from sentence_transformers import SentenceTransformer
 
 try:
@@ -29,6 +31,14 @@ except ImportError:
 # Configuración de Logging para trazabilidad
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
+
+# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
+SEED = 112
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 
 # Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]

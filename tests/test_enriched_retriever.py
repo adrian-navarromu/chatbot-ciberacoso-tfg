@@ -116,9 +116,11 @@ def retriever(corpus_documents: list[Document]):
 
     tmp_dir = tempfile.mkdtemp()
 
-    # _EmptyRetriever es un BaseRetriever real → EnsembleRetriever lo acepta
+    # Chroma mockeado: similarity_search_with_relevance_scores devuelve []
+    # → los tests del Grupo B son BM25-puro (scores semánticos = 0 → sem_norm uniforme)
     fake_chroma = MagicMock()
     fake_chroma.as_retriever.return_value = _EmptyRetriever()
+    fake_chroma.similarity_search_with_relevance_scores.return_value = []
 
     with (
         patch("src.rag.enriched_retriever._STEmbeddingsAdapter"),
@@ -150,14 +152,20 @@ def test_pillar_routing_hope(retriever: "EnrichedRetriever") -> None:
 
 
 def test_pillar_routing_sadness_deterioro(retriever: "EnrichedRetriever") -> None:
-    """sadness + deterioro → [2, 4]; sadness + estable → [2, 3].
+    """sadness + deterioro → [2, 4]; sadness + estable → [2, 3, 4] (P4 elegible con penalización).
 
-    deterioro GRU activa P4: empeoramiento progresivo sin activar PAP puede
-    requerir recursos de crisis aunque no se hayan usado keywords críticas.
-    En estable, P4 queda excluido — el failsafe PAP intercepta crisis aisladas.
+    deterioro activa P4 sin penalización: empeoramiento progresivo que requiere recursos
+    de crisis. En estable, P4 es elegible pero penalizado (×0.7) para que solo ascienda
+    si su relevancia es muy alta; P2/P3 son prioritarios en ranking normal.
     """
     assert retriever.build_pillar_filter("sadness", "deterioro") == [2, 4]
-    assert retriever.build_pillar_filter("sadness", "estable") == [2, 3]
+    assert retriever.build_pillar_filter("sadness", "estable") == [2, 3, 4]
+
+
+def test_pillar_routing_disgust(retriever: "EnrichedRetriever") -> None:
+    """disgust → [2, 5, 1]: TCC + digital + protocolo (exposición pública, sextorsión)."""
+    assert retriever.build_pillar_filter("disgust", "estable") == [2, 5, 1]
+    assert retriever.build_pillar_filter("disgust", "mejora") == [2, 5, 1]
 
 
 def test_no_pillar_filter_others(retriever: "EnrichedRetriever") -> None:
@@ -218,23 +226,23 @@ def test_config_d_pillar_filter(retriever: "EnrichedRetriever") -> None:
         )
 
 
-def test_bm25_phone(retriever: "EnrichedRetriever") -> None:
-    """Config D con routing fear → P4_007 (línea 024) en los resultados.
+def test_bm25_conducta_suicida(retriever: "EnrichedRetriever") -> None:
+    """Config D con routing fear → P4_007 (conducta suicida) en los resultados.
 
-    Con pillar_filter=[2, 4, 1] (routing de miedo), BM25 se instancia solo
-    sobre documentos de esos pilares. El token '024' está presente en P4_007
-    ('024 — Línea de atención a la conducta suicida') y con el corpus reducido
-    obtiene TF-IDF suficiente para aparecer en top-3.
+    Con pillar_filter=[2, 4, 1] (routing de miedo), BM25 opera sobre documentos
+    de pilares 1, 2 y 4. 'conducta suicida' son tokens sin formato Markdown
+    que BM25 encuentra en P4_007 ('024 — Línea de atención a la conducta suicida')
+    y obtiene un score neto superior al resto del corpus reducido.
 
-    Con paraphrase-spanish-distilroberta como modelo semántico, el canal
-    semántico ya captura '024' razonablemente bien, pero BM25 garantiza
-    la recuperación exacta independientemente del modelo.
+    Nota: el número '024' aparece en Markdown como '**024' en el corpus, por lo que
+    no es un token BM25 válido. La ventaja BM25 real es para términos clínicos como
+    'conducta', 'suicida', 'ANAR', 'emergencia' que sí aparecen como tokens limpios.
     """
     pillar_filter = retriever.build_pillar_filter("fear", "estable")  # [2, 4, 1]
-    results = retriever.retrieve("024", pillar_filter=pillar_filter)
+    results = retriever.retrieve("conducta suicida", pillar_filter=pillar_filter)
     chunk_ids = [d.metadata.get("chunk_id") for d in results]
     assert "P4_007" in chunk_ids, (
-        f"P4_007 no encontrado con routing fear {pillar_filter}. "
+        f"P4_007 no encontrado con routing fear {pillar_filter} y query 'conducta suicida'. "
         f"chunk_ids obtenidos: {chunk_ids}"
     )
 
@@ -261,7 +269,7 @@ def test_crisis_handled_by_failsafe() -> None:
         patch("src.pipeline.v2.EmotionDetector"),
         patch("src.pipeline.v2.DocumentIngesterV2"),
         patch("src.pipeline.v2.EnrichedRetriever") as mock_rag_cls,
-        patch("src.pipeline.v2.EmotionalMemoryGRU") as mock_memory_cls,
+        patch("src.pipeline.v2.EmotionalMemoryTracker") as mock_memory_cls,
         patch("src.pipeline.v2.ChatOllama"),
         patch("src.pipeline.v2.CrisisDetector") as mock_crisis_cls,
     ):

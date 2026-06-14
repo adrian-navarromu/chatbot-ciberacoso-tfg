@@ -15,12 +15,14 @@ from __future__ import annotations
 
 import re
 import sys
+import random
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 
 import faiss
 import numpy as np
+import torch
 import yaml
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -30,6 +32,13 @@ from sentence_transformers import SentenceTransformer
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
+# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
+SEED = 112
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 
 # Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]

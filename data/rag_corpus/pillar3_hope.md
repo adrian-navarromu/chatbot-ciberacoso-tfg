@@ -11,12 +11,12 @@ audience: adolescente
 
 Cuando llevamos tiempo mal, a veces se nos olvida que las cosas pueden cambiar. Una forma de empezar es preguntarse: ¿qué es lo que quiero que sea diferente?
 
-No tiene que ser algo enorme. Puede ser algo pequeño y concreto: que ese grupo deje de ignorarme, poder mirar el móvil sin ponerme nervioso/a, sentirme mejor conmigo mismo/a.
+No tiene que ser algo enorme. Puede ser algo pequeño y concreto: que ese grupo deje de ignorarme, poder mirar el móvil con calma, recuperar la confianza en mí.
 
 Tener una meta, aunque sea pequeña, le da dirección a tu energía. Cuando todo parece un caos, saber hacia dónde quieres ir ayuda a dar un primer paso.
 
 Algunos ejemplos de lo que otras personas en tu situación han identificado:
-- "Quiero volver a sentirme tranquilo/a cuando uso las redes."
+- "Quiero volver a usar las redes con tranquilidad."
 - "Quiero que mis amigos sepan lo que está pasando."
 - "Quiero poder ir al instituto sin ese miedo constante."
 
@@ -111,7 +111,7 @@ Lo que te dijeron no es una evaluación objetiva: es un ataque. Y los ataques su
 
 Tu cuerpo te permite estar aquí, sentir, moverte, conectar con otras personas. Eso tiene un valor que ningún comentario online puede quitarte.
 
-¿Qué es lo que tú valoras de ti mismo/a, más allá de la apariencia?
+¿Qué es lo que tú valoras de ti, más allá de la apariencia?
 
 ---
 id: P3_006
@@ -132,7 +132,7 @@ Tus opiniones, tus decisiones y tu manera de existir en el espacio digital no ti
 
 Lo que sientes ante estos ataques —rabia, vergüenza, miedo— es una respuesta completamente normal ante algo injusto. La intensidad de lo que sientes no confirma lo que dicen: confirma que lo que te están haciendo duele porque está mal.
 
-Si los ataques incluyen imágenes íntimas compartidas o amenazadas sin tu permiso, hay recursos y personas que pueden ayudarte a retirar ese contenido y a denunciar. No tienes que manejarlo solo/a.
+Si los ataques incluyen imágenes íntimas compartidas o amenazadas sin tu permiso, hay recursos y personas que pueden ayudarte a retirar ese contenido y a denunciar. No tienes que manejarlo sin apoyo.
 
 ¿Cómo describirías quién eres tú, con tus propias palabras, más allá de lo que esa persona intentó hacerte sentir?
 
@@ -157,7 +157,7 @@ Tómate un momento y piensa:
 - ¿Qué cosas haces bien, aunque sean pequeñas?
 - ¿Quién te trata con respeto y qué ve en ti?
 - ¿Qué te importa de verdad, más allá de las redes?
-- ¿Cuál ha sido un momento en el que te has sentido tú mismo/a de verdad?
+- ¿Cuál ha sido un momento en el que te has sentido tú mismo de verdad?
 
 Esas respuestas son parte de quién eres. Ninguna publicación puede borrarlas.
 
@@ -174,7 +174,7 @@ therapeutic_technique: hope_focused
 audience: adolescente
 ---
 
-No tienes que salir de esto solo/a. De hecho, la investigación es muy clara: el apoyo de otras personas es uno de los factores más importantes para superar una situación de acoso.
+No tienes que salir de esto en solitario. De hecho, la investigación es muy clara: el apoyo de otras personas es uno de los factores más importantes para superar una situación de acoso.
 
 Piensa en tu alrededor: ¿hay alguien —una persona, aunque sea una sola— que sabes que está de tu lado? Puede ser un familiar, un amigo o amiga, un profesor, el orientador del colegio, alguien de fuera del instituto.
 
