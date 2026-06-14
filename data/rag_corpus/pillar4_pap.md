@@ -63,13 +63,13 @@ therapeutic_technique: pap_emergencia
 audience: adolescente
 ---
 
-Si en este momento estás en un estado de mucho malestar, lo más importante ahora mismo es que no estés solo/a con esto.
+Si en este momento estás en un estado de mucho malestar, lo más importante ahora mismo es que no estés solo con esto.
 
 Lo que sientes es real y tiene sentido. No estás exagerando. Que algo tan doloroso te esté afectando así es una respuesta humana completamente válida.
 
 No tienes que resolver nada ahora mismo. Solo necesitas un primer paso: cuéntame cómo estás, y lo trabajamos juntos.
 
-¿Hay alguien cercano contigo ahora mismo, o estás solo/a? Eso me ayuda a saber cómo acompañarte mejor.
+¿Hay alguien cercano contigo ahora mismo, o estás solo? Eso me ayuda a saber cómo acompañarte mejor.
 
 ---
 id: P4_004
@@ -136,9 +136,9 @@ Considera hablar con un profesional (psicólogo, orientador, médico de cabecera
 - Sientes que el malestar te desborda aunque intentes aplicar técnicas de calma.
 - Nada parece funcionar y te sientes atrapado/a.
 
-En España puedes acudir al médico de cabecera, que puede derivarte a salud mental. También puedes hablar con el orientador de tu centro escolar. No tienes que ir solo/a: pide a un familiar o persona de confianza que te acompañe.
+En España puedes acudir al médico de cabecera, que puede derivarte a salud mental. También puedes hablar con el orientador de tu centro escolar. No tienes que ir solo: pide a un familiar o persona de confianza que te acompañe.
 
-Pedir ayuda profesional no significa que estés "loco/a". Significa que te estás cuidando.
+Pedir ayuda profesional no significa que estés "loco". Significa que te estás cuidando.
 
 ---
 id: P4_007

@@ -4,6 +4,7 @@
 CACHEDIR.TAG
 CLAUDE.md
 MEMORY.md
+memory/
 
 # 2. MODELOS Y CHECKPOINTS
 **/checkpoint-*/
