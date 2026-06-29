@@ -5,10 +5,8 @@ Configuración ganadora de los experimentos comparativos:
     - Chunking   : manual terapéutico — un chunk por unidad clínica completa
                    (Exp. 1 — precision@3 0.467 vs 0.433)
     - Embeddings : hackathon-pln-es/paraphrase-spanish-distilroberta
-                   (Exp. 2 — p@3=0.600, p@1=0.800, latencia 3.7ms;
-                   ganador frente a e5-large, bge-m3 y mpnet)
     - Vectorstore: ChromaDB SQLite (Exp. 3 — habilita routing por metadatos)
-    - Recuperación: Híbrida BM25+semántica con routing emocional (Exp. 4)
+    - Recuperación: Semántica con routing emocional por pilar (Config C, Exp. 4)
 
 Persiste el índice en data/vectorstore/chroma_v2/.
 NO modifica data/vectorstore/faiss_index_v1/.

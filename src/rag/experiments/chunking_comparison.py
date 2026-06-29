@@ -1,13 +1,25 @@
 """
 Experimento 1: Comparación de estrategias de chunking para RAG de ciberacoso.
 
-Hipótesis:
-    El chunking manual por unidades terapéuticas debe superar al automático
-    porque preserva la integridad semántica de cada técnica clínica (un
-    ejercicio completo en un chunk, no partido a la mitad), lo que permite
-    que el vector capture una idea coherente sin ruido adicional.
+Banco de evaluación: 72 casos (expected_pillars ≠ ∅, crisis_expected ≠ HIGH).
+La emoción del banco se inyecta directamente al routing (sin clasificador externo).
+
+Estrategias comparadas:
+    A — Chunking manual terapéutico (front matter YAML, un chunk por técnica clínica)
+    B — Chunking automático RecursiveCharacterTextSplitter (chunk_size=300, overlap=50)
+
+ADVERTENCIA METODOLÓGICA (CAMBIO 5):
+    La métrica P@k favorece artificialmente al chunking automático porque fragmentar
+    cada técnica en más trozos aumenta la probabilidad de acertar el pilar por azar.
+    La estrategia A se elige por INTEGRIDAD CLÍNICA del chunk, no por la métrica:
+    un chunk manual contiene una técnica terapéutica completa (instrucción + cierre),
+    mientras que un fragmento automático puede cortar una técnica a la mitad.
+    Ver `qualitative_analysis()` para ejemplos concretos.
+
+Requiere GPU (SentenceTransformer embeddings).
 
 Uso:
+    conda activate chatbots
     python src/rag/experiments/chunking_comparison.py
 """
 
@@ -28,11 +40,9 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
-# Configuración de Logging para trazabilidad
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
-# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
 SEED = 112
 random.seed(SEED)
 np.random.seed(SEED)
@@ -40,240 +50,276 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-# Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.rag.experiments.utils import CORPUS_DIR, RESULTS_DIR, TEST_CASES, compute_hit_at_any, compute_metrics_for_run, compute_precision_at_k, load_chunks_from_markdown, print_results_table, save_results
+from src.rag.experiments.utils import (
+    CORPUS_DIR, RESULTS_DIR, FIGURES_DIR,
+    ORACLE_ROUTING,
+    load_eval_cases, oracle_faiss_search, make_oracle_result,
+    compute_eval_metrics, rag_figure_bar,
+    compute_precision_at_k, compute_hit_at_any,
+    load_chunks_from_markdown, save_results,
+)
 
-
-# Constantes
 EMBEDDING_MODEL = "paraphrase-multilingual-mpnet-base-v2"
 TOP_K = 3
 
 
-# Dataclass auxiliar (solo Estrategia B — auto-chunking sin front matter)
 @dataclass
 class EvalChunk:
-    """Chunk mínimo con pilar inferido del nombre de archivo (solo Estrategia B)."""
     pillar: int
     content: str
 
 
-# Carga de corpus — Estrategia B (auto-chunking, específico de este experimento)
 def _pillar_from_filename(path: Path) -> int:
-    """Extrae el número de pilar del nombre de archivo (pillar3_hope.md → 3)."""
     match = re.search(r"pillar(\d+)", path.stem)
     return int(match.group(1)) if match else 0
 
 
 def load_auto_chunks(corpus_dir: Path) -> list[EvalChunk]:
-    """Genera chunks automáticos ignorando el front matter YAML.
-
-    Estrategia B: extrae el texto plano de los mismos archivos .md y aplica
-    RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=50). Puede
-    partir técnicas terapéuticas a la mitad, degradando la coherencia semántica
-    de cada vector. El pilar se infiere del nombre del archivo fuente.
-
-    Args:
-        corpus_dir: Directorio con los archivos .md del corpus RAG.
-
-    Returns:
-        Lista de EvalChunk con pillar (inferido del fichero) y fragmento de texto.
-    """
+    """Estrategia B (baseline): RecursiveCharacterTextSplitter(chunk_size=300, overlap=50)."""
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=50,
+        chunk_size=300, chunk_overlap=50,
         separators=["\n\n", "\n", ". ", " "],
     )
     chunks: list[EvalChunk] = []
-
     for md_file in sorted(corpus_dir.glob("*.md")):
         pillar = _pillar_from_filename(md_file)
         text = md_file.read_text(encoding="utf-8")
-
-        # Eliminar metadatos YAML para aislar solo el contenido terapéutico
         parts = re.split(r"^---$", text, flags=re.MULTILINE)
-        content_parts = [
-            parts[i].strip() for i in range(2, len(parts), 2) if i < len(parts)
-        ]
+        content_parts = [parts[i].strip() for i in range(2, len(parts), 2) if i < len(parts)]
         plain_text = "\n\n".join(p for p in content_parts if p)
-
         if not plain_text:
             continue
         for fragment in splitter.split_text(plain_text):
             if fragment.strip():
                 chunks.append(EvalChunk(pillar=pillar, content=fragment.strip()))
-    
     return chunks
 
 
-# Indexación FAISS (in-memory)
-def build_faiss_index(docs: list[Document], model: SentenceTransformer) -> faiss.IndexFlatIP:
-    """Genera embeddings e indexa en FAISS en memoria. No persiste en disco.
+# ---------------------------------------------------------------------------
+# CAMBIO 5 — Análisis cualitativo de fragmentación
+# ---------------------------------------------------------------------------
 
-    Usa IndexFlatIP con vectores normalizados, equivalente a similitud coseno exacta.
+def qualitative_analysis(corpus_dir: Path) -> None:
+    """Muestra ejemplos concretos de cómo el chunking automático rompe técnicas clínicas.
 
-    Args:
-        docs: Lista de Document de LangChain a indexar.
-        model: Modelo SentenceTransformer para generar embeddings.
-
-    Returns:
-        Índice FAISS IndexFlatIP cargado en memoria.
+    Compara el chunk manual (técnica completa) con los fragmentos automáticos
+    correspondientes. Demuestra que la métrica P@k favorece artificialmente al
+    chunking automático por inflación del espacio de búsqueda, pero la fragmentación
+    destruye la integridad clínica (la instrucción queda sin cierre, o viceversa).
     """
-    texts = [doc.page_content for doc in docs]
-    embeddings: np.ndarray = model.encode(
-        texts,
-        normalize_embeddings=True,
-        show_progress_bar=True,
-        batch_size=32,
-    ).astype(np.float32)
-    index = faiss.IndexFlatIP(embeddings.shape[1])
-    index.add(embeddings)
-    return index
+    manual_docs = load_chunks_from_markdown(corpus_dir)
+    auto_chunks = load_auto_chunks(corpus_dir)
 
+    sep = "=" * 78
+    print(f"\n{sep}")
+    print("  ANÁLISIS CUALITATIVO: CHUNKING MANUAL vs. CHUNKING AUTOMÁTICO")
+    print("  ADVERTENCIA: La métrica P@k NO mide integridad clínica del chunk.")
+    print("  El chunking manual se elige porque preserva la técnica terapéutica")
+    print("  completa en cada chunk, no porque supere métricamente al automático.")
+    print(sep)
 
-# Evaluación
-def evaluate_strategy(docs: list[Document], index: faiss.IndexFlatIP, model: SentenceTransformer, top_k: int = TOP_K) -> list[dict]:
-    """Evalúa precision@k y hit@any para las 10 consultas estándar.
+    # Cargar texto plano de cada fichero de pilar para buscar fragmentos automáticos
+    pillar_texts: dict[str, str] = {}
+    for md_file in sorted(corpus_dir.glob("*.md")):
+        text = md_file.read_text(encoding="utf-8")
+        parts = re.split(r"^---$", text, flags=re.MULTILINE)
+        contents = [parts[i].strip() for i in range(2, len(parts), 2) if i < len(parts)]
+        pillar_texts[md_file.stem] = "\n\n".join(c for c in contents if c)
 
-    Args:
-        docs: Documents indexados (mismo orden que el índice FAISS).
-        index: Índice FAISS IndexFlatIP en memoria.
-        model: Modelo de embeddings para codificar las queries.
-        top_k: Número de resultados a recuperar por consulta.
+    # Seleccionar 3 chunks manuales ilustrativos (técnicas con pasos numerados o estructuradas)
+    ejemplos = [
+        ("P2_001", "Respiración diafragmática — 5 pasos numerados"),
+        ("P2_002", "Grounding 5-4-3-2-1 — lista de sentidos"),
+        ("P2_007", "Parada del pensamiento + mindfulness — dos técnicas"),
+    ]
 
-    Returns:
-        Lista de dicts con métricas por consulta.
-    """
-    results: list[dict] = []
-    for tc in TEST_CASES:
-        query_vec = model.encode(
-            [tc["query"]], normalize_embeddings=True
-        ).astype(np.float32)
-        _, indices = index.search(query_vec, top_k)
+    for chunk_id, label in ejemplos:
+        manual = next((d for d in manual_docs if d.metadata.get("chunk_id") == chunk_id), None)
+        if not manual:
+            continue
 
-        retrieved_pillars = [
-            docs[idx].metadata["pillar"]
-            for idx in indices[0]
-            if 0 <= idx < len(docs)
+        manual_text = manual.page_content
+        manual_words = len(manual_text.split())
+
+        # Buscar auto-chunks que contengan parte de este contenido
+        manual_start = manual_text[:80]
+        matching_auto = [
+            c for c in auto_chunks
+            if c.pillar == manual.metadata["pillar"]
+            and any(word in c.content for word in manual_start.split()[:5])
         ]
-        expected = tc["expected_pillars"]
 
-        results.append(
-            {
-                "label": tc["label"],
-                "query": tc["query"],
-                "expected_pillars": sorted(expected),
-                "retrieved_pillars": retrieved_pillars,
-                "precision_at_3": compute_precision_at_k(retrieved_pillars, expected, top_k),
-                "hit_at_any": compute_hit_at_any(retrieved_pillars, expected),
-            }
-        )
+        print(f"\n  {'─'*74}")
+        print(f"  EJEMPLO: {label}  [{chunk_id}]")
+        print(f"  {'─'*74}")
+        print(f"\n  ▶ CHUNK MANUAL ({manual_words} palabras) — TÉCNICA COMPLETA:")
+        print(f"  {'·'*74}")
+        for line in manual_text[:500].split("\n"):
+            print(f"    {line}")
+        if len(manual_text) > 500:
+            print(f"    ... [{manual_words - len(manual_text[:500].split())} palabras más]")
+
+        if matching_auto:
+            print(f"\n  ▶ AUTO-CHUNKS generados desde el mismo pilar ({len(matching_auto)} encontrados):")
+            for i, ac in enumerate(matching_auto[:2], 1):
+                n_words = len(ac.content.split())
+                first_chars = ac.content[:200]
+                print(f"  {'·'*74}")
+                print(f"  Auto-fragmento {i} ({n_words} palabras) — {'INICIO' if i==1 else 'CONTINUACIÓN'}:")
+                for line in first_chars.split("\n"):
+                    print(f"    {line}")
+                if len(ac.content) > 200:
+                    print(f"    ...")
+                if i == 1 and len(matching_auto) > 1:
+                    print(f"  ⚠  La técnica continúa en el siguiente fragmento (chunk cortado).")
+        else:
+            print(f"  [No se encontraron auto-chunks coincidentes — técnica muy corta o sin coincidencia]")
+
+    print(f"\n  {'─'*74}")
+    print(f"  CONCLUSIÓN: El chunking automático genera {len(auto_chunks)} fragmentos")
+    print(f"  frente a {len(manual_docs)} chunks manuales. Cada fragmento extra")
+    print(f"  infla P@k porque aumenta la cobertura de pilar por azar, pero")
+    print(f"  el retriever devuelve técnicas incompletas al usuario.")
+    print(sep + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Evaluación
+# ---------------------------------------------------------------------------
+
+def build_embeddings(docs: list[Document], model: SentenceTransformer) -> np.ndarray:
+    return model.encode(
+        [d.page_content for d in docs],
+        normalize_embeddings=True, show_progress_bar=True, batch_size=32,
+    ).astype(np.float32)
+
+
+def evaluate_config(
+    docs: list[Document], embs: np.ndarray,
+    model: SentenceTransformer, cases: list[dict], top_k: int = TOP_K,
+) -> list[dict]:
+    """Evaluación con routing por emoción del banco sobre FAISS numpy."""
+    doc_pillars = [d.metadata.get("pillar", 0) for d in docs]
+    results: list[dict] = []
+    for tc in cases:
+        pillar_filter = ORACLE_ROUTING.get(tc.get("emotion", "others"))
+        q_emb = model.encode([tc["query"]], normalize_embeddings=True).astype(np.float32)[0]
+        global_indices = oracle_faiss_search(q_emb, embs, doc_pillars, pillar_filter, top_k)
+        retrieved_pillars = [docs[i].metadata.get("pillar", 0) for i in global_indices]
+        results.append(make_oracle_result(tc, retrieved_pillars, top_k,
+                                          extra={"pillar_filter": pillar_filter}))
     return results
 
 
-# Presentación de resultados
-def _print_summary(manual_results: list[dict], auto_results: list[dict], n_manual: int, n_auto: int) -> None:
-    """Imprime resumen comparativo entre estrategias."""
-    m_a = compute_metrics_for_run(manual_results)
-    m_b = compute_metrics_for_run(auto_results)
-    prec_a, hit_a = m_a["precision_at_3_media"], m_a["hit_at_any_rate"]
-    prec_b, hit_b = m_b["precision_at_3_media"], m_b["hit_at_any_rate"]
+# ---------------------------------------------------------------------------
+# Presentación
+# ---------------------------------------------------------------------------
 
-    sep = "=" * 74
+def _print_summary(metrics_a: dict, metrics_b: dict, n_a: int, n_b: int) -> None:
+    sep = "=" * 82
     print(f"\n{sep}")
-    print("  RESUMEN COMPARATIVO")
+    print("  RESUMEN COMPARATIVO — Exp.1 Chunking (banco=72)")
+    print("  NOTA: P@k no mide integridad clínica. Ver análisis cualitativo abajo.")
     print(sep)
-    print(
-        f"  {'Estrategia':<46} {'chunks':>6} {'P@3':>8} {'hit@any':>8}"
-    )
-    print(f"  {'-'*45} {'-'*6} {'-'*8} {'-'*8}")
-    print(
-        f"  {'A - Manual terapéutico (V1)':<46} {n_manual:>6}"
-        f" {prec_a:>8.4f} {hit_a:>8.4f}"
-    )
-    print(
-        f"  {'B - Automático (chunk_size=300, overlap=50)':<46} {n_auto:>6}"
-        f" {prec_b:>8.4f} {hit_b:>8.4f}"
-    )
-    print(f"{sep}\n")
+    print(f"  {'Estrategia':<44} {'chunks':>6} {'P@1':>6} {'P@3':>6} {'Hit':>6}")
+    print(f"  {'-'*43} {'-'*6} {'-'*6} {'-'*6} {'-'*6}")
+    print(f"  {'A Manual terapéutico':<44} {n_a:>6}"
+          f" {metrics_a['precision_at_1_media']:>6.3f}"
+          f" {metrics_a['precision_at_3_media']:>6.3f}"
+          f" {metrics_a['hit_at_any_rate']:>6.3f}")
+    print(f"  {'B Automático chunk_size=300 (Ref. V1)':<44} {n_b:>6}"
+          f" {metrics_b['precision_at_1_media']:>6.3f}"
+          f" {metrics_b['precision_at_3_media']:>6.3f}"
+          f" {metrics_b['hit_at_any_rate']:>6.3f}")
+    print(sep + "\n")
 
 
+def _figure(metrics_a: dict, metrics_b: dict) -> None:
+    rag_figure_bar(
+        config_names=["B Auto\n(Ref. V1)", "A Manual"],
+        config_metrics={"B Auto\n(Ref. V1)": metrics_b, "A Manual": metrics_a},
+        baseline_name="B Auto\n(Ref. V1)",
+        title="Exp.1 — Chunking manual vs. automático",
+        out_path=FIGURES_DIR / "exp1_chunking.png",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Main
+# ---------------------------------------------------------------------------
+
 def main() -> None:
-    """Ejecuta el experimento comparativo de chunking y guarda resultados en JSON."""
-    log.info(f"Iniciando Experimento 1 - Modelo de embeddings: {EMBEDDING_MODEL}")
-    log.info("Cargando SentenceTransformer en memoria...")
+    cases = load_eval_cases()
+    log.info(f"Banco de evaluación: {len(cases)} casos.")
+
+    log.info(f"Cargando SentenceTransformer: {EMBEDDING_MODEL}...")
     model = SentenceTransformer(EMBEDDING_MODEL)
 
     # Estrategia A: chunking manual terapéutico
-    log.info("[Estrategia A] Cargando corpus con partición manual (YAML Front Matter)...")
+    log.info("[A] Cargando corpus manual...")
     manual_docs = load_chunks_from_markdown(CORPUS_DIR)
-    log.info(f"[Estrategia A] {len(manual_docs)} chunks terapéuticos indexados.")
-    
-    manual_index = build_faiss_index(manual_docs, model)
-    manual_results = evaluate_strategy(manual_docs, manual_index, model)
+    log.info(f"[A] {len(manual_docs)} chunks. Calculando embeddings...")
+    manual_embs = build_embeddings(manual_docs, model)
+    log.info("[A] Evaluando sobre conjunto completo...")
+    manual_results = evaluate_config(manual_docs, manual_embs, model, cases)
+    metrics_a = compute_eval_metrics(manual_results)
 
     # Estrategia B: chunking automático
-    log.info("[Estrategia B] Generando partición automática (RecursiveCharacterTextSplitter)...")
+    log.info("[B] Generando chunks automáticos...")
     auto_chunks = load_auto_chunks(CORPUS_DIR)
-    log.info(f"[Estrategia B] {len(auto_chunks)} chunks algorítmicos generados.")
-    
-    # Convertir EvalChunk a Document para usar la misma interfaz de evaluación
     auto_docs = [
-        Document(page_content=c.content, metadata={"pillar": c.pillar, "chunk_id": ""})
-        for c in auto_chunks
+        Document(page_content=c.content, metadata={"pillar": c.pillar, "chunk_id": f"auto_{i}"})
+        for i, c in enumerate(auto_chunks)
     ]
-    auto_index = build_faiss_index(auto_docs, model)
-    auto_results = evaluate_strategy(auto_docs, auto_index, model)
+    log.info(f"[B] {len(auto_docs)} chunks automáticos. Calculando embeddings...")
+    auto_embs = build_embeddings(auto_docs, model)
+    log.info("[B] Evaluando sobre conjunto completo...")
+    auto_results = evaluate_config(auto_docs, auto_embs, model, cases)
+    metrics_b = compute_eval_metrics(auto_results)
 
-    # Tablas individuales
-    print_results_table(
-        f"Estrategia A — Manual terapéutico (V1)  [{len(manual_docs)} chunks]",
-        manual_results,
-    )
-    print_results_table(
-        f"Estrategia B — Automático RecursiveCharacterTextSplitter  [{len(auto_docs)} chunks]",
-        auto_results,
-    )
+    _print_summary(metrics_a, metrics_b, len(manual_docs), len(auto_docs))
 
-    # Resumen comparativo
-    _print_summary(manual_results, auto_results, len(manual_docs), len(auto_docs))
+    # Análisis cualitativo
+    qualitative_analysis(CORPUS_DIR)
 
-    # Guardar JSON
-    m_a = compute_metrics_for_run(manual_results)
-    m_b = compute_metrics_for_run(auto_results)
-    prec_a, hit_a = m_a["precision_at_3_media"], m_a["hit_at_any_rate"]
-    prec_b, hit_b = m_b["precision_at_3_media"], m_b["hit_at_any_rate"]
+    _figure(metrics_a, metrics_b)
 
+    # JSON
     output: dict = {
         "experimento": "chunking_comparison",
+        "evaluacion": "completa",
+        "seed": SEED,
         "embedding_model": EMBEDDING_MODEL,
         "top_k": TOP_K,
+        "banco": {"n_total": len(cases)},
+        "advertencia_metrica": (
+            "P@k favorece artificialmente al chunking automático por inflación del corpus. "
+            "La estrategia A se selecciona por integridad clínica (técnica completa por chunk), "
+            "no por la métrica de recuperación."
+        ),
         "estrategia_a": {
-            "nombre": "Manual terapéutico (V1)",
-            "descripcion": "Chunks delimitados por front matter YAML, un chunk por unidad terapéutica",
+            "nombre": "Manual terapéutico",
+            "es_referencia_v1": False,
             "n_chunks": len(manual_docs),
-            "precision_at_3_media": round(prec_a, 4),
-            "hit_at_any_rate": round(hit_a, 4),
+            **metrics_a,
             "resultados_por_consulta": manual_results,
         },
         "estrategia_b": {
-            "nombre": "Automático RecursiveCharacterTextSplitter",
-            "descripcion": "Texto plano sin front matter, chunk_size=300, chunk_overlap=50",
+            "nombre": "Automático RecursiveCharacterTextSplitter (Ref. V1)",
+            "es_referencia_v1": True,
             "chunk_size": 300,
             "chunk_overlap": 50,
-            "separators": ["\n\n", "\n", ". ", " "],
             "n_chunks": len(auto_docs),
-            "precision_at_3_media": round(prec_b, 4),
-            "hit_at_any_rate": round(hit_b, 4),
+            **metrics_b,
             "resultados_por_consulta": auto_results,
         },
     }
-
     save_results("chunking_results.json", output)
+    log.info("Exp.1 completado. Figura: exp1_chunking.png")
 
 
 if __name__ == "__main__":

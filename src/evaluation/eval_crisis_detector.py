@@ -1,5 +1,5 @@
 """
-Evaluación del CrisisDetector sobre el banco de pruebas (TAREA 4).
+Evaluación del CrisisDetector sobre el banco de pruebas.
 
 MODO: SIN EMOCIÓN — el CrisisDetector opera por regex sobre texto crudo.
       No se usa el campo `emotion` del banco ni se invoca ningún modelo ML.

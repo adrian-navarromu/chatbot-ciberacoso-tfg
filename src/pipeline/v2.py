@@ -77,7 +77,7 @@ class ChatbotV2:
     - CrisisDetector: primera capa de seguridad, bypass PAP inmediato si HIGH/MEDIUM.
     - EmotionDetector: clasificación emocional fine-tuned.
     - EmotionalMemoryTracker: rastreo de tendencia afectiva por ventana deslizante.
-    - EnrichedRetriever: recuperación híbrida BM25 + ChromaDB con routing por pilar.
+    - EnrichedRetriever: recuperación semántica con routing por pilar.
     - build_prompt_v2: prompt estructurado variante D.
 
     Args:
@@ -102,7 +102,7 @@ class ChatbotV2:
         self.emotion_detector = EmotionDetector(Path(emotion_model_path))
         self.memory = EmotionalMemoryTracker(window_size=window_size)
 
-        # Parsear corpus y construir documentos LangChain para BM25
+        # Parsear corpus y construir documentos LangChain para EnrichedRetriever
         ingester = DocumentIngesterV2(
             corpus_dir=corpus_dir,
             embedding_model=embedding_model,

@@ -2,9 +2,9 @@
 Banco de pruebas ampliado para el chatbot de apoyo emocional en ciberacoso.
 
 FUENTE ÚNICA DE VERDAD para todos los experimentos de evaluación.
-Todos los experimentos (TAREAS 4-7) importan desde aquí.
+Todos los experimentos importan desde aquí.
 
-Generado con seed=112 (REGLA TRANSVERSAL 1). La asignación dev/test_ciego
+Generado con seed=112. La asignación dev/test_ciego
 está estratificada por intent_type y emotion y fue fijada manualmente
 con esa semilla como referencia; no se usa aleatoriedad en tiempo de carga.
 
@@ -39,7 +39,7 @@ Notas sobre expected_pillars en casos crisis:
 """
 from __future__ import annotations
 
-# Semilla de referencia (REGLA TRANSVERSAL 1) — usada en funciones de muestreo
+# Semilla de referencia — usada en funciones de muestreo
 SEED: int = 112
 
 # ---------------------------------------------------------------------------

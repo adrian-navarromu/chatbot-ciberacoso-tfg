@@ -1,90 +1,880 @@
 {
   "experimento": "chunking_comparison",
+  "evaluacion": "completa",
+  "seed": 112,
   "embedding_model": "paraphrase-multilingual-mpnet-base-v2",
   "top_k": 3,
+  "banco": {
+    "n_total": 72
+  },
+  "advertencia_metrica": "P@k favorece artificialmente al chunking automático por inflación del corpus. La estrategia A se selecciona por integridad clínica (técnica completa por chunk), no por la métrica de recuperación.",
   "estrategia_a": {
-    "nombre": "Manual terapéutico (V1)",
-    "descripcion": "Chunks delimitados por front matter YAML, un chunk por unidad terapéutica",
+    "nombre": "Manual terapéutico",
+    "es_referencia_v1": false,
     "n_chunks": 40,
-    "precision_at_3_media": 0.5,
-    "hit_at_any_rate": 0.9,
+    "n": 72,
+    "precision_at_1_media": 0.8472,
+    "precision_at_3_media": 0.8241,
+    "hit_at_any_rate": 0.9444,
     "resultados_por_consulta": [
       {
-        "label": "Q1",
-        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "id": "Q001",
+        "query": "Tengo miedo de coger el móvil porque me llegan mensajes de odio",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "fear",
         "expected_pillars": [
           1,
-          2
+          2,
+          4
         ],
         "retrieved_pillars": [
           4,
           1,
           1
         ],
-        "precision_at_3": 0.6667,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
       },
       {
-        "label": "Q2",
-        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "id": "Q002",
+        "query": "Me están acosando por internet y no sé qué hacer para que paren",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q003",
+        "query": "Alguien ha creado un perfil falso con mis fotos para burlarse de mí",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "disgust",
         "expected_pillars": [
           1,
           5
         ],
         "retrieved_pillars": [
+          1,
           5,
-          5,
-          2
+          1
         ],
-        "precision_at_3": 0.6667,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
       },
       {
-        "label": "Q3",
-        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
+        "id": "Q004",
+        "query": "Me insultan en el grupo de clase por WhatsApp y mis profesores no hacen nada",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "anger",
         "expected_pillars": [
+          1,
           2
         ],
         "retrieved_pillars": [
-          4,
-          4,
+          1,
+          1,
           2
         ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
       },
       {
-        "label": "Q4",
-        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
+        "id": "Q005",
+        "query": "Siento que no sirvo para nada y que todo me sale mal desde que empezó el acoso",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "sadness",
         "expected_pillars": [
-          2
+          2,
+          3
         ],
         "retrieved_pillars": [
           3,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q006",
+        "query": "Hoy me atreví a bloquear al que me acosaba y me siento un poco mejor",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q007",
+        "query": "Me siento sola y no tengo con quién hablar de lo que me pasa",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q008",
+        "query": "Quiero reportar a alguien en TikTok que me está acosando, ¿cómo lo hago?",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q009",
+        "query": "Estoy muy enfadada porque han compartido mis mensajes privados sin permiso",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q010",
+        "query": "Me da miedo que si cuento lo que pasa se ponga aún peor",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q011",
+        "query": "Hay gente que me manda mensajes muy malos en internet y tengo pavor de mirar el teléfono",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q012",
+        "query": "Una persona desconocida me persigue en redes sociales y no sé por dónde empezar a solucionarlo",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q013",
+        "query": "Publicaron imágenes mías que no autoricé y me siento muy humillada",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          2,
           5,
           5
         ],
-        "precision_at_3": 0.0,
-        "hit_at_any": false
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
       },
       {
-        "label": "Q5",
-        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
+        "id": "Q014",
+        "query": "El grupo de WhatsApp de mi clase se burla de mí continuamente y ya no lo aguanto",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q015",
+        "query": "Me cuesta un montón contarles esto a mis padres, me da mucha vergüenza",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q016",
+        "query": "Ayer conseguí poner una denuncia y aunque fue difícil, me quedo más tranquila",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q017",
+        "query": "No tengo a nadie de confianza con quien hablar de lo que me está pasando",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q018",
+        "query": "¿Qué pasos tengo que dar para denunciar a alguien que me acosa por el móvil?",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q019",
+        "query": "Estoy muy molesta porque alguien reenvió algo que yo le había mandado solo a ella",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q020",
+        "query": "Me preocupa que si actúo, la persona que me acosa tome represalias",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q021",
+        "query": "no puedo mas me acoshan todos los dias por el wasap y ya no aguanto",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q022",
+        "query": "tengo mido de bolver al institu porke me amenasan por las redes",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q023",
+        "query": "me an puesto un bideo mio sin permiso en el tik tok i no se ke acer",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q024",
+        "query": "me isultan en el grupo de clase pero los profes no asen nada de nada",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q025",
+        "query": "me siento solaaa nadie me quiere ni me escusha para nada",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q026",
+        "query": "como puedo blokear a alguien en istagram ke me esta fastiando",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q027",
+        "query": "me an amenasado con difundir mis fotos si no ago lo ke disen",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          4,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q028",
+        "query": "kiero denunciar pero no se como se ase ni a donde ir",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "anger",
         "expected_pillars": [
           1
         ],
         "retrieved_pillars": [
           1,
-          4,
-          5
+          1,
+          1
         ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
       },
       {
-        "label": "Q6",
-        "query": "cómo bloqueo a alguien en instagram que me está insultando",
+        "id": "Q029",
+        "query": "me da berguenza kontar esto pero me estan acosando por internet desde hace meses",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "disgust",
         "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          5
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q030",
+        "query": "ya no aguanto mas esto me siento fatal absolutamente todo el tiempo",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q031",
+        "query": "bro me están haciendo bullying online y me tiene loco 😭 no sé qué hacer",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q032",
+        "query": "tio q fuerte me han creado un spam con mis fotos 💀 wtf",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q033",
+        "query": "me han ghosteado en todos lados y me mandan hate por ig daily 😤",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q034",
+        "query": "ngl este tío me tiene mega rayado con sus mensajes de mierda, ya no puedo más",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q035",
+        "query": "ya no ptq aguanto todo el mundo me odia y me lo hacen saber 😢",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q036",
+        "query": "OMG me han screenshotted el privado y lo están mandando a todos 😱",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "surprise",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          1
+        ]
+      },
+      {
+        "id": "Q037",
+        "query": "pq hay gente tan cruel?? llevo semanas con ansiedad por todo esto",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q038",
+        "query": "cringe total me grabaron en clase sin permiso y lo subieron al grupo 😡",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
           5
         ],
         "retrieved_pillars": [
@@ -92,13 +882,67 @@
           5,
           5
         ],
+        "precision_at_1": 1.0,
         "precision_at_3": 1.0,
-        "hit_at_any": true
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
       },
       {
-        "label": "Q7",
-        "query": "todo lo que hago sale mal y no sirvo para nada",
+        "id": "Q039",
+        "query": "no sé si reportar o hablar con el tutor, sigo flipando en shock",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "surprise",
         "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          1
+        ]
+      },
+      {
+        "id": "Q040",
+        "query": "hoy he quedado con mis amigos de verdad y me olvidé del tema por fin 🙏",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q041",
+        "query": "fr fr me hacen la vida imposible en los grupos de clase 😭😭 ya estoy al límite",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
           3
         ],
         "retrieved_pillars": [
@@ -106,209 +950,2387 @@
           3,
           2
         ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
       },
       {
-        "label": "Q8",
-        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
+        "id": "Q042",
+        "query": "ctm tengo miedo de lo que me van a hacer si cuento algo a los adultos",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
         "expected_pillars": [
+          2,
           4
         ],
         "retrieved_pillars": [
           4,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q043",
+        "query": "puta vida me tienen harta con sus comentarios de mierda en mis stories 😠",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q044",
+        "query": "alv me acaban de mandar una amenaza por dm 😨 qué hago, estoy temblando",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q045",
+        "query": "skull me han hackeado la cuenta de insta y están usándola para acosar a gente de mi clase",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          5,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q046",
+        "query": "Últimamente no tengo ganas de hacer nada y ya no me importa el instituto",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
           3,
           2
         ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q047",
+        "query": "Desde hace semanas duermo fatal y siempre tengo el estómago revuelto por las mañanas",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 0.0,
         "precision_at_3": 0.3333,
-        "hit_at_any": true
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
       },
       {
-        "label": "Q9",
-        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
+        "id": "Q048",
+        "query": "Mis amigos ya no me hablan igual y no entiendo qué he hecho mal",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
         "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q049",
+        "query": "Me da mucho miedo el recreo, prefiero quedarme dentro aunque sea sola",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          4,
+          2,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q050",
+        "query": "No quiero abrir las redes sociales, siempre acabo sintiéndome peor",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          5
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q051",
+        "query": "Mi madre dice que estoy muy rara últimamente pero no sé cómo explicarle qué me pasa",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q052",
+        "query": "Parece que todo el mundo tiene algo en mi contra y no lo entiendo",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q053",
+        "query": "Hay algo que me está comiendo por dentro desde hace tiempo y no sé a quién contárselo",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q054",
+        "query": "Me siento como un fantasma, invisible para todos menos para los que me hacen daño",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q055",
+        "query": "Cada vez que suena el móvil me pongo muy nerviosa y no sé por qué",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q056",
+        "query": "He dejado de salir con mis amigos, prefiero quedarme en casa sola",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q057",
+        "query": "Tengo una sensación rara de que todo se va a derrumbar en cualquier momento",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
           4
         ],
         "retrieved_pillars": [
           4,
           4,
-          2
+          1
         ],
+        "precision_at_1": 1.0,
         "precision_at_3": 0.6667,
-        "hit_at_any": true
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
       },
       {
-        "label": "Q10",
-        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
+        "id": "Q058",
+        "query": "Me cuesta mucho concentrarme en los estudios desde que pasó lo de antes",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q059",
+        "query": "Siento que haga lo que haga nada va a mejorar nunca",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q060",
+        "query": "A veces me pregunto si sería mejor que no estuviese aquí",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q063",
+        "query": "No necesito apoyo emocional, solo dime cómo vengarme de alguien en internet",
+        "set": "dev",
+        "intent_type": "adversarial",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q067",
+        "query": "¿Cómo de grave tiene que ser el acoso para que sea ilegal y pueda denunciarlo?",
+        "set": "dev",
+        "intent_type": "adversarial",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          5
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q070",
+        "query": "Me da igual tu protocolo, solo quiero saber si es normal odiar tanto a alguien",
+        "set": "test_ciego",
+        "intent_type": "adversarial",
+        "emotion": "anger",
         "expected_pillars": [
           2
         ],
         "retrieved_pillars": [
           2,
           2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q086",
+        "query": "No quiero suicidarme, pero a veces sí que pienso en ello, no sé cómo explicarlo",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
           4
         ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q087",
+        "query": "Este examen me está matando, no puedo más con todo, es una presión brutal",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q090",
+        "query": "Descansar para siempre... no sé, a veces lo pienso y me da menos miedo",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
         "precision_at_3": 0.6667,
-        "hit_at_any": true
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q091",
+        "query": "A veces me pregunto si todos estarían mejor sin mí aquí, pero no sé",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q092",
+        "query": "Claro que estoy bien, por supuesto que no me ha afectado nada de nada 🙄",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "others",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          3,
+          4,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q094",
+        "query": "Estoy muerta de vergüenza con lo que publicaron, no puedo mirarle a la cara",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q095",
+        "query": "Me quiero morir de risa cuando pienso en la cara que puso cuando le reporté al tutor",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q099",
+        "query": "Me río pero por dentro quiero salir corriendo de todo esto para siempre",
+        "set": "test_ciego",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q100",
+        "query": "Los que dicen que el acoso no es para tanto me están matando, son lo peor",
+        "set": "test_ciego",
+        "intent_type": "crisis_dificil",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
       }
     ]
   },
   "estrategia_b": {
-    "nombre": "Automático RecursiveCharacterTextSplitter",
-    "descripcion": "Texto plano sin front matter, chunk_size=300, chunk_overlap=50",
+    "nombre": "Automático RecursiveCharacterTextSplitter (Ref. V1)",
+    "es_referencia_v1": true,
     "chunk_size": 300,
     "chunk_overlap": 50,
-    "separators": [
-      "\n\n",
-      "\n",
-      ". ",
-      " "
-    ],
-    "n_chunks": 182,
-    "precision_at_3_media": 0.4333,
-    "hit_at_any_rate": 0.8,
+    "n_chunks": 181,
+    "n": 72,
+    "precision_at_1_media": 0.8611,
+    "precision_at_3_media": 0.8241,
+    "hit_at_any_rate": 0.9306,
     "resultados_por_consulta": [
       {
-        "label": "Q1",
-        "query": "tengo miedo de ir al instituto porque me amenazan por internet",
+        "id": "Q001",
+        "query": "Tengo miedo de coger el móvil porque me llegan mensajes de odio",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q002",
+        "query": "Me están acosando por internet y no sé qué hacer para que paren",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "fear",
         "expected_pillars": [
           1,
           2
         ],
         "retrieved_pillars": [
-          4,
+          1,
           1,
           4
         ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
       },
       {
-        "label": "Q2",
-        "query": "me han publicado fotos mías sin permiso y no sé qué hacer",
+        "id": "Q003",
+        "query": "Alguien ha creado un perfil falso con mis fotos para burlarse de mí",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "disgust",
         "expected_pillars": [
           1,
           5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q004",
+        "query": "Me insultan en el grupo de clase por WhatsApp y mis profesores no hacen nada",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q005",
+        "query": "Siento que no sirvo para nada y que todo me sale mal desde que empezó el acoso",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
         ],
         "retrieved_pillars": [
           3,
-          4,
-          5
-        ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q3",
-        "query": "no puedo parar de llorar me siento muy mal y no sé por qué",
-        "expected_pillars": [
+          3,
           2
         ],
-        "retrieved_pillars": [
-          4,
-          4,
-          4
-        ],
-        "precision_at_3": 0.0,
-        "hit_at_any": false
-      },
-      {
-        "label": "Q4",
-        "query": "todo el mundo me odia en clase y en los grupos de whatsapp me ignoran",
-        "expected_pillars": [
-          2
-        ],
-        "retrieved_pillars": [
-          2,
-          1,
-          1
-        ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q5",
-        "query": "quiero denunciar al que me acosa pero no sé cómo hacerlo",
-        "expected_pillars": [
-          1
-        ],
-        "retrieved_pillars": [
-          5,
-          4,
-          3
-        ],
-        "precision_at_3": 0.0,
-        "hit_at_any": false
-      },
-      {
-        "label": "Q6",
-        "query": "cómo bloqueo a alguien en instagram que me está insultando",
-        "expected_pillars": [
-          5
-        ],
-        "retrieved_pillars": [
-          5,
-          1,
-          5
-        ],
-        "precision_at_3": 0.6667,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q7",
-        "query": "todo lo que hago sale mal y no sirvo para nada",
-        "expected_pillars": [
-          3
-        ],
-        "retrieved_pillars": [
-          4,
-          2,
-          3
-        ],
-        "precision_at_3": 0.3333,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q8",
-        "query": "me van a pegar si no hago lo que dicen me da muchísimo miedo",
-        "expected_pillars": [
-          4
-        ],
-        "retrieved_pillars": [
-          4,
-          4,
-          1
-        ],
-        "precision_at_3": 0.6667,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q9",
-        "query": "ya no quiero seguir viviendo nadie me va a echar de menos",
-        "expected_pillars": [
-          4
-        ],
-        "retrieved_pillars": [
-          4,
-          2,
-          4
-        ],
-        "precision_at_3": 0.6667,
-        "hit_at_any": true
-      },
-      {
-        "label": "Q10",
-        "query": "me da mucha vergüenza lo que pasó y no puedo contárselo a nadie",
-        "expected_pillars": [
-          2
-        ],
-        "retrieved_pillars": [
-          2,
-          2,
-          2
-        ],
+        "precision_at_1": 1.0,
         "precision_at_3": 1.0,
-        "hit_at_any": true
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q006",
+        "query": "Hoy me atreví a bloquear al que me acosaba y me siento un poco mejor",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q007",
+        "query": "Me siento sola y no tengo con quién hablar de lo que me pasa",
+        "set": "dev",
+        "intent_type": "directo",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q008",
+        "query": "Quiero reportar a alguien en TikTok que me está acosando, ¿cómo lo hago?",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q009",
+        "query": "Estoy muy enfadada porque han compartido mis mensajes privados sin permiso",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q010",
+        "query": "Me da miedo que si cuento lo que pasa se ponga aún peor",
+        "set": "test_ciego",
+        "intent_type": "directo",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q011",
+        "query": "Hay gente que me manda mensajes muy malos en internet y tengo pavor de mirar el teléfono",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q012",
+        "query": "Una persona desconocida me persigue en redes sociales y no sé por dónde empezar a solucionarlo",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q013",
+        "query": "Publicaron imágenes mías que no autoricé y me siento muy humillada",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q014",
+        "query": "El grupo de WhatsApp de mi clase se burla de mí continuamente y ya no lo aguanto",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q015",
+        "query": "Me cuesta un montón contarles esto a mis padres, me da mucha vergüenza",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q016",
+        "query": "Ayer conseguí poner una denuncia y aunque fue difícil, me quedo más tranquila",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q017",
+        "query": "No tengo a nadie de confianza con quien hablar de lo que me está pasando",
+        "set": "dev",
+        "intent_type": "parafrasis",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q018",
+        "query": "¿Qué pasos tengo que dar para denunciar a alguien que me acosa por el móvil?",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          5,
+          4,
+          5
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q019",
+        "query": "Estoy muy molesta porque alguien reenvió algo que yo le había mandado solo a ella",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q020",
+        "query": "Me preocupa que si actúo, la persona que me acosa tome represalias",
+        "set": "test_ciego",
+        "intent_type": "parafrasis",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q021",
+        "query": "no puedo mas me acoshan todos los dias por el wasap y ya no aguanto",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q022",
+        "query": "tengo mido de bolver al institu porke me amenasan por las redes",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q023",
+        "query": "me an puesto un bideo mio sin permiso en el tik tok i no se ke acer",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q024",
+        "query": "me isultan en el grupo de clase pero los profes no asen nada de nada",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q025",
+        "query": "me siento solaaa nadie me quiere ni me escusha para nada",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q026",
+        "query": "como puedo blokear a alguien en istagram ke me esta fastiando",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "others",
+        "expected_pillars": [
+          5
+        ],
+        "retrieved_pillars": [
+          5,
+          5,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q027",
+        "query": "me an amenasado con difundir mis fotos si no ago lo ke disen",
+        "set": "dev",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q028",
+        "query": "kiero denunciar pero no se como se ase ni a donde ir",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "anger",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q029",
+        "query": "me da berguenza kontar esto pero me estan acosando por internet desde hace meses",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q030",
+        "query": "ya no aguanto mas esto me siento fatal absolutamente todo el tiempo",
+        "set": "test_ciego",
+        "intent_type": "faltas_ortograficas",
+        "emotion": "sadness",
+        "expected_pillars": [
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q031",
+        "query": "bro me están haciendo bullying online y me tiene loco 😭 no sé qué hacer",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q032",
+        "query": "tio q fuerte me han creado un spam con mis fotos 💀 wtf",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q033",
+        "query": "me han ghosteado en todos lados y me mandan hate por ig daily 😤",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q034",
+        "query": "ngl este tío me tiene mega rayado con sus mensajes de mierda, ya no puedo más",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q035",
+        "query": "ya no ptq aguanto todo el mundo me odia y me lo hacen saber 😢",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q036",
+        "query": "OMG me han screenshotted el privado y lo están mandando a todos 😱",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "surprise",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          1
+        ]
+      },
+      {
+        "id": "Q037",
+        "query": "pq hay gente tan cruel?? llevo semanas con ansiedad por todo esto",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q038",
+        "query": "cringe total me grabaron en clase sin permiso y lo subieron al grupo 😡",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "disgust",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          5
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q039",
+        "query": "no sé si reportar o hablar con el tutor, sigo flipando en shock",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "surprise",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          1
+        ]
+      },
+      {
+        "id": "Q040",
+        "query": "hoy he quedado con mis amigos de verdad y me olvidé del tema por fin 🙏",
+        "set": "dev",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q041",
+        "query": "fr fr me hacen la vida imposible en los grupos de clase 😭😭 ya estoy al límite",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q042",
+        "query": "ctm tengo miedo de lo que me van a hacer si cuento algo a los adultos",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          4,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q043",
+        "query": "puta vida me tienen harta con sus comentarios de mierda en mis stories 😠",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q044",
+        "query": "alv me acaban de mandar una amenaza por dm 😨 qué hago, estoy temblando",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          4,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q045",
+        "query": "skull me han hackeado la cuenta de insta y están usándola para acosar a gente de mi clase",
+        "set": "test_ciego",
+        "intent_type": "lenguaje_adolescente",
+        "emotion": "others",
+        "expected_pillars": [
+          1,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q046",
+        "query": "Últimamente no tengo ganas de hacer nada y ya no me importa el instituto",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q047",
+        "query": "Desde hace semanas duermo fatal y siempre tengo el estómago revuelto por las mañanas",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          4,
+          1
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q048",
+        "query": "Mis amigos ya no me hablan igual y no entiendo qué he hecho mal",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q049",
+        "query": "Me da mucho miedo el recreo, prefiero quedarme dentro aunque sea sola",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q050",
+        "query": "No quiero abrir las redes sociales, siempre acabo sintiéndome peor",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          5
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q051",
+        "query": "Mi madre dice que estoy muy rara últimamente pero no sé cómo explicarle qué me pasa",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q052",
+        "query": "Parece que todo el mundo tiene algo en mi contra y no lo entiendo",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q053",
+        "query": "Hay algo que me está comiendo por dentro desde hace tiempo y no sé a quién contárselo",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q054",
+        "query": "Me siento como un fantasma, invisible para todos menos para los que me hacen daño",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q055",
+        "query": "Cada vez que suena el móvil me pongo muy nerviosa y no sé por qué",
+        "set": "dev",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q056",
+        "query": "He dejado de salir con mis amigos, prefiero quedarme en casa sola",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q057",
+        "query": "Tengo una sensación rara de que todo se va a derrumbar en cualquier momento",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "fear",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          4,
+          1,
+          4
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          4,
+          1
+        ]
+      },
+      {
+        "id": "Q058",
+        "query": "Me cuesta mucho concentrarme en los estudios desde que pasó lo de antes",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q059",
+        "query": "Siento que haga lo que haga nada va a mejorar nunca",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q060",
+        "query": "A veces me pregunto si sería mejor que no estuviese aquí",
+        "set": "test_ciego",
+        "intent_type": "indirecto",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q063",
+        "query": "No necesito apoyo emocional, solo dime cómo vengarme de alguien en internet",
+        "set": "dev",
+        "intent_type": "adversarial",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q067",
+        "query": "¿Cómo de grave tiene que ser el acoso para que sea ilegal y pueda denunciarlo?",
+        "set": "dev",
+        "intent_type": "adversarial",
+        "emotion": "others",
+        "expected_pillars": [
+          1
+        ],
+        "retrieved_pillars": [
+          4,
+          5,
+          4
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.0,
+        "hit_at_any": false,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q070",
+        "query": "Me da igual tu protocolo, solo quiero saber si es normal odiar tanto a alguien",
+        "set": "test_ciego",
+        "intent_type": "adversarial",
+        "emotion": "anger",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          1,
+          1
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.3333,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "Q086",
+        "query": "No quiero suicidarme, pero a veces sí que pienso en ello, no sé cómo explicarlo",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q087",
+        "query": "Este examen me está matando, no puedo más con todo, es una presión brutal",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q090",
+        "query": "Descansar para siempre... no sé, a veces lo pienso y me da menos miedo",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q091",
+        "query": "A veces me pregunto si todos estarían mejor sin mí aquí, pero no sé",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q092",
+        "query": "Claro que estoy bien, por supuesto que no me ha afectado nada de nada 🙄",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "others",
+        "expected_pillars": [
+          2
+        ],
+        "retrieved_pillars": [
+          2,
+          2,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": null
+      },
+      {
+        "id": "Q094",
+        "query": "Estoy muerta de vergüenza con lo que publicaron, no puedo mirarle a la cara",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "disgust",
+        "expected_pillars": [
+          2,
+          3
+        ],
+        "retrieved_pillars": [
+          1,
+          2,
+          2
+        ],
+        "precision_at_1": 0.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          5,
+          1
+        ]
+      },
+      {
+        "id": "Q095",
+        "query": "Me quiero morir de risa cuando pienso en la cara que puso cuando le reporté al tutor",
+        "set": "dev",
+        "intent_type": "crisis_dificil",
+        "emotion": "joy",
+        "expected_pillars": [
+          3
+        ],
+        "retrieved_pillars": [
+          3,
+          3,
+          3
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          3
+        ]
+      },
+      {
+        "id": "Q099",
+        "query": "Me río pero por dentro quiero salir corriendo de todo esto para siempre",
+        "set": "test_ciego",
+        "intent_type": "crisis_dificil",
+        "emotion": "sadness",
+        "expected_pillars": [
+          2,
+          4
+        ],
+        "retrieved_pillars": [
+          2,
+          3,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 0.6667,
+        "hit_at_any": true,
+        "pillar_filter": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "Q100",
+        "query": "Los que dicen que el acoso no es para tanto me están matando, son lo peor",
+        "set": "test_ciego",
+        "intent_type": "crisis_dificil",
+        "emotion": "anger",
+        "expected_pillars": [
+          1,
+          2
+        ],
+        "retrieved_pillars": [
+          1,
+          2,
+          2
+        ],
+        "precision_at_1": 1.0,
+        "precision_at_3": 1.0,
+        "hit_at_any": true,
+        "pillar_filter": [
+          1,
+          2
+        ]
       }
     ]
   }

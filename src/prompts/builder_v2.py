@@ -1,13 +1,5 @@
 """
 Prompt estructurado V2 — variante D del Experimento de Prompt Engineering.
-
-Ganador del Exp. de Prompt Engineering frente a baseline (A), few-shot clínico (B) y CoT (C):
-    83.4 % validación emocional vs. 63.4 % baseline.
-Referencia: notebooks/07_prompt_engineering_experiment.ipynb
-
-Incluye rama de prompt para crisis MEDIUM generada (build_crisis_prompt_v2):
-    Usada cuando CrisisDetector devuelve requires_generation=True (nivel MEDIUM).
-    El pipeline inyecta contexto del pilar 4 del RAG y llama al SLM con este prompt.
 """
 
 SELECTED_VARIANT: str = "D"  # Ganador del Prompt Engineering Exp, 83.4 %

@@ -1,5 +1,5 @@
 """
-Análisis descriptivo del corpus RAG (TAREA 2).
+Análisis descriptivo del corpus RAG.
 
 Genera tabla estadística por pilar y figuras para la memoria del TFG.
 Modo: sin GPU. Ejecutable directamente.

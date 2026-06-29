@@ -106,7 +106,7 @@ KEYWORDS_CRISIS_MEDIUM: list[str] = [
 
 CRISIS_RESPONSE_IDEACION: str = (
     "Lo que describes es muy serio y entiendo que estás pasando por un momento "
-    "muy difícil. No estás solo/a en esto.\n\n"
+    "muy difícil. No estás solo en esto.\n\n"
     "Necesito pedirte que contactes ahora mismo con alguien que puede ayudarte "
     "de verdad: llama al 024 (Línea de atención a la conducta suicida, gratuita "
     "y disponible las 24 horas), al 900 202 010 (ANAR, para menores, también "
@@ -127,7 +127,7 @@ CRISIS_RESPONSE_AMENAZA: str = (
 )
 
 CRISIS_RESPONSE_TERCERO: str = (
-    "Gracias por contarme esto. Lo que describes sobre tu amigo/a es serio y "
+    "Gracias por contarme esto. Lo que describes sobre tu amigo es serio y "
     "es importante que alguien adulto lo sepa hoy mismo.\n\n"
     "La mejor forma de ayudar a alguien que está en ese momento es no guardarlo "
     "en silencio: cuéntaselo a un familiar, tutor o al centro escolar. También "

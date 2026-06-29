@@ -1,24 +1,26 @@
 """
 Experimento 3: Comparación de bases vectoriales FAISS vs ChromaDB.
 
-Justificación teórica:
-    FAISS: índice vectorial puro, sin metadatos filtrables, construcción
-     in-memory desde el corpus actual, ideal para millones de vectores con
-     alta velocidad. ChromaDB: base vectorial con metadatos filtrables en
-     SQLite, persistencia nativa, sin servidor, adecuada para corpus pequeños
-     que requieren routing semántico por categoría. Milvus y Elasticsearch
-     se descartan por overhead de configuración injustificado para 40 chunks.
+Banco de evaluación: 72 casos (expected_pillars ≠ ∅, crisis_expected ≠ HIGH).
+La emoción del banco se inyecta directamente al routing (sin clasificador externo).
 
-Compara tres modelos de embeddings en ChromaDB (paraphrase-mpnet,
-paraphrase-spanish-distilroberta, BAAI/bge-m3) con dos modos por modelo:
-sin filtro de pilar y con routing determinista por emoción. FAISS in-memory
-con paraphrase-mpnet actúa como baseline. El diseño aísla el efecto del
-vectorstore y del modelo de embeddings sobre las mismas 10 consultas estándar.
+FIX: se reemplaza el acceso al cliente nativo de ChromaDB
+(collection.query con where=$in era inestable) por LangChain Chroma
+con similarity_search_with_relevance_scores, idéntico al Exp.4 que funciona.
 
-Todos los índices se construyen en memoria desde data/rag_corpus/*.md en
-tiempo de ejecución, garantizando coherencia con el corpus actual.
+Configuraciones evaluadas (conjunto completo de evaluación):
+    1. FAISS global sin routing               (Ref. V1 — reconstruido sobre corpus actual)
+    2. ChromaDB + mpnet, sin routing
+    3. ChromaDB + mpnet, con routing oracle
+    4. ChromaDB + distilroberta, sin routing
+    5. ChromaDB + distilroberta, con routing oracle
+    6. ChromaDB + bge-m3, sin routing
+    7. ChromaDB + bge-m3, con routing oracle
+
+Requiere GPU (3 modelos SentenceTransformer).
 
 Uso:
+    conda activate chatbots
     python src/rag/experiments/vectorstore_comparison.py
 """
 
@@ -32,14 +34,14 @@ from pathlib import Path
 import chromadb
 import numpy as np
 import torch
+from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from sentence_transformers import SentenceTransformer
 
-# Configuración de Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger(__name__)
 
-# Semilla global de reproducibilidad (REGLA TRANSVERSAL 1)
 SEED = 112
 random.seed(SEED)
 np.random.seed(SEED)
@@ -47,447 +49,333 @@ torch.manual_seed(SEED)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
-# Configuración de rutas
 _ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from src.rag.experiments.utils import CORPUS_DIR, TEST_CASES, build_faiss_index_from_embeddings, compute_metrics_for_run, compute_precision_at_1, compute_precision_at_k, compute_hit_at_any, load_chunks_from_markdown, print_results_table, save_results
+from src.rag.experiments.utils import (
+    CORPUS_DIR, FIGURES_DIR,
+    ORACLE_ROUTING,
+    load_eval_cases, oracle_faiss_search, make_oracle_result,
+    compute_eval_metrics, rag_figure_bar,
+    load_chunks_from_markdown, save_results,
+)
 
-
-# Constantes
-EMBEDDING_MODEL_V1 = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+EMBEDDING_MODEL_V1            = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
 EMBEDDING_MODEL_DISTILROBERTA = "hackathon-pln-es/paraphrase-spanish-distilroberta"
-EMBEDDING_MODEL_BGE = "BAAI/bge-m3"
+EMBEDDING_MODEL_BGE            = "BAAI/bge-m3"
 TOP_K = 3
 
-# Routing Semántico Determinista: Mapea la predicción del modelo de emociones directamente a subespacios 
-# vectoriales (Pilares). Esto actúa como un Pre-filtro algorítmico, reduciendo 
-# el espacio de búsqueda vectorial en ChromaDB y evitando colisiones semánticas.
-# El módulo GRU no está añdido como filtro en este experimento
-PILLAR_ROUTING: dict[str, list[int] | None] = {
-    "fear": [2, 4, 1],
-    "sadness": [2, 3],      # oracle mode: sin tendencia, usa rama estable sin P4
-    "anger": [1, 2],
-    "disgust": [2, 5, 1],   # P5 digital + P1 protocolo: exposición pública y sextorsión
-    "joy": [3],
-    "surprise": [2, 1],
-    "others": None,
-}
+# Contador global para nombres únicos de colección (evita colisión en singleton)
+_COL_COUNTER = 0
 
 
-# Evaluación FAISS in-memory (baseline paraphrase-mpnet)
-def evaluate_faiss_inmemory(docs: list[Document], model: SentenceTransformer) -> list[dict]:
-    """Construye un índice FAISS en memoria desde el corpus actual y evalúa las 10 queries.
+def _next_col_name(prefix: str) -> str:
+    global _COL_COUNTER
+    _COL_COUNTER += 1
+    return f"{prefix}_{_COL_COUNTER}"
 
-    El índice se construye en tiempo de ejecución desde data/rag_corpus/*.md,
-    garantizando coherencia con cualquier modificación posterior de los chunks.
-    No carga ningún artefacto de disco generado por V1.
 
-    Args:
-        docs: Documents cargados desde el corpus actual.
-        model: SentenceTransformer para generar embeddings (paraphrase-mpnet).
+# ---------------------------------------------------------------------------
+# Adaptador de embeddings LangChain
+# ---------------------------------------------------------------------------
 
-    Returns:
-        Lista de dicts con métricas por consulta.
-    """
-    log.info(f"[FAISS in-memory] Codificando {len(docs)} chunks (Baseline)...")
-    doc_embeddings = model.encode(
-        [doc.page_content for doc in docs],
-        normalize_embeddings=True,
-        show_progress_bar=False,
-        batch_size=32,
+class _STEmbeddingsAdapter(Embeddings):
+    """Adaptador LangChain sobre SentenceTransformer (para similarity_search)."""
+
+    def __init__(self, model: SentenceTransformer) -> None:
+        self._model = model
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self._model.encode(texts, normalize_embeddings=True, batch_size=32).tolist()
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._model.encode([text], normalize_embeddings=True)[0].tolist()
+
+
+# ---------------------------------------------------------------------------
+# Construcción de índices
+# ---------------------------------------------------------------------------
+
+def build_faiss_embs(docs: list[Document], model: SentenceTransformer) -> np.ndarray:
+    """Codifica el corpus y devuelve la matriz de embeddings (para FAISS numpy)."""
+    log.info(f"  Codificando {len(docs)} chunks...")
+    return model.encode(
+        [d.page_content for d in docs],
+        normalize_embeddings=True, batch_size=32, show_progress_bar=False,
     ).astype(np.float32)
 
-    index = build_faiss_index_from_embeddings(doc_embeddings)
-    log.debug(f"[FAISS] Índice construido: dim={doc_embeddings.shape[1]}")
 
-    results: list[dict] = []
-    for tc in TEST_CASES:
-        query_vec = model.encode(
-            [tc["query"]], normalize_embeddings=True
-        ).astype(np.float32)
-        _, indices = index.search(query_vec, TOP_K)
+def build_langchain_chroma(
+    docs: list[Document],
+    doc_embs: np.ndarray,
+    adapter: _STEmbeddingsAdapter,
+    col_name: str,
+) -> Chroma:
+    """Construye un Chroma LangChain efímero con embeddings pre-computados.
 
-        retrieved_pillars = [
-            docs[idx].metadata["pillar"]
-            for idx in indices[0]
-            if 0 <= idx < len(docs)
-        ]
-        expected = tc["expected_pillars"]
-        results.append(
-            {
-                "label": tc["label"],
-                "query": tc["query"],
-                "emotion": tc["emotion"],
-                "expected_pillars": sorted(expected),
-                "retrieved_pillars": retrieved_pillars,
-                "precision_at_1": compute_precision_at_1(retrieved_pillars, expected),
-                "precision_at_3": compute_precision_at_k(retrieved_pillars, expected, TOP_K),
-                "hit_at_any": compute_hit_at_any(retrieved_pillars, expected),
-            }
-        )
-    return results
-
-
-# ChromaDB — construcción de colección en memoria
-def build_chroma_collection(docs: list[Document], embeddings: np.ndarray, name: str = "rag_exp") -> chromadb.Collection:
-    """Crea una colección ChromaDB en memoria con los embeddings precalculados.
-
-    Usa embedding_function=None para que ChromaDB no intente cargar ningún modelo
-    propio; los embeddings se proporcionan explícitamente en add() y query().
-    Los metadatos de Document ya están serializados compatibles con ChromaDB
-    (emotions como JSON string, therapeutic_technique sin None).
+    FIX vs. cliente nativo: usa LangChain Chroma (mismo mecanismo que Exp.4).
+    similarity_search_with_relevance_scores con filter={'pillar': {'$in': [...]}}
+    funciona correctamente con esta interfaz.
 
     Args:
-        docs: Lista de Document de LangChain con metadatos completos.
-        embeddings: Array (n_chunks x dim) de vectores normalizados.
-        name: Nombre único de la colección (ChromaDB comparte estado global).
-
-    Returns:
-        Colección ChromaDB en memoria con todos los chunks indexados.
+        docs: Documents del corpus.
+        doc_embs: Embeddings pre-computados, shape (n, dim).
+        adapter: Adaptador LangChain para embedding de queries en tiempo de búsqueda.
+        col_name: Nombre único de la colección ChromaDB efímera.
     """
-    client = chromadb.Client()
+    client = chromadb.EphemeralClient()   # cliente aislado, sin singleton
     collection = client.create_collection(
-        name=name,
+        col_name,
         metadata={"hnsw:space": "cosine"},
-        embedding_function=None, # Forzamos inyección manual para aislar el modelo
+        embedding_function=None,
     )
     collection.add(
-        ids=[doc.metadata["chunk_id"] for doc in docs],
-        embeddings=embeddings.tolist(),
-        documents=[doc.page_content for doc in docs],
-        metadatas=[doc.metadata for doc in docs],
+        ids=[d.metadata["chunk_id"] for d in docs],
+        embeddings=doc_embs.tolist(),
+        documents=[d.page_content for d in docs],
+        metadatas=[d.metadata for d in docs],
     )
-    return collection
+    return Chroma(
+        client=client,
+        collection_name=col_name,
+        embedding_function=adapter,
+    )
 
 
-# ChromaDB — evaluación sin filtro de pilar
-def evaluate_chroma_no_filter(collection: chromadb.Collection, query_embeddings: np.ndarray) -> list[dict]:
-    """Evalúa ChromaDB con búsqueda semántica pura, sin filtro por pilar.
+# ---------------------------------------------------------------------------
+# Evaluación — 2 variantes (FAISS y ChromaDB)
+# ---------------------------------------------------------------------------
 
-    Args:
-        collection: Colección ChromaDB con los chunks indexados.
-        query_embeddings: Array (10 x dim) con los embeddings de las 10 queries.
-
-    Returns:
-        Lista de dicts con métricas por consulta.
-    """
+def evaluate_faiss_global(
+    docs: list[Document],
+    doc_embs: np.ndarray,
+    model: SentenceTransformer,
+    cases: list[dict],
+) -> list[dict]:
+    """FAISS global SIN routing (Ref. V1). Reconstruido sobre corpus actual."""
+    doc_pillars = [d.metadata.get("pillar", 0) for d in docs]
     results: list[dict] = []
-    for tc, q_emb in zip(TEST_CASES, query_embeddings):
+    for tc in cases:
+        q_emb = model.encode([tc["query"]], normalize_embeddings=True).astype(np.float32)[0]
+        global_idx = oracle_faiss_search(q_emb, doc_embs, doc_pillars, None, TOP_K)
+        retrieved_pillars = [docs[i].metadata.get("pillar", 0) for i in global_idx]
+        results.append(make_oracle_result(tc, retrieved_pillars, TOP_K))
+    return results
+
+
+def evaluate_chroma_oracle(
+    docs: list[Document],
+    doc_embs: np.ndarray,
+    adapter: _STEmbeddingsAdapter,
+    cases: list[dict],
+    use_routing: bool,
+    col_prefix: str,
+) -> list[dict]:
+    """ChromaDB LangChain con o sin routing oracle.
+
+    FIX: usa similarity_search_with_relevance_scores (mismo path que Exp.4),
+    que aplica correctamente filter={'pillar': {'$in': pillar_filter}}.
+    No usa collection.query del cliente nativo (inestable con $in en algunos casos).
+    """
+    chroma = build_langchain_chroma(docs, doc_embs, adapter, _next_col_name(col_prefix))
+    results: list[dict] = []
+    for tc in cases:
+        pillar_filter = ORACLE_ROUTING.get(tc.get("emotion", "others")) if use_routing else None
+        search_kwargs: dict = {"k": TOP_K}
+        if pillar_filter:
+            search_kwargs["filter"] = {"pillar": {"$in": pillar_filter}}
         try:
-            res = collection.query(
-                query_embeddings=[q_emb.tolist()],
-                n_results=TOP_K,
-                include=["metadatas"],
-            )
-            retrieved_pillars = [
-                m["pillar"] for m in res["metadatas"][0]
-            ]
-        except Exception as e:
-            log.error(f"Error en consulta no-filter para {tc['label']}: {e}")
+            sem_results = chroma.similarity_search_with_relevance_scores(tc["query"], **search_kwargs)
+            retrieved_pillars = [doc.metadata.get("pillar", 0) for doc, _ in sem_results]
+        except Exception as exc:
+            log.warning(f"  Chroma query error para '{tc['id']}': {exc}")
             retrieved_pillars = []
-
-        expected = tc["expected_pillars"]
-        results.append(
-            {
-                "label": tc["label"],
-                "query": tc["query"],
-                "emotion": tc["emotion"],
-                "expected_pillars": sorted(expected),
-                "retrieved_pillars": retrieved_pillars,
-                "precision_at_1": compute_precision_at_1(retrieved_pillars, expected),
-                "precision_at_3": compute_precision_at_k(retrieved_pillars, expected, TOP_K),
-                "hit_at_any": compute_hit_at_any(retrieved_pillars, expected),
-            }
-        )
+        results.append(make_oracle_result(tc, retrieved_pillars, TOP_K,
+                                          extra={"pillar_filter": pillar_filter}))
     return results
 
 
-# ChromaDB — evaluación con routing por pilar
-def _query_with_pillar_filter(collection: chromadb.Collection, query_embedding: list[float], pillar_filter: list[int], top_k: int) -> list[int]:
-    """
-    Motor de Búsqueda con Fallback.
-    Intenta buscar restringiendo por los pilares dictados por la emoción. 
-    Si la topología semántica del subespacio está vacía (retorna < 2 chunks), 
-    relaja las restricciones y rellena el contexto buscando en todo el corpus global.
+# ---------------------------------------------------------------------------
+# Presentación
+# ---------------------------------------------------------------------------
 
-    Args:
-        collection: Colección ChromaDB.
-        query_embedding: Vector de la query (dim,).
-        pillar_filter: Lista de pilares a incluir en el filtro.
-        top_k: Número máximo de resultados a devolver.
-
-    Returns:
-        Lista de pilares de los chunks recuperados (hasta top_k).
-    """
-    where = {"pillar": {"$in": pillar_filter}}
-
-    # Intento primario con routing estricto
-    try:
-        res = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=top_k,
-            where=where,
-            include=["metadatas"],
-        )
-        filtered_pillars = [m["pillar"] for m in res["metadatas"][0]]
-        filtered_ids = set(res["ids"][0])
-    except Exception:
-        filtered_pillars = []
-        filtered_ids = set()
-
-    # Fallback: completar hasta top_k con resultados sin filtro
-    if len(filtered_pillars) < 2:
-        try:
-            res_all = collection.query(
-                query_embeddings=[query_embedding],
-                n_results=top_k,
-                include=["metadatas"],
-            )
-            for doc_id, meta in zip(res_all["ids"][0], res_all["metadatas"][0]):
-                if doc_id not in filtered_ids:
-                    filtered_pillars.append(meta["pillar"])
-                    filtered_ids.add(doc_id)
-                if len(filtered_pillars) >= top_k:
-                    break
-        except Exception:
-            pass
-
-    return filtered_pillars[:top_k]
-
-
-def evaluate_chroma_routing(collection: chromadb.Collection, query_embeddings: np.ndarray) -> list[dict]:
-    """Evalúa ChromaDB con routing determinista por pilar según la emoción de la consulta.
-
-    Aplica PILLAR_ROUTING para filtrar por pilar antes de la búsqueda vectorial.
-    Para emotion='others' (sin filtro), el comportamiento es idéntico al modo
-    sin filtro. El routing simula la señal del clasificador emocional en producción.
-
-    Args:
-        collection: Colección ChromaDB con los chunks indexados.
-        query_embeddings: Array (10 x dim) con los embeddings de las 10 queries.
-
-    Returns:
-        Lista de dicts con métricas por consulta (incluyendo el pilar filtrado aplicado).
-    """
-    results: list[dict] = []
-    for tc, q_emb in zip(TEST_CASES, query_embeddings):
-        pillar_filter = PILLAR_ROUTING.get(tc["emotion"])
-
-        if pillar_filter is None:
-            # Sin filtro para 'others'
-            try:
-                res = collection.query(
-                    query_embeddings=[q_emb.tolist()],
-                    n_results=TOP_K,
-                    include=["metadatas"],
-                )
-                retrieved_pillars = [m["pillar"] for m in res["metadatas"][0]]
-            except Exception:
-                retrieved_pillars = []
-        else:
-            # Aplicación del Pre-filtro condicionado
-            retrieved_pillars = _query_with_pillar_filter(
-                collection, q_emb.tolist(), pillar_filter, TOP_K
-            )
-
-        expected = tc["expected_pillars"]
-        results.append(
-            {
-                "label": tc["label"],
-                "query": tc["query"],
-                "emotion": tc["emotion"],
-                "pillar_filter_aplicado": pillar_filter,
-                "expected_pillars": sorted(expected),
-                "retrieved_pillars": retrieved_pillars,
-                "precision_at_1": compute_precision_at_1(retrieved_pillars, expected),
-                "precision_at_3": compute_precision_at_k(retrieved_pillars, expected, TOP_K),
-                "hit_at_any": compute_hit_at_any(retrieved_pillars, expected),
-            }
-        )
-    return results
-
-
-# Presentación de resultados
-def _aggregate(results: list[dict]) -> tuple[float, float, float]:
-    """Devuelve (p@3, p@1, hit@any) usando compute_metrics_for_run."""
-    m = compute_metrics_for_run(results)
-    return m["precision_at_3_media"], m.get("precision_at_1_media", 0.0), m["hit_at_any_rate"]
-
-
-def _print_comparison_table(configs: list[tuple[str, list[dict]]], routing_deltas: list[float | None] | None = None) -> None:
-    """Imprime la tabla comparativa para N configuraciones.
-
-    Args:
-        configs: Lista de tuplas (nombre_config, lista_de_resultados).
-        routing_deltas: delta routing = P@3_routing - P@3_sin_filtro por config.
-                        None en posiciones sin routing (FAISS, sin filtro).
-    """
-    sep = "=" * 88
+def _print_comparison_table(config_rows: list[tuple[str, dict]]) -> None:
+    sep = "=" * 80
     print(f"\n{sep}")
-    print("  TABLA COMPARATIVA - BASES VECTORIALES")
+    print("  TABLA COMPARATIVA — BASES VECTORIALES (banco=72)")
     print(sep)
-    print(f"  {'Configuración':<44} {'p@1':>6} {'p@3':>8} {'hit@any':>8} {'delta_routing':>10}")
-    print(f"  {'-'*43} {'-'*6} {'-'*8} {'-'*8} {'-'*10}")
-    for i, (name, results) in enumerate(configs):
-        prec3, prec1, hit = _aggregate(results)
-        if routing_deltas is not None and i < len(routing_deltas) and routing_deltas[i] is not None:
-            delta_str = f"{routing_deltas[i]:+.4f}"
-        else:
-            delta_str = "-"
-        print(f"  {name:<44} {prec1:>6.4f} {prec3:>8.4f} {hit:>8.4f} {delta_str:>10}")
-    print(f"{sep}\n")
+    print(f"  {'Configuración':<52} {'P@1':>6} {'P@3':>6} {'Hit':>6}")
+    print(f"  {'-'*51} {'-'*6} {'-'*6} {'-'*6}")
+    for name, m in config_rows:
+        tag = " [Ref.V1]" if "FAISS" in name and "routing" not in name.lower() else ""
+        print(f"  {name[:52] + tag:<52}"
+              f" {m.get('precision_at_1_media', 0):>6.3f}"
+              f" {m.get('precision_at_3_media', 0):>6.3f}"
+              f" {m.get('hit_at_any_rate', 0):>6.3f}")
+    print(sep + "\n")
 
 
-# Main
-def main() -> None:
-    """Ejecuta el experimento comparativo de bases vectoriales y guarda resultados."""
-    log.info("Iniciando Experimento 3: ChromaDB y Routing Determinista")
-
-    # Cargar corpus completo
-    chunks = load_chunks_from_markdown(CORPUS_DIR)
-    log.info(f"Cargados {len(chunks)} chunks terapéuticos.")
-
-    # FAISS in-memory baseline (paraphrase-mpnet, corpus actual)
-    model_mpnet = SentenceTransformer(EMBEDDING_MODEL_V1)
-    faiss_results = evaluate_faiss_inmemory(chunks, model_mpnet)
-
-    # Helper para inyección manual de tensores
-    def _encode(model: SentenceTransformer, label: str) -> tuple[np.ndarray, np.ndarray]:
-        log.info(f"Proyectando espacio vectorial con {label}...")
-        docs = model.encode(
-            [c.page_content for c in chunks],
-            normalize_embeddings=True,
-            show_progress_bar=False,
-            batch_size=32,
-        ).astype(np.float32)
-        qs = model.encode(
-            [tc["query"] for tc in TEST_CASES],
-            normalize_embeddings=True,
-        ).astype(np.float32)
-        return docs, qs
-
-    def _chroma_eval(docs: np.ndarray, qs: np.ndarray, col_name: str, label: str) -> tuple[list[dict], list[dict]]:
-        col = build_chroma_collection(chunks, docs, name=col_name)
-        log.debug(f"Colección Chroma '{col_name}' indexada.")
-        nf = evaluate_chroma_no_filter(col, qs)
-        rt = evaluate_chroma_routing(col, qs)
-        return nf, rt
-
-    # ChromaDB: paraphrase-mpnet
-    docs_mpnet, qs_mpnet = _encode(model_mpnet, "paraphrase-mpnet")
-    mpnet_nf, mpnet_rt = _chroma_eval(docs_mpnet, qs_mpnet, "rag_mpnet", "paraphrase-mpnet")
-
-    # ChromaDB: paraphrase-spanish-distilroberta
-    model_dr = SentenceTransformer(EMBEDDING_MODEL_DISTILROBERTA)
-    docs_dr, qs_dr = _encode(model_dr, "paraphrase-spanish-distilroberta")
-    dr_nf, dr_rt = _chroma_eval(docs_dr, qs_dr, "rag_distilroberta", "distilroberta")
-
-    # ChromaDB: BAAI/bge-m3
-    model_bge = SentenceTransformer(EMBEDDING_MODEL_BGE)
-    docs_bge, qs_bge = _encode(model_bge, "bge-m3")
-    bge_nf, bge_rt = _chroma_eval(docs_bge, qs_bge, "rag_bge", "bge-m3")
-
-    # Tablas detalladas
-    print_results_table("FAISS in-memory  (paraphrase-mpnet, corpus actual)", faiss_results, show_emotion=True)
-    print_results_table("ChromaDB sin filtro  (paraphrase-mpnet)", mpnet_nf, show_emotion=True)
-    print_results_table("ChromaDB sin filtro  (paraphrase-spanish-distilroberta)", dr_nf, show_emotion=True)
-    print_results_table("ChromaDB sin filtro  (bge-m3)", bge_nf, show_emotion=True)
-    print_results_table("ChromaDB + routing  (paraphrase-mpnet)", mpnet_rt, show_emotion=True)
-    print_results_table("ChromaDB + routing  (paraphrase-spanish-distilroberta)", dr_rt, show_emotion=True)
-    print_results_table("ChromaDB + routing  (bge-m3)", bge_rt, show_emotion=True)
-
-    # Guardar JSON
-    prec_f, prec1_f, hit_f = _aggregate(faiss_results)
-    prec_mnf, prec1_mnf, hit_mnf = _aggregate(mpnet_nf)
-    prec_dnf, prec1_dnf, hit_dnf = _aggregate(dr_nf)
-    prec_bnf, prec1_bnf, hit_bnf = _aggregate(bge_nf)
-    prec_mrt, prec1_mrt, hit_mrt = _aggregate(mpnet_rt)
-    prec_drt, prec1_drt, hit_drt = _aggregate(dr_rt)
-    prec_brt, prec1_brt, hit_brt = _aggregate(bge_rt)
-
-    rdelta_mpnet = round(prec_mrt - prec_mnf, 4)
-    rdelta_dr = round(prec_drt - prec_dnf, 4)
-    rdelta_bge = round(prec_brt - prec_bnf, 4)
-
-    # Tabla comparativa
-    _print_comparison_table(
-        [
-            ("FAISS + paraphrase-mpnet (in-memory)", faiss_results),
-            ("ChromaDB + paraphrase-mpnet", mpnet_nf),
-            ("ChromaDB + paraphrase-spanish-distilroberta", dr_nf),
-            ("ChromaDB + bge-m3", bge_nf),
-            ("ChromaDB + paraphrase-mpnet + routing", mpnet_rt),
-            ("ChromaDB + paraphrase-spanish-distilroberta + routing", dr_rt),
-            ("ChromaDB + bge-m3 + routing", bge_rt),
-        ],
-        routing_deltas=[None, None, None, None, rdelta_mpnet, rdelta_dr, rdelta_bge],
+def _figure(config_names: list[str], all_metrics: dict) -> None:
+    rag_figure_bar(
+        config_names=config_names,
+        config_metrics=all_metrics,
+        baseline_name="FAISS global\n(Ref. V1)",
+        title="Exp.3 — Vectorstore: FAISS vs ChromaDB",
+        out_path=FIGURES_DIR / "exp3_vectorstore.png",
     )
 
-    # Serialización Estructurada JSON
-    routing_table = {k: v for k, v in PILLAR_ROUTING.items()}
 
-    def _entry(desc: str, model_id: str, prec3: float, prec1: float, hit: float, results: list[dict], routing: bool = False, routing_delta: float | None = None) -> dict:
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> None:
+    """Ejecuta Exp.3 sobre el conjunto de evaluación completo."""
+    cases = load_eval_cases()
+    log.info(f"Banco de evaluación: {len(cases)} casos.")
+
+    docs = load_chunks_from_markdown(CORPUS_DIR)
+    log.info(f"Corpus: {len(docs)} chunks.")
+
+    all_metrics: dict[str, dict] = {}
+    results_store: dict[str, list[dict]] = {}
+
+    # ---- 1. FAISS global (Ref. V1) ----
+    log.info("[1/7] FAISS global + mpnet (Ref. V1)...")
+    model_mpnet = SentenceTransformer(EMBEDDING_MODEL_V1)
+    adapter_mpnet = _STEmbeddingsAdapter(model_mpnet)
+    doc_embs_mpnet = build_faiss_embs(docs, model_mpnet)
+    res_faiss = evaluate_faiss_global(docs, doc_embs_mpnet, model_mpnet, cases)
+    all_metrics["FAISS global\n(Ref. V1)"] = compute_eval_metrics(res_faiss)
+    results_store["faiss_global"] = res_faiss
+
+    # ---- 2-3. ChromaDB + mpnet ----
+    log.info("[2/7] ChromaDB + mpnet, sin routing...")
+    res_mpnet_nf = evaluate_chroma_oracle(docs, doc_embs_mpnet, adapter_mpnet, cases, False, "mpnet_nf")
+    all_metrics["ChromaDB+mpnet\nsin routing"] = compute_eval_metrics(res_mpnet_nf)
+    results_store["chromadb_mpnet_nf"] = res_mpnet_nf
+
+    log.info("[3/7] ChromaDB + mpnet, con routing...")
+    res_mpnet_rt = evaluate_chroma_oracle(docs, doc_embs_mpnet, adapter_mpnet, cases, True, "mpnet_rt")
+    all_metrics["ChromaDB+mpnet\n+routing"] = compute_eval_metrics(res_mpnet_rt)
+    results_store["chromadb_mpnet_routing"] = res_mpnet_rt
+    del model_mpnet, doc_embs_mpnet
+
+    # ---- 4-5. ChromaDB + distilroberta ----
+    log.info("[4/7] ChromaDB + distilroberta, sin routing...")
+    model_dr = SentenceTransformer(EMBEDDING_MODEL_DISTILROBERTA)
+    adapter_dr = _STEmbeddingsAdapter(model_dr)
+    doc_embs_dr = build_faiss_embs(docs, model_dr)
+    res_dr_nf = evaluate_chroma_oracle(docs, doc_embs_dr, adapter_dr, cases, False, "dr_nf")
+    all_metrics["ChromaDB+distil\nsin routing"] = compute_eval_metrics(res_dr_nf)
+    results_store["chromadb_distil_nf"] = res_dr_nf
+
+    log.info("[5/7] ChromaDB + distilroberta, con routing...")
+    res_dr_rt = evaluate_chroma_oracle(docs, doc_embs_dr, adapter_dr, cases, True, "dr_rt")
+    all_metrics["ChromaDB+distil\n+routing"] = compute_eval_metrics(res_dr_rt)
+    results_store["chromadb_distil_routing"] = res_dr_rt
+    del model_dr, doc_embs_dr
+
+    # ---- 6-7. ChromaDB + bge-m3 ----
+    log.info("[6/7] ChromaDB + bge-m3, sin routing...")
+    model_bge = SentenceTransformer(EMBEDDING_MODEL_BGE)
+    adapter_bge = _STEmbeddingsAdapter(model_bge)
+    doc_embs_bge = build_faiss_embs(docs, model_bge)
+    res_bge_nf = evaluate_chroma_oracle(docs, doc_embs_bge, adapter_bge, cases, False, "bge_nf")
+    all_metrics["ChromaDB+bge\nsin routing"] = compute_eval_metrics(res_bge_nf)
+    results_store["chromadb_bge_nf"] = res_bge_nf
+
+    log.info("[7/7] ChromaDB + bge-m3, con routing...")
+    res_bge_rt = evaluate_chroma_oracle(docs, doc_embs_bge, adapter_bge, cases, True, "bge_rt")
+    all_metrics["ChromaDB+bge\n+routing"] = compute_eval_metrics(res_bge_rt)
+    results_store["chromadb_bge_routing"] = res_bge_rt
+    del model_bge, doc_embs_bge
+
+    # ---- Presentación ----
+    ordered = [(k, all_metrics[k]) for k in all_metrics]
+    _print_comparison_table(ordered)
+
+    config_names = list(all_metrics.keys())
+    _figure(config_names, all_metrics)
+
+    # ---- JSON ----
+    routing_table = {k: v for k, v in ORACLE_ROUTING.items()}
+
+    def _entry(key: str, desc: str, model_id: str, routing: bool, is_ref: bool = False) -> dict:
+        m = all_metrics[key]
         d: dict = {
             "descripcion": desc,
             "embedding_model": model_id,
-            "precision_at_1_media": prec1,
-            "precision_at_3_media": prec3,
-            "hit_at_any_rate": hit,
-            "resultados_por_consulta": results,
+            "usa_routing": routing,
+            "es_referencia_v1": is_ref,
+            **m,
+            "resultados_por_consulta": results_store[
+                key.replace("\n", "_").replace("+", "_").replace(" ", "_").lower()
+            ],
         }
         if routing:
-            d["routing_table"] = routing_table
-        if routing_delta is not None:
-            d["routing_delta"] = routing_delta
+            d["routing_emocional"] = routing_table
         return d
 
     output: dict = {
         "experimento": "vectorstore_comparison",
+        "evaluacion": "completa",
+        "seed": SEED,
         "top_k": TOP_K,
+        "banco": {"n_total": len(cases)},
+        "fix": "LangChain Chroma similarity_search_with_relevance_scores (no native collection.query)",
         "modelos_chroma": [EMBEDDING_MODEL_V1, EMBEDDING_MODEL_DISTILROBERTA, EMBEDDING_MODEL_BGE],
-        "faiss_mpnet_inmemory": {
-            "descripcion": "FAISS IndexFlatIP en memoria, construido desde el corpus actual, sin metadatos filtrables",
+        "routing_emocional": routing_table,
+        "faiss_global": {
+            "descripcion": "FAISS numpy global SIN routing (Ref. V1, corpus actual)",
             "embedding_model": EMBEDDING_MODEL_V1,
-            "precision_at_1_media": prec1_f,
-            "precision_at_3_media": prec_f,
-            "hit_at_any_rate": hit_f,
-            "resultados_por_consulta": faiss_results,
+            "es_referencia_v1": True,
+            **all_metrics["FAISS global\n(Ref. V1)"],
+            "resultados_por_consulta": results_store["faiss_global"],
         },
-        "chromadb_mpnet_sin_filtro": _entry(
-            "ChromaDB en memoria, búsqueda semántica pura, paraphrase-mpnet",
-            EMBEDDING_MODEL_V1, prec_mnf, prec1_mnf, hit_mnf, mpnet_nf),
-        "chromadb_distilroberta_sin_filtro": _entry(
-            "ChromaDB en memoria, búsqueda semántica pura, paraphrase-spanish-distilroberta",
-            EMBEDDING_MODEL_DISTILROBERTA, prec_dnf, prec1_dnf, hit_dnf, dr_nf),
-        "chromadb_bge_sin_filtro": _entry(
-            "ChromaDB en memoria, búsqueda semántica pura, BAAI/bge-m3",
-            EMBEDDING_MODEL_BGE, prec_bnf, prec1_bnf, hit_bnf, bge_nf),
-        "chromadb_mpnet_con_routing": _entry(
-            "ChromaDB con filtro WHERE pillar IN [...], paraphrase-mpnet",
-            EMBEDDING_MODEL_V1, prec_mrt, prec1_mrt, hit_mrt, mpnet_rt,
-            routing=True, routing_delta=rdelta_mpnet),
-        "chromadb_distilroberta_con_routing": _entry(
-            "ChromaDB con filtro WHERE pillar IN [...], paraphrase-spanish-distilroberta",
-            EMBEDDING_MODEL_DISTILROBERTA, prec_drt, prec1_drt, hit_drt, dr_rt,
-            routing=True, routing_delta=rdelta_dr),
-        "chromadb_bge_con_routing": _entry(
-            "ChromaDB con filtro WHERE pillar IN [...], BAAI/bge-m3",
-            EMBEDDING_MODEL_BGE, prec_brt, prec1_brt, hit_brt, bge_rt,
-            routing=True, routing_delta=rdelta_bge),
-        "tabla_comparativa": [
-            {"config": "FAISS + paraphrase-mpnet (in-memory)", "precision_at_1": prec1_f,   "precision_at_3": prec_f,   "hit_at_any": hit_f,   "routing_delta": None},
-            {"config": "ChromaDB + paraphrase-mpnet", "precision_at_1": prec1_mnf, "precision_at_3": prec_mnf, "hit_at_any": hit_mnf, "routing_delta": None},
-            {"config": "ChromaDB + paraphrase-spanish-distilroberta", "precision_at_1": prec1_dnf, "precision_at_3": prec_dnf, "hit_at_any": hit_dnf, "routing_delta": None},
-            {"config": "ChromaDB + bge-m3", "precision_at_1": prec1_bnf, "precision_at_3": prec_bnf, "hit_at_any": hit_bnf, "routing_delta": None},
-            {"config": "ChromaDB + paraphrase-mpnet + routing", "precision_at_1": prec1_mrt, "precision_at_3": prec_mrt, "hit_at_any": hit_mrt, "routing_delta": rdelta_mpnet},
-            {"config": "ChromaDB + paraphrase-spanish-distilroberta + routing", "precision_at_1": prec1_drt, "precision_at_3": prec_drt, "hit_at_any": hit_drt, "routing_delta": rdelta_dr},
-            {"config": "ChromaDB + bge-m3 + routing", "precision_at_1": prec1_brt, "precision_at_3": prec_brt, "hit_at_any": hit_brt, "routing_delta": rdelta_bge},
-        ],
+        "chromadb_mpnet_nf": {
+            "descripcion": "ChromaDB sem. pura, mpnet, sin routing",
+            "embedding_model": EMBEDDING_MODEL_V1,
+            **all_metrics["ChromaDB+mpnet\nsin routing"],
+            "resultados_por_consulta": results_store["chromadb_mpnet_nf"],
+        },
+        "chromadb_mpnet_routing": {
+            "descripcion": "ChromaDB + routing emocional, mpnet",
+            "embedding_model": EMBEDDING_MODEL_V1,
+            "routing_emocional": routing_table,
+            **all_metrics["ChromaDB+mpnet\n+routing"],
+            "resultados_por_consulta": results_store["chromadb_mpnet_routing"],
+        },
+        "chromadb_distil_nf": {
+            "descripcion": "ChromaDB sem. pura, distilroberta, sin routing",
+            "embedding_model": EMBEDDING_MODEL_DISTILROBERTA,
+            **all_metrics["ChromaDB+distil\nsin routing"],
+            "resultados_por_consulta": results_store["chromadb_distil_nf"],
+        },
+        "chromadb_distil_routing": {
+            "descripcion": "ChromaDB + routing emocional, distilroberta",
+            "embedding_model": EMBEDDING_MODEL_DISTILROBERTA,
+            "routing_emocional": routing_table,
+            **all_metrics["ChromaDB+distil\n+routing"],
+            "resultados_por_consulta": results_store["chromadb_distil_routing"],
+        },
+        "chromadb_bge_nf": {
+            "descripcion": "ChromaDB sem. pura, bge-m3, sin routing",
+            "embedding_model": EMBEDDING_MODEL_BGE,
+            **all_metrics["ChromaDB+bge\nsin routing"],
+            "resultados_por_consulta": results_store["chromadb_bge_nf"],
+        },
+        "chromadb_bge_routing": {
+            "descripcion": "ChromaDB + routing emocional, bge-m3",
+            "embedding_model": EMBEDDING_MODEL_BGE,
+            "routing_emocional": routing_table,
+            **all_metrics["ChromaDB+bge\n+routing"],
+            "resultados_por_consulta": results_store["chromadb_bge_routing"],
+        },
     }
-
     save_results("vectorstore_results.json", output)
+    log.info("Exp.3 completado. Figura: exp3_vectorstore.png")
 
 
 if __name__ == "__main__":
