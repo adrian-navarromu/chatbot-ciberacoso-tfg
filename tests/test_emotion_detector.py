@@ -18,6 +18,17 @@ import torch
 
 from src.emotion.emotion_detector import EmotionDetector, EmotionResult
 
+# Cargan el clasificador fine-tuned real (pesos no versionados): requieren el
+# modelo entrenado en disco. Se excluyen con `pytest -m "not integration"`.
+pytestmark = pytest.mark.integration
+
+
+def _model_weights_present(model_path: Path) -> bool:
+    """True si el directorio del modelo existe y contiene pesos (.safetensors/.bin)."""
+    if not model_path.exists():
+        return False
+    return bool(list(model_path.glob("*.safetensors")) or list(model_path.glob("*.bin")))
+
 
 # ---------------------------------------------------------------------------
 # Fixtures  (model_path y pytest_addoption viven en conftest.py)
@@ -27,9 +38,9 @@ from src.emotion.emotion_detector import EmotionDetector, EmotionResult
 @pytest.fixture(scope="session")
 def detector(model_path: Path) -> EmotionDetector:
     """Instancia única de EmotionDetector reutilizada en toda la sesión."""
-    if not model_path.exists():
+    if not _model_weights_present(model_path):
         pytest.skip(
-            f"Modelo no encontrado en {model_path}. "
+            f"Pesos del modelo no encontrados en {model_path}. "
             "Entrena primero con python src/emotion/train_classifier.py"
         )
     return EmotionDetector(model_path=model_path)
@@ -38,8 +49,8 @@ def detector(model_path: Path) -> EmotionDetector:
 @pytest.fixture(scope="session")
 def detector_cpu(model_path: Path) -> EmotionDetector:
     """Instancia de EmotionDetector forzada a CPU."""
-    if not model_path.exists():
-        pytest.skip(f"Modelo no encontrado en {model_path}.")
+    if not _model_weights_present(model_path):
+        pytest.skip(f"Pesos del modelo no encontrados en {model_path}.")
     return EmotionDetector(model_path=model_path, device="cpu")
 
 
