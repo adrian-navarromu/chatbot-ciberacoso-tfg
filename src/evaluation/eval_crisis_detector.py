@@ -22,8 +22,8 @@ Casos negativos:
     - En especial crisis_dificil con NONE (hipérboles, falsos positivos deliberados)
 
 Salidas:
-    - data/figures/safety/confusion_matrix_crisis.png   — heatmap 3×3
-    - data/figures/safety/metricas_por_intent.png       — recall por intent_type
+    - docs/figures/safety/confusion_matrix_crisis.png   — heatmap 3×3
+    - docs/figures/safety/metricas_por_intent.png       — recall por intent_type
     - eval/crisis_evaluation.csv                        — resultados completos
 
 Uso:
@@ -450,7 +450,7 @@ def main() -> None:
     # CSV
     export_csv(results, OUTPUT_CSV)
 
-    log.info("Evaluación completa. Figuras en: data/figures/safety/")
+    log.info("Evaluación completa. Figuras en: docs/figures/safety/")
 
 
 if __name__ == "__main__":

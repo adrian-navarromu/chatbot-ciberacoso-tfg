@@ -4,7 +4,7 @@ Análisis descriptivo del corpus RAG.
 Genera tabla estadística por pilar y figuras para la memoria del TFG.
 Modo: sin GPU. Ejecutable directamente.
 
-Figuras generadas en data/figures/rag/:
+Figuras generadas en docs/figures/rag/:
   - chunks_por_pilar.png      — barras horizontales de nº chunks por pilar
   - longitudes_boxplot.png    — boxplot de longitudes (palabras) por pilar
   - fuentes_por_pilar.png     — matriz presencia fuente × pilar (heatmap)
@@ -394,7 +394,7 @@ def main() -> None:
     # Figura 3 — Fuentes × Pilar
     fig_fuentes_por_pilar(pillar_data, FIGURES_DIR / "fuentes_por_pilar.png")
 
-    log.info("Análisis completo. Figuras en: data/figures/rag/")
+    log.info("Análisis completo. Figuras en: docs/figures/rag/")
 
 
 if __name__ == "__main__":

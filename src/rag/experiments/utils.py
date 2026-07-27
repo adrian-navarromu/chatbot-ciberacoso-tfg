@@ -46,7 +46,7 @@ log = logging.getLogger(__name__)
 # Rutas canónicas - fuente única para todos los experimentos
 CORPUS_DIR: Path = Path("data/rag_corpus")
 RESULTS_DIR: Path = Path("eval/rag_experiments")
-FIGURES_DIR: Path = Path("data/figures/rag")
+FIGURES_DIR: Path = Path("docs/figures/rag")
 
 # ---------------------------------------------------------------------------
 # Routing emocional para experimentos RAG
