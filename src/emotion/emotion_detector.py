@@ -2,7 +2,7 @@
 Módulo de inferencia del clasificador emocional para el pipeline del chatbot.
 
 Uso:
-    detector = EmotionDetector("models/emotion_classifier/maria")
+    detector = EmotionDetector("models/emotion_classifier/robertuito")
     result = detector.detect("Me están amenazando y tengo mucho miedo")
     print(result.label, result.confidence)
 """

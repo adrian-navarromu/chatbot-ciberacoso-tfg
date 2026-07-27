@@ -1,7 +1,7 @@
 """
 Pipeline de fine-tuning del clasificador emocional sobre EmoEvent.
 
-Entrena un modelo transformer (robertuito/maria-copy/BETO) para clasificar 7 emociones:
+Entrena un modelo transformer (robertuito/maria/BETO) para clasificar 7 emociones:
 anger, disgust, fear, joy, sadness, surprise, others.
 
 Aplica class weights para compensar el desequilibrio de clases y
@@ -62,7 +62,7 @@ SEED = 112
 
 MODEL_SHORT_NAMES = {
     "pysentimiento/robertuito-base-uncased": "robertuito",
-    "PeterPanecillo/PlanTL-GOB-ES-roberta-base-bne-copy": "maria-copy",
+    "PeterPanecillo/PlanTL-GOB-ES-roberta-base-bne-copy": "maria",
     "dccuchile/bert-base-spanish-wwm-cased": "beto",
 }
 

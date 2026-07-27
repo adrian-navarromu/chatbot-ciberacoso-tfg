@@ -7805,7 +7805,7 @@ a.anchor-link {
 <h1 id="Selecci%C3%B3n-del-Clasificador-Emocional">Selección del Clasificador Emocional<a class="anchor-link" href="#Selecci%C3%B3n-del-Clasificador-Emocional">¶</a></h1><p>Compara los resultados de fine-tuning de tres arquitecturas sobre EmoEvent con y sin class weights:</p>
 <ul>
 <li><strong>robertuito</strong> — <code>pysentimiento/robertuito-base-uncased</code> (RoBERTa preentrenado en Twitter español)</li>
-<li><strong>maria-copy</strong> — <code>PeterPanecillo/PlanTL-GOB-ES-roberta-base-bne-copy</code> (RoBERTa en corpus español general)</li>
+<li><strong>maria</strong> — <code>PeterPanecillo/PlanTL-GOB-ES-roberta-base-bne-copy</code> (RoBERTa en corpus español general)</li>
 <li><strong>beto</strong> — <code>dccuchile/bert-base-spanish-wwm-cased</code> (BERT en corpus español general)</li>
 </ul>
 </div>
@@ -7892,8 +7892,8 @@ a.anchor-link {
 <pre>Carpetas de resultados encontradas:
   beto
   beto_no_weights
-  maria-copy
-  maria-copy_no_weights
+  maria
+  maria_no_weights
   robertuito
   robertuito_no_weights
 </pre>
@@ -8309,7 +8309,7 @@ a.anchor-link {
 </tr>
 <tr>
 <th class="row_heading level0 row1" id="T_40c3d_level0_row1">1</th>
-<td class="data row1 col0" id="T_40c3d_row1_col0">maria-copy</td>
+<td class="data row1 col0" id="T_40c3d_row1_col0">maria</td>
 <td class="data row1 col1" id="T_40c3d_row1_col1">Sí</td>
 <td class="data row1 col2" id="T_40c3d_row1_col2">0.6446</td>
 <td class="data row1 col3" id="T_40c3d_row1_col3">0.4810</td>
@@ -8365,7 +8365,7 @@ a.anchor-link {
 </tr>
 <tr>
 <th class="row_heading level0 row5" id="T_40c3d_level0_row5">5</th>
-<td class="data row5 col0" id="T_40c3d_row5_col0">maria-copy</td>
+<td class="data row5 col0" id="T_40c3d_row5_col0">maria</td>
 <td class="data row5 col1" id="T_40c3d_row5_col1">No</td>
 <td class="data row5 col2" id="T_40c3d_row5_col2">0.6042</td>
 <td class="data row5 col3" id="T_40c3d_row5_col3">0.3729</td>
@@ -8549,7 +8549,7 @@ a.anchor-link {
 <td class="data row0 col3" id="T_8dec6_row0_col3">+0.0097</td>
 </tr>
 <tr>
-<th class="row_heading level0 row1" id="T_8dec6_level0_row1">maria-copy</th>
+<th class="row_heading level0 row1" id="T_8dec6_level0_row1">maria</th>
 <td class="data row1 col0" id="T_8dec6_row1_col0">+0.0573</td>
 <td class="data row1 col1" id="T_8dec6_row1_col1">-0.0199</td>
 <td class="data row1 col2" id="T_8dec6_row1_col2">+0.1081</td>
@@ -8705,7 +8705,7 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Modelos evaluados: robertuito, maria-copy, beto
+<pre>Modelos evaluados: robertuito, maria, beto
 Gráfica guardada: f1_macro_comparison.png
 </pre>
 </div>

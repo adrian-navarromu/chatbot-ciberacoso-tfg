@@ -1,4 +1,4 @@
-from src.prompts.builder import (
+from src.prompts.builder_v1 import (
     BASE_SYSTEM_PROMPT,
     EMOTION_VARIANTS,
     TEMPERATURE_BY_EMOTION,

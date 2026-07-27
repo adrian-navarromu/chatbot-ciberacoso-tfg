@@ -18,8 +18,8 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, System
 from langchain_ollama import ChatOllama
 
 from src.emotion.emotion_detector import EmotionDetector
-from src.prompts.builder import TEMPERATURE_BY_EMOTION, build_prompt, get_system_prompt_preview
-from src.rag.document_ingestion import RAGRetriever
+from src.prompts.builder_v1 import TEMPERATURE_BY_EMOTION, build_prompt, get_system_prompt_preview
+from src.rag.document_ingestion_v1 import RAGRetriever
 
 
 

@@ -2,10 +2,10 @@
 Pipeline de ingesta de documentos RAG y recuperador semántico.
 
 Uso como script (construye el índice desde cero):
-    python -m src.rag.document_ingestion.py
+    python -m src.rag.document_ingestion_v1
 
 Uso como módulo (recuperar en el pipeline):
-    from src.rag.document_ingestion import RAGRetriever
+    from src.rag.document_ingestion_v1 import RAGRetriever
     retriever = RAGRetriever()
     results = retriever.retrieve("me están amenazando", emotion="fear")
 """

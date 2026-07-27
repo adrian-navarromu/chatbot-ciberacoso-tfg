@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.prompts.builder import (
+from src.prompts.builder_v1 import (
     EMOTION_VARIANTS,
     build_prompt,
     get_system_prompt_preview,
