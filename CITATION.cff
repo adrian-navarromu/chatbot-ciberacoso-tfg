@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Emotionally Adaptive Chatbot for Cyberbullying Support"
+abstract: >-
+  A privacy-first emotional support agent for teenage cyberbullying victims,
+  running entirely on local Small Language Models. Combines a fine-tuned emotion
+  classifier, a deterministic multi-level crisis detector, turn-by-turn emotional
+  memory and emotion-routed clinical RAG. Final Degree Project (TFG), B.Sc. in
+  Data Science and Engineering, University of Murcia.
+type: software
+authors:
+  - family-names: "Navarro Muñoz"
+    given-names: "Adrián"
+    affiliation: "Universidad de Murcia"
+    email: "adriannamu13@gmail.com"
+year: 2026
+license: MIT
+repository-code: "https://github.com/adrian-navarromu/chatbot-ciberacoso-tfg"
+keywords:
+  - cyberbullying
+  - mental-health
+  - small-language-models
+  - retrieval-augmented-generation
+  - emotion-classification
+  - crisis-detection
+  - local-inference
+  - spanish-nlp
+references:
+  - type: thesis
+    title: "Emotionally Adaptive Chatbot for Cyberbullying Support"
+    thesis-type: "Trabajo de Fin de Grado (Bachelor's Thesis)"
+    authors:
+      - family-names: "Navarro Muñoz"
+        given-names: "Adrián"
+    institution:
+      name: "Universidad de Murcia"
+    year: 2026
+    notes: >-
+      Supervised by Rafael Valencia García and Ronghao Pan (TECNOMOD group,
+      Universidad de Murcia).
