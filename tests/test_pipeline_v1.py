@@ -10,6 +10,8 @@ Ejecutar:
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 import requests
 
@@ -46,6 +48,13 @@ def chatbot(model_path) -> ChatbotV1:
         pytest.skip("Ollama no está disponible en localhost:11434")
     except requests.exceptions.Timeout:
         pytest.skip("Ollama no responde (timeout) en localhost:11434")
+
+    model_dir = Path(model_path)
+    if not (list(model_dir.glob("*.safetensors")) or list(model_dir.glob("*.bin"))):
+        pytest.skip(
+            f"Pesos del modelo no encontrados en {model_path}. "
+            "Entrena primero con python src/emotion/train_classifier.py"
+        )
 
     return ChatbotV1(emotion_model_path=str(model_path))
 
