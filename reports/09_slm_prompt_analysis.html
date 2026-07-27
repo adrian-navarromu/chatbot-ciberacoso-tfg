@@ -7806,7 +7806,7 @@ a.anchor-link {
 <p>Notebook de análisis completo de la evaluación de 5 SLMs × 4 variantes de prompt × 100 casos
 (2 000 combinaciones, 1 580 evaluadas por juez LLM).</p>
 <hr/>
-<p><em>Todos los valores provienen de los CSV reales en <code>eval/generations/</code>. Ningún dato es inventado.</em></p>
+<p><em>Todos los valores provienen de los CSV reales en <code>results/generations/</code>. Ningún dato es inventado.</em></p>
 </div>
 </div>
 </div>
@@ -7908,8 +7908,8 @@ todos los cálculos de calidad; sí se incluyen en el análisis del CrisisDetect
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ── Carga ───────────────────────────────────────────────────────────────────</span>
-<span class="n">judge_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'eval/generations/judge_scores.csv'</span><span class="p">)</span>
-<span class="n">gen_df</span>   <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'eval/generations/slm_prompt_generations.csv'</span><span class="p">)</span>
+<span class="n">judge_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'results/generations/judge_scores.csv'</span><span class="p">)</span>
+<span class="n">gen_df</span>   <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'results/generations/slm_prompt_generations.csv'</span><span class="p">)</span>
 
 <span class="c1"># Parsear columnas de listas</span>
 <span class="k">for</span> <span class="n">df</span> <span class="ow">in</span> <span class="p">[</span><span class="n">judge_df</span><span class="p">,</span> <span class="n">gen_df</span><span class="p">]:</span>
@@ -8029,7 +8029,7 @@ inestable. Esta limitación se documenta explícitamente.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ── 1a. Leer el reporte de concordancia ya calculado ─────────────────────────</span>
-<span class="n">agreement_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'eval/generations/agreement_report.txt'</span><span class="p">)</span>
+<span class="n">agreement_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'results/generations/agreement_report.txt'</span><span class="p">)</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">agreement_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">report_text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
@@ -8052,8 +8052,8 @@ inestable. Esta limitación se documenta explícitamente.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">kappa_df</span><span class="p">[[</span><span class="s1">'label'</span><span class="p">,</span><span class="s1">'n'</span><span class="p">,</span><span class="s1">'kappa'</span><span class="p">,</span><span class="s1">'interpretacion'</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
 <span class="c1"># ── 1b. Construir pares humano-juez ──────────────────────────────────────────</span>
-<span class="n">key_df</span>   <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'eval/generations/validation_sample_key.csv'</span><span class="p">)</span>
-<span class="n">human_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'eval/generations/validation_sample_human.csv'</span><span class="p">)</span>
+<span class="n">key_df</span>   <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'results/generations/validation_sample_key.csv'</span><span class="p">)</span>
+<span class="n">human_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'results/generations/validation_sample_human.csv'</span><span class="p">)</span>
 
 <span class="n">pairs</span> <span class="o">=</span> <span class="n">key_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
     <span class="n">human_df</span><span class="p">[[</span><span class="s1">'sample_id'</span><span class="p">,</span> <span class="s1">'human_score_total'</span><span class="p">]],</span>

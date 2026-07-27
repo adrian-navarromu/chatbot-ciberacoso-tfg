@@ -3,7 +3,7 @@ Generación factorial SLM × variantes de prompt.
 
 Ejecuta el pipeline V2 completo (CrisisDetector → RAG Config C → SLM Ollama)
 para las 2000 combinaciones de 5 modelos × 4 variantes × 100 casos del banco
-y vuelca todas las generaciones en eval/generations/slm_prompt_generations.csv
+y vuelca todas las generaciones en results/generations/slm_prompt_generations.csv
 
 Este script es exclusivamente de GENERACIÓN.
 La evaluación con rúbrica es la Tarea 7 (juez LLM sobre este CSV).
@@ -20,7 +20,7 @@ Ejecución:
     conda activate chatbots
     python src/evaluation/eval_models_prompts.py
 
-Salida: eval/generations/slm_prompt_generations.csv  (~2000 filas)
+Salida: results/generations/slm_prompt_generations.csv  (~2000 filas)
 """
 
 from __future__ import annotations

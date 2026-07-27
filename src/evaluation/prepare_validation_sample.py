@@ -1,14 +1,14 @@
 """
 Preparación de la muestra de validación humana.
 
-Lee eval/generations/slm_prompt_generations.csv, selecciona 50 filas con
+Lee results/generations/slm_prompt_generations.csv, selecciona 50 filas con
 muestreo estratificado (mínimo garantizado por perfil + resto proporcional)
 y genera DOS ficheros:
 
-  1. eval/evaluation/validation_sample_blank.csv  — fichero CIEGO para el evaluador
+  1. results/evaluation/validation_sample_blank.csv  — fichero CIEGO para el evaluador
      (sin columnas modelo/variante; solo contexto + columnas human_* en blanco).
 
-  2. eval/evaluation/validation_sample_key.csv  — fichero de MAPEO oculto
+  2. results/evaluation/validation_sample_key.csv  — fichero de MAPEO oculto
      (sample_id → id_caso / modelo / variante / perfil_rubrica).
      NO se muestra al evaluador durante la puntuación para mantener el cegamiento.
      Lo usa exclusivamente compute_agreement.py para cruzar scores por identidad exacta.
@@ -44,8 +44,8 @@ Ejecución:
     python src/evaluation/prepare_validation_sample.py
 
 Salidas:
-    eval/evaluation/validation_sample_blank.csv  (para el evaluador humano)
-    eval/evaluation/validation_sample_key.csv    (uso interno de compute_agreement.py)
+    results/evaluation/validation_sample_blank.csv  (para el evaluador humano)
+    results/evaluation/validation_sample_key.csv    (uso interno de compute_agreement.py)
 """
 
 from __future__ import annotations
@@ -347,7 +347,7 @@ def main() -> None:
     print("  2. Rellena las columnas human_* aplicables a cada perfil (valores 0-3).")
     print("  3. Ignora las celdas con valor NA (dimensión no aplica para ese perfil).")
     print("  4. Calcula human_score_total sumando las dimensiones de la fila.")
-    print("  5. Guarda el archivo como validation_sample_human.csv en eval/evaluation/")
+    print("  5. Guarda el archivo como validation_sample_human.csv en results/evaluation/")
     print("  6. Ejecuta: python src/evaluation/compute_agreement.py")
 
 

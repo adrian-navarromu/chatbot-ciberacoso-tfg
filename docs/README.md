@@ -18,5 +18,6 @@ Supporting documentation and generated artefacts for the project.
 ## See also
 
 - Design decision log: [`../decisions.md`](../decisions.md)
+- Raw evaluation artefacts: [`../results/`](../results/)
 - Browsable experiment reports (HTML exports of the notebooks): [`../reports/`](../reports/)
 - Changelog: [`../CHANGELOG.md`](../CHANGELOG.md)

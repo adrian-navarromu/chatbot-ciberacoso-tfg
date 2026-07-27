@@ -103,7 +103,7 @@ emocional fine-tuned en disco y Ollama en ejecución; todo lo demás está mocke
 ├── interface/           # App Gradio con panel de debug (emoción, nivel de crisis, chunks)
 ├── data/                # Corpus RAG (5 pilares) y datasets procesados
 ├── docs/                # PDF de arquitectura, figuras de resultados, documentos de diseño
-├── eval/                # Resultados brutos de cada experimento (JSON/CSV + gráficas)
+├── results/             # Resultados brutos de cada experimento (JSON/CSV + gráficas)
 ├── notebooks/           # 01–09: EDA → selección de modelo → RAG → benchmark
 ├── reports/             # Exportaciones HTML de todos los notebooks
 ├── tests/               # Tests unitarios por módulo

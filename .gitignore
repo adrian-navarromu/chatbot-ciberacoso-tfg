@@ -44,5 +44,5 @@ build/
 flagged/
 .gradio/
 
-# NOTA: los resultados de evaluación (eval/**) SÍ se versionan:
+# NOTA: los resultados de evaluación (results/**) SÍ se versionan:
 # son la evidencia empírica del TFG (PNG, JSON, CSV, reports).

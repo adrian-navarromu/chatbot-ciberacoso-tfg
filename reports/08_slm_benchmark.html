@@ -7845,7 +7845,7 @@ antes de medir. Solo a partir de la segunda inferencia se registran las métrica
 <h3 id="Generaci%C3%B3n-%C3%BAnica-de-respuestas">Generación única de respuestas<a class="anchor-link" href="#Generaci%C3%B3n-%C3%BAnica-de-respuestas">¶</a></h3><p>Las respuestas se generan <strong>una sola vez</strong> por modelo para los 15 casos y se almacenan en
 <code>results[model][case_id]</code>. Las dimensiones DIM 1 y DIM 2 reutilizan este diccionario sin regenerar.
 DIM 3 genera aparte las conversaciones de 3 turnos.</p>
-<h3 id="Persistencia-parcial">Persistencia parcial<a class="anchor-link" href="#Persistencia-parcial">¶</a></h3><p>Tras completar cada modelo se guardan los resultados en <code>eval/slm_benchmark_results.json</code> para
+<h3 id="Persistencia-parcial">Persistencia parcial<a class="anchor-link" href="#Persistencia-parcial">¶</a></h3><p>Tras completar cada modelo se guardan los resultados en <code>results/slm_benchmark_results.json</code> para
 evitar pérdida de datos si el kernel falla.</p>
 </div>
 </div>
@@ -8709,7 +8709,7 @@ Generación de respuestas completada.
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Plantilla DIM 2 guardada en: /home/adrian/projects/chatbots/chatbot-ciberacoso/eval/slm_benchmark/dim2_rubric_template.csv
+<pre>Plantilla DIM 2 guardada en: /home/adrian/projects/chatbots/chatbot-ciberacoso/results/slm_benchmark/dim2_rubric_template.csv
 Filas: 75  (5 modelos × 15 casos)
 
 → Rellena las columnas *_score y guárdalo como:  dim2_rubric_filled.csv
@@ -9853,7 +9853,7 @@ Recuerda que puedes tomar otro pequeño paso. ¿Hay algún aspecto del ciberacos
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Plantilla DIM 3 guardada en: /home/adrian/projects/chatbots/chatbot-ciberacoso/eval/slm_benchmark/dim3_rubric_template.csv
+<pre>Plantilla DIM 3 guardada en: /home/adrian/projects/chatbots/chatbot-ciberacoso/results/slm_benchmark/dim3_rubric_template.csv
 Filas: 30  (5 modelos × 3 convs × 2 turnos)
 
 Criterios a evaluar (escala 0-2 cada uno):

@@ -9,7 +9,7 @@ Figuras generadas en docs/figures/rag/:
   - longitudes_boxplot.png    — boxplot de longitudes (palabras) por pilar
   - fuentes_por_pilar.png     — matriz presencia fuente × pilar (heatmap)
 
-CSV generado en eval/rag_experiments/:
+CSV generado en results/rag_experiments/:
   - corpus_analysis.csv
 
 Uso:

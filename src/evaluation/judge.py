@@ -1,9 +1,9 @@
 """
 LLM-as-a-judge: evaluación con rúbrica diferenciada por perfil.
 
-Lee eval/generations/slm_prompt_generations.csv, evalúa las ~1580 filas
+Lee results/generations/slm_prompt_generations.csv, evalúa las ~1580 filas
 generadas por SLMs (excluye HIGH_determinista) usando claude-opus-4-8 como juez
-y escribe eval/evaluation/judge_scores.csv.
+y escribe results/evaluation/judge_scores.csv.
 
 Perfiles de rúbrica y dimensiones:
   - NORMAL     (5 dims, /15): validacion_emocional, adecuacion_clinica, concision,
@@ -29,7 +29,7 @@ Ejecución:
     conda activate chatbots
     python src/evaluation/judge.py
 
-Salida: eval/generations/judge_scores.csv
+Salida: results/generations/judge_scores.csv
 """
 
 from __future__ import annotations

@@ -26,7 +26,7 @@ Prerequisitos (en orden de ejecución):
   4. python src/generations/judge.py  →  judge_scores.csv
   5. python src/generations/compute_agreement.py  →  agreement_report.txt
 
-Salida: eval/generations/agreement_report.txt (+ consola)
+Salida: results/generations/agreement_report.txt (+ consola)
 """
 
 from __future__ import annotations

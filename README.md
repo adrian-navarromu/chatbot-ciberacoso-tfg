@@ -103,7 +103,7 @@ classifier on disk and Ollama running; everything else is mocked.
 ├── interface/           # Gradio app with debug panel (emotion, crisis level, chunks)
 ├── data/                # RAG corpus (5 pillars) and processed datasets
 ├── docs/                # Architecture PDF, result figures, decision docs
-├── eval/                # Raw results of every experiment (JSON/CSV + plots)
+├── results/             # Raw results of every experiment (JSON/CSV + plots)
 ├── notebooks/           # 01–09: EDA → model selection → RAG → benchmark
 ├── reports/             # HTML exports of all notebooks
 ├── tests/               # Unit tests per module

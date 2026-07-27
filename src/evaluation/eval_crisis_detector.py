@@ -24,7 +24,7 @@ Casos negativos:
 Salidas:
     - docs/figures/safety/confusion_matrix_crisis.png   — heatmap 3×3
     - docs/figures/safety/metricas_por_intent.png       — recall por intent_type
-    - eval/crisis_evaluation.csv                        — resultados completos
+    - results/crisis_evaluation.csv                        — resultados completos
 
 Uso:
     conda activate chatbots
