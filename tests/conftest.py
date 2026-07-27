@@ -14,6 +14,14 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "integration: requiere Ollama levantado y modelos descargados "
+        "(excluir con `pytest -m 'not integration'`).",
+    )
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--model-path",

@@ -26,6 +26,7 @@ from src.prompts.builder_v1 import (
     get_system_prompt_preview,
 )
 from src.prompts.builder_v2 import (
+    build_crisis_prompt_v2,
     build_prompt_v2,
     get_system_prompt_preview_v2,
 )
@@ -233,3 +234,42 @@ class TestGetSystemPromptPreviewV2:
             "sadness", rag, [], confidence=0.9, emotional_context=ctx, trend="deterioro"
         )
         assert preview == messages[0]["content"]
+
+
+# ---------------------------------------------------------------------------
+# Grupo E — build_crisis_prompt_v2 (V2): rama de contención PAP MEDIUM
+# ---------------------------------------------------------------------------
+
+
+class TestBuildCrisisPromptV2:
+
+    def test_structure_no_history(self) -> None:
+        """Sin historial: devuelve solo el mensaje system."""
+        result = build_crisis_prompt_v2("", [])
+        assert isinstance(result, list)
+        assert len(result) == 1
+        assert result[0]["role"] == "system"
+
+    def test_structure_with_history(self) -> None:
+        """Con historial: system + los mensajes previos, sin añadir el del usuario."""
+        result = build_crisis_prompt_v2("", SAMPLE_HISTORY)
+        assert result[0]["role"] == "system"
+        assert result[1:] == SAMPLE_HISTORY
+
+    def test_contains_containment_blocks(self) -> None:
+        """El system incluye los bloques etiquetados y el objetivo de contención PAP."""
+        system = build_crisis_prompt_v2("Recurso de apoyo", [])[0]["content"]
+        assert "[ROL_Y_LIMITES]" in system
+        assert "[CONTEXTO_CLINICO]" in system
+        assert "[OBJETIVO_TURNO]" in system
+        assert "CONTENCIÓN PAP" in system
+
+    def test_rag_context_injected(self) -> None:
+        """El contexto clínico (pilar 4) se inserta en el bloque correspondiente."""
+        system = build_crisis_prompt_v2("Línea de ayuda 024 disponible", [])[0]["content"]
+        assert "Línea de ayuda 024 disponible" in system
+
+    def test_rag_fallback_when_empty(self) -> None:
+        """Sin contexto RAG, usa el texto de fallback."""
+        system = build_crisis_prompt_v2("", [])[0]["content"]
+        assert "Sin recursos de apoyo disponibles." in system

@@ -4,12 +4,15 @@ en el pipeline V2 (cortocircuito PAP).
 
 Grupos:
   A — Routing (build_pillar_filter): unidad pura, sin dependencias externas.
-  B — Recuperación BM25: índice léxico real sobre el corpus + Chroma mockeado.
+  B — Recuperación semántica (Config C): pre-filtro por pilar, fallback global
+      y penalización P4 blanda, con ChromaDB simulado.
   C — Integración PAP: CrisisDetector intercepta ANTES de consultar el RAG.
 
-Los tests del Grupo B usan BM25Retriever con los documentos reales del corpus
-(data/rag_corpus/) y un Chroma vacío mockeado. Esto permite verificar el
-comportamiento léxico de forma determinista y sin GPU/modelos pesados.
+Los tests del Grupo B usan los documentos reales del corpus (data/rag_corpus/)
+y un ChromaDB simulado cuyo similarity_search_with_relevance_scores emula el
+pre-filtro WHERE por pilar. Esto verifica la lógica de recuperación de la
+Config C ganadora (semántico puro, sin BM25) de forma determinista y sin
+GPU ni modelos pesados.
 
 Ejecución:
     pytest tests/test_enriched_retriever.py -v
@@ -99,15 +102,40 @@ def corpus_documents() -> list[Document]:
     return docs
 
 
-@pytest.fixture(scope="module")
-def retriever(corpus_documents: list[Document]):
-    """EnrichedRetriever con BM25 real sobre el corpus + Chroma vacío mockeado.
+def _make_fake_semantic_search(corpus: list[Document]):
+    """Crea un doble de similarity_search_with_relevance_scores para ChromaDB.
 
-    Evita cargar SentenceTransformer (paraphrase-spanish-distilroberta)
-    y ChromaDB persistente para mantener los tests rápidos.
-    En Config D, retrieve() construye BM25 por consulta sobre self._documents
-    (corpus real); Chroma mockeado devuelve [] → los resultados son BM25 puros,
-    lo que hace las búsquedas léxicas auténticas y deterministas.
+    Emula el pre-filtro WHERE `pillar $in [...]` de ChromaDB sobre el corpus real
+    y asigna scores de relevancia sintéticos descendentes (deterministas), sin
+    embeddings ni vectorstore. Reproduce la Config C: semántico + pre-filtro.
+
+    Args:
+        corpus: Documentos del corpus con metadata['pillar'] y ['chunk_id'].
+
+    Returns:
+        Función con la firma (query, k, filter) -> list[tuple[Document, float]].
+    """
+
+    def _search(query: str, k: int = 10, filter: dict | None = None):  # noqa: A002
+        docs = corpus
+        if filter is not None:
+            allowed = set(filter["pillar"]["$in"])
+            docs = [d for d in docs if d.metadata.get("pillar") in allowed]
+        return [(d, 1.0 - i * 0.001) for i, d in enumerate(docs[:k])]
+
+    return _search
+
+
+@pytest.fixture
+def retriever(corpus_documents: list[Document]):
+    """EnrichedRetriever (Config C) con ChromaDB simulado sobre el corpus real.
+
+    Evita cargar SentenceTransformer (paraphrase-spanish-distilroberta) y ChromaDB
+    persistente. El doble de similarity_search_with_relevance_scores emula el
+    pre-filtro WHERE por pilar y devuelve scores deterministas, de modo que se
+    ejercita la lógica real de retrieve(): filtrado por pilar, fallback global y
+    penalización P4. Los tests que necesitan scores concretos sobreescriben
+    `retriever._chroma.similarity_search_with_relevance_scores`.
 
     Yields:
         EnrichedRetriever listo para usar en los tests.
@@ -116,11 +144,11 @@ def retriever(corpus_documents: list[Document]):
 
     tmp_dir = tempfile.mkdtemp()
 
-    # Chroma mockeado: similarity_search_with_relevance_scores devuelve []
-    # → los tests del Grupo B son BM25-puro (scores semánticos = 0 → sem_norm uniforme)
     fake_chroma = MagicMock()
     fake_chroma.as_retriever.return_value = _EmptyRetriever()
-    fake_chroma.similarity_search_with_relevance_scores.return_value = []
+    fake_chroma.similarity_search_with_relevance_scores.side_effect = (
+        _make_fake_semantic_search(corpus_documents)
+    )
 
     with (
         patch("src.rag.enriched_retriever._STEmbeddingsAdapter"),
@@ -174,48 +202,25 @@ def test_no_pillar_filter_others(retriever: "EnrichedRetriever") -> None:
 
 
 # ---------------------------------------------------------------------------
-# Grupo B — Recuperación con BM25 real
+# Grupo B — Recuperación semántica (Config C): filtro, fallback y penalización
 # ---------------------------------------------------------------------------
 
 
 def test_returns_documents(retriever: "EnrichedRetriever") -> None:
-    """retrieve() devuelve una lista no vacía de Document de LangChain."""
+    """retrieve() devuelve una lista no vacía de Document (máx. TOP_K)."""
     results = retriever.retrieve("me están acosando y no sé qué hacer")
     assert isinstance(results, list), "retrieve() debe devolver list"
-    assert len(results) > 0, "retrieve() no debe devolver lista vacía"
+    assert 0 < len(results) <= 3, "retrieve() debe devolver entre 1 y TOP_K resultados"
     assert all(isinstance(d, Document) for d in results), (
         "Todos los resultados deben ser instancias de Document"
     )
 
 
-def test_bm25_instagram(retriever: "EnrichedRetriever") -> None:
-    """Config D con pillar_filter=[5] → top-1 es un chunk de pilar 5.
+def test_pillar_filter_restricts_results(retriever: "EnrichedRetriever") -> None:
+    """Con pillar_filter=[5], el WHERE por pilar limita los resultados a P5.
 
-    En Config D, BM25 se instancia solo sobre los documentos P5 (digital),
-    garantizando que 'bloquear' e 'Instagram' compiten únicamente dentro
-    del subespacio correcto. Sin routing (corpus global), otros chunks
-    con 'bloquear' pueden obtener mayor TF-IDF y desplazar a los P5.
-
-    Con paraphrase-spanish-distilroberta como modelo semántico, el canal
-    semántico ya captura 'instagram' razonablemente bien, pero BM25
-    garantiza la recuperación exacta independientemente del modelo.
-    """
-    results = retriever.retrieve("bloquear instagram", pillar_filter=[5])
-    assert len(results) > 0, "El retriever no devolvió resultados con pillar_filter=[5]"
-    top1_pillar = results[0].metadata.get("pillar")
-    top1_id = results[0].metadata.get("chunk_id")
-    assert top1_pillar == 5, (
-        f"Se esperaba pillar=5 en top-1, se obtuvo pillar={top1_pillar} "
-        f"(chunk_id={top1_id})"
-    )
-
-
-def test_config_d_pillar_filter(retriever: "EnrichedRetriever") -> None:
-    """Con pillar_filter=[5], retrieve() instancia BM25 solo sobre chunks P5.
-
-    Verifica que Config D limita ambos canales al subconjunto del pilar:
-    todos los resultados devueltos deben pertenecer al pilar 5.
-    (Chroma mockeado devuelve [] → resultados son BM25 puros sobre P5.)
+    El pre-filtro se pasa a ChromaDB como {'pillar': {'$in': [5]}}; todos los
+    documentos devueltos deben pertenecer al pilar 5 (recuperación Config C).
     """
     results = retriever.retrieve("bloquear instagram", pillar_filter=[5])
     assert len(results) > 0, "retrieve() con pillar_filter=[5] no devolvió resultados"
@@ -226,24 +231,48 @@ def test_config_d_pillar_filter(retriever: "EnrichedRetriever") -> None:
         )
 
 
-def test_bm25_conducta_suicida(retriever: "EnrichedRetriever") -> None:
-    """Config D con routing fear → P4_007 (conducta suicida) en los resultados.
+def test_empty_filter_falls_back_to_global(retriever: "EnrichedRetriever") -> None:
+    """Un pillar_filter sin documentos activa el fallback a búsqueda global.
 
-    Con pillar_filter=[2, 4, 1] (routing de miedo), BM25 opera sobre documentos
-    de pilares 1, 2 y 4. 'conducta suicida' son tokens sin formato Markdown
-    que BM25 encuentra en P4_007 ('024 — Línea de atención a la conducta suicida')
-    y obtiene un score neto superior al resto del corpus reducido.
-
-    Nota: el número '024' aparece en Markdown como '**024' en el corpus, por lo que
-    no es un token BM25 válido. La ventaja BM25 real es para términos clínicos como
-    'conducta', 'suicida', 'ANAR', 'emergencia' que sí aparecen como tokens limpios.
+    Si ningún chunk del corpus pertenece a los pilares pedidos, retrieve() debe
+    consultar ChromaDB sin filtro (corpus completo) en lugar de devolver vacío.
     """
-    pillar_filter = retriever.build_pillar_filter("fear", "estable")  # [2, 4, 1]
-    results = retriever.retrieve("conducta suicida", pillar_filter=pillar_filter)
-    chunk_ids = [d.metadata.get("chunk_id") for d in results]
-    assert "P4_007" in chunk_ids, (
-        f"P4_007 no encontrado con routing fear {pillar_filter} y query 'conducta suicida'. "
-        f"chunk_ids obtenidos: {chunk_ids}"
+    results = retriever.retrieve("me están acosando", pillar_filter=[99])
+    assert len(results) > 0, "El fallback global debe devolver resultados"
+
+
+def test_p4_soft_penalty_demotes_crisis_chunk(retriever: "EnrichedRetriever") -> None:
+    """La penalización P4 blanda (×0.7) reordena un chunk de crisis por debajo.
+
+    Con un chunk P4 de score bruto superior (0.90) y uno P2 inferior (0.80),
+    aplicar p4_penalty=0.7 deja P4 en 0.63 < 0.80, de modo que P2 pasa a top-1.
+    """
+    p4 = Document(page_content="conducta suicida 024", metadata={"pillar": 4, "chunk_id": "P4_007"})
+    p2 = Document(page_content="reestructuración cognitiva", metadata={"pillar": 2, "chunk_id": "P2_001"})
+    retriever._chroma.similarity_search_with_relevance_scores.side_effect = None
+    retriever._chroma.similarity_search_with_relevance_scores.return_value = [(p4, 0.90), (p2, 0.80)]
+
+    results = retriever.retrieve("da igual", pillar_filter=[2, 3, 4], p4_penalty=0.7)
+    assert results[0].metadata["chunk_id"] == "P2_001", (
+        "Con p4_penalty=0.7, el chunk P4 debe caer por debajo del P2"
+    )
+
+
+def test_retrieve_with_routing_applies_penalty(retriever: "EnrichedRetriever") -> None:
+    """retrieve_with_routing('sadness','estable') cablea filtro [2,3,4] y penaliza P4.
+
+    Verifica el atajo del pipeline V2: computa build_pillar_filter + _p4_penalty y
+    delega en retrieve(). En sadness+estable la penalización P4 (×0.7) debe demover
+    el chunk de crisis frente a uno de TCC con score bruto ligeramente menor.
+    """
+    p4 = Document(page_content="crisis", metadata={"pillar": 4, "chunk_id": "P4_007"})
+    p2 = Document(page_content="tcc", metadata={"pillar": 2, "chunk_id": "P2_001"})
+    retriever._chroma.similarity_search_with_relevance_scores.side_effect = None
+    retriever._chroma.similarity_search_with_relevance_scores.return_value = [(p4, 0.90), (p2, 0.80)]
+
+    results = retriever.retrieve_with_routing("estoy fatal", emotion="sadness", trend="estable")
+    assert results[0].metadata["chunk_id"] == "P2_001", (
+        "El routing sadness+estable debe aplicar la penalización P4 blanda"
     )
 
 
