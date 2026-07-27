@@ -21,12 +21,28 @@ data/vectorstore/
 # 4. DOCUMENTACIÓN LOCAL GENERADA
 docs/rag_summaries/
 
-# 5. RESULTADOS DE EVALUACIÓN PESADOS (descomentar si es necesario)
-# eval/*.png
-# eval/*_results/
-
-# 6. ARCHIVOS TEMPORALES DE PYTHON Y CACHÉ
+# 5. ARCHIVOS TEMPORALES DE PYTHON Y CACHÉ
 __pycache__/
 *.pyc
 .pytest_cache/
 .ipynb_checkpoints/
+
+# 6. EDITORES E IDEs
+.vscode/
+.idea/
+
+# 7. SISTEMA OPERATIVO
+.DS_Store
+
+# 8. LOGS Y BUILDS
+*.log
+dist/
+build/
+*.egg-info/
+
+# 9. SALIDAS TEMPORALES DE GRADIO
+flagged/
+.gradio/
+
+# NOTA: los resultados de evaluación (eval/**) SÍ se versionan:
+# son la evidencia empírica del TFG (PNG, JSON, CSV, reports).
