@@ -1,0 +1,44 @@
+# Conda environment for the Emotionally Adaptive Chatbot for Cyberbullying Support.
+# Create with:  conda env create -f environment.yml && conda activate chatbot-tfg
+#
+# Most dependencies are installed via pip (mirrors requirements.txt). For GPU
+# acceleration replace the torch line with the CUDA build:
+#   pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+name: chatbot-tfg
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # Deep learning / NLP
+      - torch==2.11.0
+      - transformers==5.4.0
+      - sentence-transformers==5.3.0
+      - scikit-learn==1.8.0
+      - scipy==1.17.1
+      # RAG: vector stores & retrieval
+      - chromadb==1.5.5
+      - faiss-cpu==1.13.2
+      - rank-bm25==0.2.2
+      # LangChain (LCEL)
+      - langchain-community==0.4.1
+      - langchain-core==1.2.23
+      - langchain-ollama==1.0.1
+      - langchain-text-splitters==1.1.1
+      - langchain-huggingface==1.2.1
+      # Local SLM inference
+      - ollama==0.6.1
+      # LLM-as-a-judge (evaluation only)
+      - anthropic==0.109.2
+      # Data & plotting
+      - pandas==3.0.2
+      - numpy==2.4.3
+      - matplotlib==3.10.8
+      - emoji==2.15.0
+      - PyYAML==6.0.3
+      # Interface
+      - gradio==6.11.0
+      # Testing
+      - pytest==9.0.2
+      - requests==2.33.1
