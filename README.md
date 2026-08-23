@@ -4,6 +4,8 @@
 
 Final Degree Project (TFG) — B.Sc. in Data Science and Engineering, University of Murcia · Grade: 9.4/10
 
+📄 **[Read the full thesis (PDF, in Spanish)](docs/memory-tfg.pdf)**
+
 ![Python](https://img.shields.io/badge/python-3.11-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Local First](https://img.shields.io/badge/inference-100%25%20local-orange)
 
 ![Chatbot interface](docs/figures/arquitectura/interfaz_gradio.png)

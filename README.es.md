@@ -4,6 +4,8 @@
 
 Trabajo de Fin de Grado (TFG) — Grado en Ciencia e Ingeniería de Datos, Universidad de Murcia · Nota: 9,4/10
 
+📄 **[Leer la memoria completa (PDF)](docs/memory-tfg.pdf)**
+
 ![Python](https://img.shields.io/badge/python-3.11-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Local First](https://img.shields.io/badge/inference-100%25%20local-orange)
 
 ![Interfaz del chatbot](docs/figures/arquitectura/interfaz_gradio.png)
